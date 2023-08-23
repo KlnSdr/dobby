@@ -1,3 +1,3 @@
 public enum RequestTypes {
-    GET, UNKNOWN
+    GET, POST, UNKNOWN
 }
