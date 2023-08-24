@@ -7,7 +7,8 @@ import java.util.*;
 public class Request {
     private RequestTypes type;
     private String path;
-    private String body;
+    private String rawBody;
+    private Json body;
     private Map<String, String> headers;
     private Map<String, List<String>> query;
 
@@ -28,7 +29,8 @@ public class Request {
         } else if (method.equals("POST")) {
             req.setType(RequestTypes.POST);
             int contentLength = Integer.parseInt(req.getHeader("Content-Length")); // todo catch exception
-            req.setBody(extractBody(in, contentLength));
+            req.setRawBody(extractBody(in, contentLength));
+            req.setBody(Json.parse(req.getRawBody()));
         } else {
             req.setType(RequestTypes.UNKNOWN);
         }
@@ -158,11 +160,19 @@ public class Request {
         this.query = query;
     }
 
-    public String getBody() {
-        return body;
+    public String getRawBody() {
+        return rawBody;
     }
 
-    private void setBody(String body) {
+    private void setRawBody(String rawBody) {
+        this.rawBody = rawBody;
+    }
+
+    private void setBody(Json body) {
         this.body = body;
+    }
+
+    private Json getBody() {
+        return body;
     }
 }
