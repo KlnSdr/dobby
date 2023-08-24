@@ -23,18 +23,13 @@ public class Request {
         req.setPath(req.getPath().split("\\?")[0]);
         req.setHeaders(req.extractHeaders(lines));
 
-        // todo use a smarter way
-        if (method.equals("GET")) {
-            req.setType(RequestTypes.GET);
-        } else if (method.equals("POST")) {
-            req.setType(RequestTypes.POST);
+        req.setType(RequestTypes.fromString(method));
+
+        if (req.getType() == RequestTypes.POST) {
             int contentLength = Integer.parseInt(req.getHeader("Content-Length")); // todo catch exception
             req.setRawBody(extractBody(in, contentLength));
             req.setBody(Json.parse(req.getRawBody()));
-        } else {
-            req.setType(RequestTypes.UNKNOWN);
         }
-
         return req;
     }
 
