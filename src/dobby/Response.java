@@ -1,9 +1,22 @@
+package dobby;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.HashMap;
 
 public class Response {
     private final HashMap<String, String> headers = new HashMap<>();
     private ResponseCodes code = ResponseCodes.OK;
     private String body = "";
+
+    private final Socket client;
+    private final OutputStream out;
+
+    public Response(Socket client) throws IOException {
+        this.client = client;
+        out = client.getOutputStream();
+    }
 
     public void setCode(ResponseCodes code) {
         this.code = code;
@@ -22,7 +35,7 @@ public class Response {
         headers.put("Content-Length", Integer.toString(length));
     }
 
-    public byte[] build() {
+    private byte[] build() {
         calculateContentLength();
         StringBuilder builder = new StringBuilder("HTTP/1.1 ");
 
@@ -42,5 +55,10 @@ public class Response {
         builder.append(body);
 
         return builder.toString().getBytes();
+    }
+
+    public void send() throws IOException {
+        out.write(build());
+        client.close();
     }
 }

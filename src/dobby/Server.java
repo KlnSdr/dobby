@@ -1,7 +1,8 @@
+package dobby;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -10,7 +11,7 @@ import java.util.concurrent.Executors;
 public class Server {
     private final ServerSocket server;
     private final ExecutorService threadPool;
-    private boolean isRunning = true;
+    private boolean isRunning = false;
 
     private Server(int port, int threadCount) throws IOException {
         server = new ServerSocket(port);
@@ -26,6 +27,7 @@ public class Server {
     }
 
     public void start() throws IOException {
+        isRunning = true;
         acceptConnections();
     }
 
@@ -43,30 +45,25 @@ public class Server {
     }
 
     private void handleConnection(Socket client) throws IOException {
-        OutputStream out = client.getOutputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
         Request req = Request.parse(in);
-
-        if (req.getType() == RequestTypes.UNKNOWN) {
-            Response res = new Response();
-            res.setCode(ResponseCodes.METHOD_NOT_ALLOWED);
-            out.write(res.build());
-            client.close();
-            return;
-        }
-
-        Response res = new Response();
-        res.setCode(ResponseCodes.OK);
-        res.setHeader("Content-Type", "text/html");
-        res.setHeader("Connection", "close");
-        res.setBody("<h1>Hello World</h1>");
-
-        out.write(res.build());
-        client.close();
+        RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(req, new Response(client));
     }
 
     public void stop() {
         isRunning = false;
+    }
+
+    public void addRoute(RequestTypes type, String route, IRequestHandler handler) {
+        RouteManager.getInstance().add(type, route, handler);
+    }
+
+    public void get(String route, IRequestHandler handler) {
+        addRoute(RequestTypes.GET, route, handler);
+    }
+
+    public void post(String route, IRequestHandler handler) {
+        addRoute(RequestTypes.POST, route, handler);
     }
 }
