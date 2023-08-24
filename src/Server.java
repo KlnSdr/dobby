@@ -56,14 +56,6 @@ public class Server {
             return;
         }
 
-        if (req.getPath().equals("/")) {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
         Response res = new Response();
         res.setCode(ResponseCodes.OK);
         res.setHeader("Content-Type", "text/html");

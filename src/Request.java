@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.*;
 
 public class Request {
     private RequestTypes type;
     private String path;
+    private String body;
     private Map<String, String> headers;
     private Map<String, List<String>> query;
 
@@ -23,6 +25,8 @@ public class Request {
             req.setType(RequestTypes.GET);
         } else if (method.equals("POST")) {
             req.setType(RequestTypes.POST);
+            int contentLength = Integer.parseInt(req.getHeader("Content-Length")); // todo catch exception
+            req.setBody(extractBody(in, contentLength));
         } else {
             req.setType(RequestTypes.UNKNOWN);
         }
@@ -55,6 +59,21 @@ public class Request {
         return queryMap;
     }
 
+    private static String extractBody(BufferedReader in, int length) {
+        StringBuilder body = new StringBuilder();
+        int bytesRead = 0;
+        while (true) {
+            try {
+                if (!in.ready() || bytesRead >= length) break;
+                body.append((char) in.read());
+                bytesRead++;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return body.toString();
+    }
+
     private static String extractPath(String line) {
         String[] parts = line.split(" ");
         if (parts.length > 1) {
@@ -67,10 +86,7 @@ public class Request {
         ArrayList<String> lines = new ArrayList<>();
         String line;
         try {
-            while ((line = input.readLine()) != null) {
-                if (line.isEmpty()) {
-                    break;
-                }
+            while (!(line = input.readLine()).isEmpty()) {
                 lines.add(line);
             }
             return lines;
@@ -138,5 +154,13 @@ public class Request {
 
     private void setQuery(Map<String, List<String>> query) {
         this.query = query;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    private void setBody(String body) {
+        this.body = body;
     }
 }
