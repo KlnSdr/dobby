@@ -45,7 +45,7 @@ public class FilterManager {
         Arrays.stream(postFilters).forEach(filter -> filter.run(response));
     }
 
-    private void sortFilters(Filter[] filters) {
+    private <V> void sortFilters(Filter<V>[] filters) {
         Arrays.sort(filters, Comparator.comparingInt(Filter::getOrder));
     }
 }
