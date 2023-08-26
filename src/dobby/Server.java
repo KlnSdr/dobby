@@ -20,6 +20,8 @@ public class Server {
     private Server(int port, int threadCount) throws IOException {
         server = new ServerSocket(port);
         threadPool = Executors.newFixedThreadPool(threadCount);
+        System.out.println("Server initialized on port " + port + " with " + threadCount + " threads.");
+        System.out.println("Discovering routes...");
         discoverRouteDefinitions();
     }
 
@@ -32,6 +34,7 @@ public class Server {
     }
 
     public void start() throws IOException {
+        System.out.println("Server started...");
         isRunning = true;
         acceptConnections();
     }
