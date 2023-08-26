@@ -1,5 +1,9 @@
 package dobby;
 
+import dobby.filter.FilterManager;
+import dobby.filter.PostFilter;
+import dobby.filter.PreFilter;
+
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
 
@@ -61,6 +65,7 @@ public class Server {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
         Request req = Request.parse(in);
+        FilterManager.getInstance().runPreFilters(req);
         RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(req, new Response(client));
     }
 
@@ -78,5 +83,13 @@ public class Server {
 
     public void post(String route, IRequestHandler handler) {
         addRoute(RequestTypes.POST, route, handler);
+    }
+
+    public void addPreFilter(PreFilter filter) {
+        FilterManager.getInstance().addPreFilter(filter);
+    }
+
+    public void addPostFilter(PostFilter filter) {
+        FilterManager.getInstance().addPostFilter(filter);
     }
 }
