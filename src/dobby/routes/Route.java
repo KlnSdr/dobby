@@ -1,6 +1,8 @@
-package dobby;
+package dobby.routes;
 
 import dobby.DefaultHandler.MethodNotSupportedHandler;
+import dobby.IRequestHandler;
+import dobby.RequestTypes;
 
 import java.util.HashMap;
 

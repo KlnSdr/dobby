@@ -1,8 +1,12 @@
 package dobby;
 
+import dobby.routes.RouteDiscoverer;
+import dobby.routes.RouteManager;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +20,7 @@ public class Server {
     private Server(int port, int threadCount) throws IOException {
         server = new ServerSocket(port);
         threadPool = Executors.newFixedThreadPool(threadCount);
+        discoverRouteDefinitions();
     }
 
     public static Server newInstance() throws IOException {
@@ -31,20 +36,25 @@ public class Server {
         acceptConnections();
     }
 
+    public void discoverRouteDefinitions() {
+        RouteDiscoverer.discoverRoutes(this, "");
+    }
+
     private void acceptConnections() throws IOException {
         while (isRunning) {
             Socket client = server.accept();
             threadPool.execute(() -> {
                 try {
                     handleConnection(client);
-                } catch (IOException e) {
+                } catch (IOException | InvocationTargetException | NoSuchMethodException | InstantiationException |
+                         IllegalAccessException e) {
                     e.printStackTrace();
                 }
             });
         }
     }
 
-    private void handleConnection(Socket client) throws IOException {
+    private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
         Request req = Request.parse(in);
