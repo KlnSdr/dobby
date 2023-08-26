@@ -16,5 +16,7 @@ public class TestPreFilter implements PreFilter {
     public void run(Request in) {
         System.out.println("Test pre filter");
         System.out.println(in.getPath());
+
+        in.setHeader("X-Test-Pre-Filter", "Test pre filter");
     }
 }

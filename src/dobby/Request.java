@@ -143,6 +143,10 @@ public class Request {
         this.headers = headers;
     }
 
+    public void setHeader(String key, String value) {
+        headers.put(key, value);
+    }
+
     public List<String> getQuery(String key) {
         return query.get(key);
     }
@@ -153,6 +157,14 @@ public class Request {
 
     private void setQuery(Map<String, List<String>> query) {
         this.query = query;
+    }
+
+    public void setQuery(String key, String value) {
+        if (!query.containsKey(key)) {
+            query.put(key, new ArrayList<>());
+        }
+
+        query.get(key).add(value);
     }
 
     public String getRawBody() {
