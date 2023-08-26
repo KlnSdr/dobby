@@ -1,5 +1,7 @@
 package dobby;
 
+import dobby.filter.FilterManager;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -58,6 +60,7 @@ public class Response {
     }
 
     public void send() throws IOException {
+        FilterManager.getInstance().runPostFilters(this);
         out.write(build());
         client.close();
     }
