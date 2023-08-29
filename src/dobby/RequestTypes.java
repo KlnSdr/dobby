@@ -1,7 +1,7 @@
 package dobby;
 
 public enum RequestTypes {
-    GET, POST, UNKNOWN;
+    GET, POST,PUT, UNKNOWN;
     public static RequestTypes fromString(String raw) {
         for (RequestTypes method : RequestTypes.values()) {
             if (method.name().equalsIgnoreCase(raw)) {
