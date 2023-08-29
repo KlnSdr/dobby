@@ -25,7 +25,7 @@ public class Request {
 
         req.setType(RequestTypes.fromString(method));
 
-        if (req.getType() == RequestTypes.POST) {
+        if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT) {
             int contentLength = Integer.parseInt(req.getHeader("Content-Length")); // todo catch exception
             req.setRawBody(extractBody(in, contentLength));
             req.setBody(Json.parse(req.getRawBody()));
