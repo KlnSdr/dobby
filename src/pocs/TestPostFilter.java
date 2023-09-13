@@ -1,3 +1,5 @@
+package pocs;
+
 import dobby.Response;
 import dobby.filter.PostFilter;
 
