@@ -78,7 +78,7 @@ public abstract class Classloader<T> {
 
     protected Class<? extends T> defaultImplementsFilter(String line, Class<T> interfaceToImplement) {
         Class<?> clazz = defaultClassFilter(line);
-        if (interfaceToImplement.isAssignableFrom(clazz)) {
+        if (interfaceToImplement.isAssignableFrom(clazz) && !clazz.equals(interfaceToImplement)) {
             return clazz.asSubclass(interfaceToImplement);
         }
         return null;

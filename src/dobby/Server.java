@@ -1,9 +1,9 @@
 package dobby;
 
+import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
-import dobby.filter.PostFilter;
-import dobby.filter.PreFilter;
-
+import dobby.filter.post.PostFilter;
+import dobby.filter.pre.PreFilter;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
 
@@ -27,6 +27,8 @@ public class Server {
         System.out.println("Server initialized on port " + port + " with " + threadCount + " threads.");
         System.out.println("Discovering routes...");
         discoverRouteDefinitions();
+        System.out.println("Discovering filters...");
+        discoverFilterDefinitions();
     }
 
     public static Server newInstance() throws IOException {
@@ -45,6 +47,10 @@ public class Server {
 
     public void discoverRouteDefinitions() {
         RouteDiscoverer.discoverRoutes("");
+    }
+
+    public void discoverFilterDefinitions() {
+        FilterDiscoverer.discover();
     }
 
     private void acceptConnections() throws IOException {

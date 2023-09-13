@@ -1,7 +1,7 @@
 package pocs;
 
 import dobby.Request;
-import dobby.filter.PreFilter;
+import dobby.filter.pre.PreFilter;
 
 public class TestPreFilter implements PreFilter {
     @Override

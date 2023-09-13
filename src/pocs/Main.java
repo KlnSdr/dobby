@@ -12,9 +12,6 @@ public class Main {
             res.setCode(ResponseCodes.OK);
             res.send();
         });
-
-        server.addPreFilter(new TestPreFilter());
-        server.addPostFilter(new TestPostFilter());
         server.start();
     }
 }
