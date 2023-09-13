@@ -54,7 +54,7 @@ public abstract class Classloader<T> {
     }
 
     private boolean filterValidClassesFromNameJar(JarEntry entry) {
-        return entry.getName().startsWith(packageName.replace(".", "/")) && entry.getName().endsWith(".class");
+        return entry.getName().startsWith(packageName.replace(".", "/") + "/") && entry.getName().endsWith(".class");
     }
 
     private String extractClassNameFromJarEntry(JarEntry entry) {

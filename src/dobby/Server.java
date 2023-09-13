@@ -40,7 +40,7 @@ public class Server {
     }
 
     public void discoverRouteDefinitions() {
-        RouteDiscoverer.discoverRoutes(this, "");
+        RouteDiscoverer.discoverRoutes("");
     }
 
     private void acceptConnections() throws IOException {

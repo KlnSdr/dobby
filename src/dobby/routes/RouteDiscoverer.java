@@ -3,9 +3,9 @@ package dobby.routes;
 import dobby.Request;
 import dobby.RequestTypes;
 import dobby.Response;
-import dobby.Server;
 import dobby.annotations.Get;
 import dobby.annotations.Post;
+import dobby.annotations.Put;
 import dobby.util.Classloader;
 
 import java.lang.reflect.Method;
@@ -16,17 +16,17 @@ public class RouteDiscoverer extends Classloader<Object> {
         this.packageName = packageName;
     }
 
-    public static void discoverRoutes(Server server, String rootPackage) {
+    public static void discoverRoutes(String rootPackage) {
         if (rootPackage.startsWith(".")) {
             rootPackage = rootPackage.substring(1);
         }
         RouteDiscoverer discoverer = new RouteDiscoverer(rootPackage);
-        discoverer.loadClasses().forEach(clazz -> discoverer.analyzeClassAndMethods(clazz, server));
+        discoverer.loadClasses().forEach(discoverer::analyzeClassAndMethods);
         String finalRootPackage = rootPackage;
-        discoverer.getPackages().forEach(subpackage -> RouteDiscoverer.discoverRoutes(server, finalRootPackage + "." + subpackage));
+        discoverer.getPackages().forEach(subpackage -> RouteDiscoverer.discoverRoutes(finalRootPackage + "." + subpackage));
     }
 
-    private void analyzeClassAndMethods(Class<?> clazz, Server server) {
+    private void analyzeClassAndMethods(Class<?> clazz) {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if (!isValidHttpHandler(method)) {
@@ -41,6 +41,10 @@ public class RouteDiscoverer extends Classloader<Object> {
                 Post annotation = method.getAnnotation(Post.class);
                 RouteManager.getInstance().add(RequestTypes.POST, annotation.route(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
                 System.out.println("Added route: POST " + annotation.route());
+            } else if (method.isAnnotationPresent(Put.class)) {
+                Put annotation = method.getAnnotation(Put.class);
+                RouteManager.getInstance().add(RequestTypes.PUT, annotation.route(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
+                System.out.println("Added route: PUT " + annotation.route());
             }
         }
     }
