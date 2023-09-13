@@ -22,13 +22,17 @@ public class Server {
     private boolean isRunning = false;
 
     private Server(int port, int threadCount) throws IOException {
+        printBanner();
         server = new ServerSocket(port);
         threadPool = Executors.newFixedThreadPool(threadCount);
         System.out.println("Server initialized on port " + port + " with " + threadCount + " threads.");
         System.out.println("Discovering routes...");
         discoverRouteDefinitions();
+        System.out.println();
         System.out.println("Discovering filters...");
         discoverFilterDefinitions();
+        System.out.println();
+        start();
     }
 
     public static Server newInstance() throws IOException {
@@ -39,17 +43,17 @@ public class Server {
         return new Server(port, threadCount);
     }
 
-    public void start() throws IOException {
+    private void start() throws IOException {
         System.out.println("Server started...");
         isRunning = true;
         acceptConnections();
     }
 
-    public void discoverRouteDefinitions() {
+    private void discoverRouteDefinitions() {
         RouteDiscoverer.discoverRoutes("");
     }
 
-    public void discoverFilterDefinitions() {
+    private void discoverFilterDefinitions() {
         FilterDiscoverer.discover();
     }
 
@@ -97,5 +101,17 @@ public class Server {
 
     public void addPostFilter(PostFilter filter) {
         FilterManager.getInstance().addPostFilter(filter);
+    }
+
+    private void printBanner() {
+        System.out.println("########   #######  ########  ########  ##    ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
+        System.out.println("##     ## ##     ## ########  ########     ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
+        System.out.println("########   #######  ########  ########     ##");
+        System.out.println("initializing...");
+        System.out.println();
     }
 }

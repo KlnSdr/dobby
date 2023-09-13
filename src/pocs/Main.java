@@ -12,6 +12,5 @@ public class Main {
             res.setCode(ResponseCodes.OK);
             res.send();
         });
-        server.start();
     }
 }
