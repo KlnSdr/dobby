@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class Request {
+    private final HashMap<String, String> cookies = new HashMap<>();
     private static final Logger LOGGER = new Logger(Request.class);
     private RequestTypes type;
     private String path;
@@ -25,6 +26,7 @@ public class Request {
         req.setQuery(extractQuery(req.getPath()));
         req.setPath(req.getPath().split("\\?")[0]);
         req.setHeaders(req.extractHeaders(lines));
+        req.extractCookies();
 
         req.setType(RequestTypes.fromString(method));
 
@@ -184,5 +186,27 @@ public class Request {
 
     private void setBody(Json body) {
         this.body = body;
+    }
+
+    private void setCookie(String key, String value) {
+        cookies.put(key, value);
+    }
+
+    public String getCookie(String key) {
+        return cookies.get(key);
+    }
+
+    private void extractCookies() {
+        String cookieHeader = getHeader("Cookie");
+        if (cookieHeader == null) {
+            return;
+        }
+        String[] cookies = cookieHeader.split("; ");
+        for (String cookie : cookies) {
+            String[] parts = cookie.split("=");
+            if (parts.length > 1) {
+                setCookie(parts[0], parts[1]);
+            }
+        }
     }
 }
