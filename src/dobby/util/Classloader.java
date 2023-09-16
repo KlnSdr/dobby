@@ -40,7 +40,7 @@ public abstract class Classloader<T> {
     private Set<String> getPackagesFromDirectory() {
         InputStream istream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replace(".", "/"));
         if (istream == null) {
-            LOGGER.error("Could not load classes. Package " + packageName + " not found.");
+            LOGGER.error("Could not load classes. Package '" + packageName + "' not found.");
             return Collections.emptySet();
         }
 
@@ -51,7 +51,7 @@ public abstract class Classloader<T> {
     private Set<Class<? extends T>> loadClassesFromDirectory() {
         InputStream istream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replace(".", "/"));
         if (istream == null) {
-            LOGGER.error("Could not load classes. Package " + packageName + " not found.");
+            LOGGER.error("Could not load classes. Package '" + packageName + "' not found.");
             return Collections.emptySet();
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(istream));
