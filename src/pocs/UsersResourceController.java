@@ -11,7 +11,7 @@ import java.io.IOException;
 public class UsersResourceController {
     private final Logger LOGGER = new Logger(UsersResourceController.class);
 
-    @Post(route = "/users/create")
+    @Post("/users/create")
     public void createNewUser(Request req, Response res) throws IOException {
         LOGGER.debug("Creating new user...");
 

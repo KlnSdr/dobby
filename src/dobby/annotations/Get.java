@@ -7,5 +7,5 @@ import java.lang.annotation.RetentionPolicy;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Get {
-    String route();
+    String value();
 }
