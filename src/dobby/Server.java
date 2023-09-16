@@ -71,7 +71,8 @@ public class Server {
 
     private void acceptConnections() {
         while (isRunning) {
-            try (Socket client = server.accept()) {
+            try{
+                Socket client = server.accept();
                 threadPool.execute(() -> {
                     try {
                         handleConnection(client);

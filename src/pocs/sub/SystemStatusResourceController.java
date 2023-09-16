@@ -9,7 +9,6 @@ import java.io.IOException;
 public class SystemStatusResourceController {
     @Get("/system/status")
     public void getSystemStatus(Request req, Response res) throws IOException {
-        System.out.println(req.getCookie("system_status"));
         res.setBody("System is up and running!");
         res.setCookie("system_status", "up");
         res.setCookie("system_health", "good");
