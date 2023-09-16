@@ -2,6 +2,8 @@ package dobby;
 
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
+
+import dobby.filter.defaultFilter.post.CookiePostFilter;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
 import dobby.util.logging.Logger;

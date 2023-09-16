@@ -9,11 +9,11 @@ import java.util.HashMap;
 
 public class Response {
     private final HashMap<String, String> headers = new HashMap<>();
-    private ResponseCodes code = ResponseCodes.OK;
-    private String body = "";
-
     private final Socket client;
     private final OutputStream out;
+    private final HashMap<String, String> cookies = new HashMap<>();
+    private ResponseCodes code = ResponseCodes.OK;
+    private String body = "";
 
     public Response(Socket client) throws IOException {
         this.client = client;
@@ -63,5 +63,25 @@ public class Response {
         FilterManager.getInstance().runPostFilters(this);
         out.write(build());
         client.close();
+    }
+
+    public HashMap<String, String> getCookies() {
+        return cookies;
+    }
+
+    public void setCookie(String key, String value) {
+        cookies.put(key, value);
+    }
+
+    public void setCookie(String key, String value, int maxAge) {
+        cookies.put(key, value + "; Max-Age=" + maxAge);
+    }
+
+    public void setCookie(String key, String value, int maxAge, boolean httpOnly) {
+        cookies.put(key, value + "; Max-Age=" + maxAge + "; HttpOnly");
+    }
+
+    public void setCookie(String key, String value, int maxAge, boolean httpOnly, boolean secure) {
+        cookies.put(key, value + "; Max-Age=" + maxAge + "; HttpOnly; Secure");
     }
 }
