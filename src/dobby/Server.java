@@ -43,12 +43,7 @@ public class Server {
         discoverRouteDefinitions();
         LOGGER.info("Discovering filters...");
         discoverFilterDefinitions();
-        addDefaultFilters();
         start();
-    }
-
-    private void addDefaultFilters() {
-        FilterManager.getInstance().addPostFilter(new CookiePostFilter());
     }
 
     public static Server newInstance() {
