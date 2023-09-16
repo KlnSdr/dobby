@@ -36,15 +36,12 @@ public class RouteDiscoverer extends Classloader<Object> {
             if (method.isAnnotationPresent(Get.class)) {
                 Get annotation = method.getAnnotation(Get.class);
                 RouteManager.getInstance().add(RequestTypes.GET, annotation.route(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
-                System.out.println("Added route: GET " + annotation.route());
             } else if (method.isAnnotationPresent(Post.class)) {
                 Post annotation = method.getAnnotation(Post.class);
                 RouteManager.getInstance().add(RequestTypes.POST, annotation.route(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
-                System.out.println("Added route: POST " + annotation.route());
             } else if (method.isAnnotationPresent(Put.class)) {
                 Put annotation = method.getAnnotation(Put.class);
                 RouteManager.getInstance().add(RequestTypes.PUT, annotation.route(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
-                System.out.println("Added route: PUT " + annotation.route());
             }
         }
     }

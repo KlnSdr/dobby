@@ -30,7 +30,6 @@ public class PostFilterDiscoverer extends Classloader<PostFilter> {
         try {
             PostFilter filter = clazz.getDeclaredConstructor().newInstance();
             FilterManager.getInstance().addPostFilter(filter);
-            System.out.println("Added post-filter: " + clazz.getName());
         } catch (Exception e) {
             System.err.println("Could not instantiate post-filter: " + clazz.getName());
         }
