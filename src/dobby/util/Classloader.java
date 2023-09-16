@@ -76,7 +76,6 @@ public abstract class Classloader<T> {
                         }
                         return line.substring(packageName.length() + 1);
                     })
-                    .peek(System.out::println)
                     .collect(Collectors.toSet());
         } catch (IOException | URISyntaxException e) {
             System.err.println("Could not load classes from jar file.");

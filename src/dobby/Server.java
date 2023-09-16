@@ -4,8 +4,6 @@ import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
-import dobby.filter.PostFilter;
-import dobby.filter.PreFilter;
 import dobby.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
@@ -38,10 +36,8 @@ public class Server {
         LOGGER.info("Server initialized on port " + port + " with " + threadCount + " threads.");
         LOGGER.info("Discovering routes...");
         discoverRouteDefinitions();
-        System.out.println();
-        System.out.println("Discovering filters...");
+        LOGGER.info("Discovering filters...");
         discoverFilterDefinitions();
-        System.out.println();
         start();
     }
 

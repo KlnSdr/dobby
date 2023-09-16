@@ -29,7 +29,6 @@ public class PreFilterDiscoverer extends Classloader<PreFilter> {
         try {
             PreFilter filter = clazz.getDeclaredConstructor().newInstance();
             FilterManager.getInstance().addPreFilter(filter);
-            System.out.println("Added pre-filter: " + clazz.getName());
         } catch (Exception e) {
             System.err.println("Could not instantiate pre-filter: " + clazz.getName());
         }
