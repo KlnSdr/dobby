@@ -1,5 +1,7 @@
 package dobby.util;
 
+import dobby.logging.Logger;
+
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 public abstract class Classloader<T> {
+    private final Logger LOGGER = new Logger(Classloader.class);
     private static final String[] JarPathBlacklist = {"META-INF"};
     protected String packageName;
 
@@ -37,7 +40,8 @@ public abstract class Classloader<T> {
     private Set<String> getPackagesFromDirectory() {
         InputStream istream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replace(".", "/"));
         if (istream == null) {
-            throw new RuntimeException("Could not load views. Package " + packageName + " not found.");
+            LOGGER.error("Could not load classes. Package " + packageName + " not found.");
+            return Collections.emptySet();
         }
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(istream));
@@ -47,7 +51,8 @@ public abstract class Classloader<T> {
     private Set<Class<? extends T>> loadClassesFromDirectory() {
         InputStream istream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replace(".", "/"));
         if (istream == null) {
-            throw new RuntimeException("Could not load views. Package " + packageName + " not found.");
+            LOGGER.error("Could not load classes. Package " + packageName + " not found.");
+            return Collections.emptySet();
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(istream));
 
@@ -85,8 +90,7 @@ public abstract class Classloader<T> {
                      new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
             return jar.stream().filter(this::filterValidClassesFromNameJar).map(this::extractClassNameFromJarEntry).filter(line -> !line.contains("/")).map(this::filterClasses).collect(Collectors.toSet());
         } catch (IOException | URISyntaxException e) {
-            System.err.println("Could not load classes from jar file.");
-            System.exit(0);
+            LOGGER.error("Could not load classes from jar file.");
             return Collections.emptySet();
         }
     }
@@ -110,7 +114,7 @@ public abstract class Classloader<T> {
             }
             return Class.forName(classPath);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.trace(e);
         }
         return null;
     }

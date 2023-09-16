@@ -1,10 +1,13 @@
 package dobby;
 
+import dobby.logging.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
 
 public class Request {
+    private static final Logger LOGGER = new Logger(Request.class);
     private RequestTypes type;
     private String path;
     private String rawBody;
@@ -90,7 +93,7 @@ public class Request {
             }
             return lines;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.trace(e);
             return new ArrayList<>();
         }
     }
@@ -175,11 +178,11 @@ public class Request {
         this.rawBody = rawBody;
     }
 
-    private void setBody(Json body) {
-        this.body = body;
-    }
-
     private Json getBody() {
         return body;
+    }
+
+    private void setBody(Json body) {
+        this.body = body;
     }
 }

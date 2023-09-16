@@ -4,6 +4,9 @@ import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
+import dobby.filter.PostFilter;
+import dobby.filter.PreFilter;
+import dobby.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
 
@@ -17,16 +20,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private final ServerSocket server;
-    private final ExecutorService threadPool;
+    private final Logger LOGGER = new Logger(Server.class);
+    private ServerSocket server;
+    private ExecutorService threadPool;
     private boolean isRunning = false;
 
-    private Server(int port, int threadCount) throws IOException {
+    private Server(int port, int threadCount) {
         printBanner();
-        server = new ServerSocket(port);
+        try {
+            server = new ServerSocket(port);
+        } catch (IOException e) {
+            LOGGER.trace(e);
+            System.exit(1);
+            return;
+        }
         threadPool = Executors.newFixedThreadPool(threadCount);
-        System.out.println("Server initialized on port " + port + " with " + threadCount + " threads.");
-        System.out.println("Discovering routes...");
+        LOGGER.info("Server initialized on port " + port + " with " + threadCount + " threads.");
+        LOGGER.info("Discovering routes...");
         discoverRouteDefinitions();
         System.out.println();
         System.out.println("Discovering filters...");
@@ -35,16 +45,16 @@ public class Server {
         start();
     }
 
-    public static Server newInstance() throws IOException {
+    public static Server newInstance() {
         return newInstance(3000, 10);
     }
 
-    public static Server newInstance(int port, int threadCount) throws IOException {
+    public static Server newInstance(int port, int threadCount) {
         return new Server(port, threadCount);
     }
 
-    private void start() throws IOException {
-        System.out.println("Server started...");
+    private void start() {
+        LOGGER.info("Server started...");
         isRunning = true;
         acceptConnections();
     }
@@ -57,17 +67,20 @@ public class Server {
         FilterDiscoverer.discover();
     }
 
-    private void acceptConnections() throws IOException {
+    private void acceptConnections() {
         while (isRunning) {
-            Socket client = server.accept();
-            threadPool.execute(() -> {
-                try {
-                    handleConnection(client);
-                } catch (IOException | InvocationTargetException | NoSuchMethodException | InstantiationException |
-                         IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            });
+            try (Socket client = server.accept()) {
+                threadPool.execute(() -> {
+                    try {
+                        handleConnection(client);
+                    } catch (IOException | InvocationTargetException | NoSuchMethodException | InstantiationException |
+                             IllegalAccessException e) {
+                        LOGGER.trace(e);
+                    }
+                });
+            } catch (IOException e) {
+                LOGGER.trace(e);
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package dobby.filter;
 
 import dobby.Request;
 import dobby.Response;
+import dobby.logging.Logger;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
 
@@ -9,9 +10,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class FilterManager {
+    private static FilterManager instance;
+    private final Logger LOGGER = new Logger(FilterManager.class);
     private PreFilter[] preFilters = new PreFilter[0];
     private PostFilter[] postFilters = new PostFilter[0];
-    private static FilterManager instance;
 
     private FilterManager() {
     }
@@ -29,6 +31,8 @@ public class FilterManager {
         newPreFilters[this.preFilters.length] = filter;
         sortFilters(newPreFilters);
         this.preFilters = newPreFilters;
+
+        LOGGER.debug(String.format("Added pre-filter %s", filter.getClass().getCanonicalName()));
     }
 
     public void addPostFilter(PostFilter filter) {
@@ -37,6 +41,8 @@ public class FilterManager {
         newPostFilters[this.postFilters.length] = filter;
         sortFilters(newPostFilters);
         this.postFilters = newPostFilters;
+
+        LOGGER.debug(String.format("Added post-filter %s", filter.getClass().getCanonicalName()));
     }
 
     public void runPreFilters(Request request) {

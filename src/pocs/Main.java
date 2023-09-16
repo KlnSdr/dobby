@@ -6,7 +6,7 @@ import dobby.Server;
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Server server = Server.newInstance();
         server.get("/setShips", (req, res) -> {
             res.setCode(ResponseCodes.OK);
