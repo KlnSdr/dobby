@@ -1,7 +1,7 @@
 package dobby.filter.defaultFilter.post;
 
 import dobby.Response;
-import dobby.filter.PostFilter;
+import dobby.filter.post.PostFilter;
 
 import java.util.HashMap;
 
