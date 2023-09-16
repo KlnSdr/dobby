@@ -111,6 +111,14 @@ public class Server {
         addRoute(RequestTypes.POST, route, handler);
     }
 
+    public void put(String route, IRequestHandler handler) {
+        addRoute(RequestTypes.PUT, route, handler);
+    }
+
+    public void delete(String route, IRequestHandler handler) {
+        addRoute(RequestTypes.DELETE, route, handler);
+    }
+
     public void addPreFilter(PreFilter filter) {
         FilterManager.getInstance().addPreFilter(filter);
     }

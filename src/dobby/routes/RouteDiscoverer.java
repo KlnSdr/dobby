@@ -3,6 +3,7 @@ package dobby.routes;
 import dobby.Request;
 import dobby.RequestTypes;
 import dobby.Response;
+import dobby.annotations.Delete;
 import dobby.annotations.Get;
 import dobby.annotations.Post;
 import dobby.annotations.Put;
@@ -42,6 +43,10 @@ public class RouteDiscoverer extends Classloader<Object> {
             } else if (method.isAnnotationPresent(Put.class)) {
                 Put annotation = method.getAnnotation(Put.class);
                 RouteManager.getInstance().add(RequestTypes.PUT, annotation.value(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
+            } else if (method.isAnnotationPresent(Delete.class)) {
+                Delete annotation = method.getAnnotation(Delete.class);
+                RouteManager.getInstance().add(RequestTypes.DELETE, annotation.value(),
+                        (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
             }
         }
     }
