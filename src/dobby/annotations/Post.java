@@ -7,5 +7,5 @@ import java.lang.annotation.RetentionPolicy;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Post {
-    String route();
+    String value();
 }
