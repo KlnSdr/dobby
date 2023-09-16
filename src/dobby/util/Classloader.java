@@ -78,7 +78,8 @@ public abstract class Classloader<T> {
                     })
                     .collect(Collectors.toSet());
         } catch (IOException | URISyntaxException e) {
-            System.err.println("Could not load classes from jar file.");
+            LOGGER.error("Could not load classes from jar file.");
+            LOGGER.trace(e);
             System.exit(0);
             return Collections.emptySet();
         }
@@ -90,6 +91,7 @@ public abstract class Classloader<T> {
             return jar.stream().filter(this::filterValidClassesFromNameJar).map(this::extractClassNameFromJarEntry).filter(line -> !line.contains("/")).map(this::filterClasses).collect(Collectors.toSet());
         } catch (IOException | URISyntaxException e) {
             LOGGER.error("Could not load classes from jar file.");
+            LOGGER.trace(e);
             return Collections.emptySet();
         }
     }

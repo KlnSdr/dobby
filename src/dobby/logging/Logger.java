@@ -2,6 +2,7 @@ package dobby.logging;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Logger {
@@ -44,7 +45,8 @@ public class Logger {
 
     private void log(LogLevel level, String message) {
         if (level.ordinal() <= logLevel.ordinal()) {
-            System.out.printf("%s [%s] %s %s%n", new Date(), clazz.getCanonicalName(), level.getColorized(), message);
+            System.out.printf("%s [%s] %s %s%n", new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS Z").format(new Date()),
+                    clazz.getCanonicalName(), level.getColorized(), message);
         }
     }
 }

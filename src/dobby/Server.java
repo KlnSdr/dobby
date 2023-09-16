@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,8 +23,10 @@ public class Server {
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
+    private final Date startTime;
 
     private Server(int port, int threadCount) {
+        startTime = new Date();
         printBanner();
         try {
             server = new ServerSocket(port);
@@ -50,6 +53,7 @@ public class Server {
     }
 
     private void start() {
+        LOGGER.info("ready after " + (new Date().getTime() - startTime.getTime()) + "ms");
         LOGGER.info("Server started...");
         isRunning = true;
         acceptConnections();
