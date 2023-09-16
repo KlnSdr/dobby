@@ -1,4 +1,4 @@
-package dobby.logging;
+package dobby.util.logging;
 
 public enum LogLevel {
     ERROR(Colors.RED), WARN(Colors.YELLOW), INFO(Colors.GREEN), DEBUG(Colors.BLUE);

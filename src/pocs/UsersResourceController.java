@@ -4,7 +4,7 @@ import dobby.Request;
 import dobby.Response;
 import dobby.ResponseCodes;
 import dobby.annotations.Post;
-import dobby.logging.Logger;
+import dobby.util.logging.Logger;
 
 import java.io.IOException;
 

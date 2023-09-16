@@ -1,4 +1,4 @@
-package dobby.logging;
+package dobby.util.logging;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

@@ -3,7 +3,7 @@ package dobby.routes;
 import dobby.DefaultHandler.RouteNotFoundHandler;
 import dobby.IRequestHandler;
 import dobby.RequestTypes;
-import dobby.logging.Logger;
+import dobby.util.logging.Logger;
 
 import java.util.HashMap;
 

@@ -1,6 +1,6 @@
 package dobby;
 
-import dobby.logging.Logger;
+import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;

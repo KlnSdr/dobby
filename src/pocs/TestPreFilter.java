@@ -1,7 +1,7 @@
 package pocs;
 
 import dobby.Request;
-import dobby.logging.Logger;
+import dobby.util.logging.Logger;
 import dobby.filter.pre.PreFilter;
 
 public class TestPreFilter implements PreFilter {

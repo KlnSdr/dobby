@@ -2,7 +2,7 @@ package dobby.filter;
 
 import dobby.Request;
 import dobby.Response;
-import dobby.logging.Logger;
+import dobby.util.logging.Logger;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
 

@@ -4,7 +4,7 @@ import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
-import dobby.logging.Logger;
+import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
 
