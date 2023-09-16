@@ -1,7 +1,7 @@
 package pocs;
 
 import dobby.Response;
-import dobby.filter.PostFilter;
+import dobby.filter.post.PostFilter;
 
 public class TestPostFilter implements PostFilter {
     @Override

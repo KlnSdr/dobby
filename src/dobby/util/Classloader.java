@@ -2,14 +2,17 @@ package dobby.util;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 
 public abstract class Classloader<T> {
+    private static final String[] JarPathBlacklist = {"META-INF"};
     protected String packageName;
 
     protected Set<Class<? extends T>> loadClasses() {
@@ -24,6 +27,14 @@ public abstract class Classloader<T> {
     }
 
     public Set<String> getPackages() {
+        if (isJar()) {
+            return getPackagesFromJar();
+        } else {
+            return getPackagesFromDirectory();
+        }
+    }
+
+    private Set<String> getPackagesFromDirectory() {
         InputStream istream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replace(".", "/"));
         if (istream == null) {
             throw new RuntimeException("Could not load views. Package " + packageName + " not found.");
@@ -43,8 +54,35 @@ public abstract class Classloader<T> {
         return reader.lines().filter(line -> line.endsWith(".class")).map(this::filterClasses).collect(Collectors.toSet());
     }
 
+    private Set<String> getPackagesFromJar() {
+        try (JarFile jar =
+                     new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
+            return jar.stream().map(ZipEntry::getName)
+                    .filter(line -> !line.endsWith(".class"))
+                    .filter(line -> line.startsWith(packageName.replace(".", "/")))
+                    .filter(line -> Arrays.stream(JarPathBlacklist).noneMatch(line::contains))
+                    .map(line -> line.replace("/", "."))
+                    .map(line -> line.endsWith(".") ? line.substring(0, line.length() - 1) : line)
+                    .filter(line -> !line.equals(packageName))
+                    .filter(line -> line.substring(packageName.length() + 1).split("\\.").length == 1)
+                    .map(line -> {
+                        if (packageName.isEmpty()) {
+                            return line;
+                        }
+                        return line.substring(packageName.length() + 1);
+                    })
+                    .peek(System.out::println)
+                    .collect(Collectors.toSet());
+        } catch (IOException | URISyntaxException e) {
+            System.err.println("Could not load classes from jar file.");
+            System.exit(0);
+            return Collections.emptySet();
+        }
+    }
+
     private Set<Class<? extends T>> loadClassesFromJar() {
-        try (JarFile jar = new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
+        try (JarFile jar =
+                     new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
             return jar.stream().filter(this::filterValidClassesFromNameJar).map(this::extractClassNameFromJarEntry).filter(line -> !line.contains("/")).map(this::filterClasses).collect(Collectors.toSet());
         } catch (IOException | URISyntaxException e) {
             System.err.println("Could not load classes from jar file.");
@@ -65,7 +103,8 @@ public abstract class Classloader<T> {
 
     protected Class<?> defaultClassFilter(String line) {
         try {
-            String classPath = packageName + "." + line.substring(0, line.lastIndexOf('.')/*remove ".class" from line*/);
+            String classPath = packageName + "." + line.substring(0, line.lastIndexOf('.')/*remove ".class" from
+            line*/);
             if (classPath.startsWith(".")) {
                 classPath = classPath.substring(1);
             }
@@ -78,14 +117,15 @@ public abstract class Classloader<T> {
 
     protected Class<? extends T> defaultImplementsFilter(String line, Class<T> interfaceToImplement) {
         Class<?> clazz = defaultClassFilter(line);
-        if (interfaceToImplement.isAssignableFrom(clazz)) {
+        if (interfaceToImplement.isAssignableFrom(clazz) && !clazz.equals(interfaceToImplement)) {
             return clazz.asSubclass(interfaceToImplement);
         }
         return null;
     }
 
     private boolean isJar() {
-        try (JarFile ignored = new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
+        try (JarFile ignored =
+                     new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
             return true;
         } catch (IOException | URISyntaxException e) {
             return false;

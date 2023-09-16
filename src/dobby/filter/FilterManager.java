@@ -2,6 +2,8 @@ package dobby.filter;
 
 import dobby.Request;
 import dobby.Response;
+import dobby.filter.post.PostFilter;
+import dobby.filter.pre.PreFilter;
 
 import java.util.Arrays;
 import java.util.Comparator;
