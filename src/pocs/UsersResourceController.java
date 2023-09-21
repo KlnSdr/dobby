@@ -3,7 +3,9 @@ package pocs;
 import dobby.Request;
 import dobby.Response;
 import dobby.ResponseCodes;
-import dobby.annotations.Post;
+import dobby.Session;
+import dobby.annotations.Get;
+import dobby.session.SessionService;
 import dobby.util.logging.Logger;
 
 import java.io.IOException;
@@ -11,9 +13,50 @@ import java.io.IOException;
 public class UsersResourceController {
     private final Logger LOGGER = new Logger(UsersResourceController.class);
 
-    @Post("/users/create")
+    @Get("/users/create")
     public void createNewUser(Request req, Response res) throws IOException {
         LOGGER.debug("Creating new user...");
+
+        Session session = req.getSession();
+
+        if (session.get("user") != null) {
+            res.setCode(ResponseCodes.FORBIDDEN);
+            res.send();
+            return;
+        }
+
+        session = SessionService.getInstance().newSession();
+
+        session.set("user", "test");
+        req.setSession(session);
+
+        res.setCode(ResponseCodes.OK);
+        res.send();
+    }
+
+    @Get("/users/info")
+    public void getUserInfo(Request req, Response res) throws IOException {
+        LOGGER.debug("Getting user info...");
+
+        Session session = req.getSession();
+
+        if (session.get("user") == null) {
+            res.setCode(ResponseCodes.UNAUTHORIZED);
+            res.send();
+            return;
+        }
+
+        res.setBody(session.get("user"));
+
+        res.setCode(ResponseCodes.OK);
+        res.send();
+    }
+
+    @Get("/users/logout")
+    public void logout(Request req, Response res) throws IOException {
+        LOGGER.debug("Logging out...");
+
+        req.destroySession();
 
         res.setCode(ResponseCodes.OK);
         res.send();

@@ -2,13 +2,11 @@ package dobby;
 
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
-
-import dobby.filter.defaultFilter.post.CookiePostFilter;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;
-import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
+import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,10 +20,10 @@ import java.util.concurrent.Executors;
 
 public class Server {
     private final Logger LOGGER = new Logger(Server.class);
+    private final Date startTime;
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
-    private final Date startTime;
 
     private Server(int port, int threadCount) {
         startTime = new Date();
@@ -71,7 +69,7 @@ public class Server {
 
     private void acceptConnections() {
         while (isRunning) {
-            try{
+            try {
                 Socket client = server.accept();
                 threadPool.execute(() -> {
                     try {
@@ -87,12 +85,18 @@ public class Server {
         }
     }
 
-    private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException
+            , InstantiationException, IllegalAccessException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
         Request req = Request.parse(in);
+        Response res = new Response(client);
+
+        req.setResponse(res);
+        res.setRequest(req);
+
         FilterManager.getInstance().runPreFilters(req);
-        RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(req, new Response(client));
+        RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(req, res);
     }
 
     public void stop() {
