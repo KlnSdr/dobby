@@ -14,6 +14,7 @@ public class Response {
     private final HashMap<String, String> cookies = new HashMap<>();
     private ResponseCodes code = ResponseCodes.OK;
     private String body = "";
+    private Request request;
 
     public Response(Socket client) throws IOException {
         this.client = client;
@@ -74,7 +75,11 @@ public class Response {
     }
 
     public void setCookie(String key, String value, int maxAge) {
-        cookies.put(key, value + "; Max-Age=" + maxAge);
+        cookies.put(key, value + "; Max-Age=" + maxAge + "; Path=/");
+    }
+
+    public void setCookie(String key, String value, String path) {
+        cookies.put(key, value + "; Path=" + path);
     }
 
     public void setCookie(String key, String value, int maxAge, boolean httpOnly) {
@@ -83,5 +88,13 @@ public class Response {
 
     public void setCookie(String key, String value, int maxAge, boolean httpOnly, boolean secure) {
         cookies.put(key, value + "; Max-Age=" + maxAge + "; HttpOnly; Secure");
+    }
+
+    public Request getRequest() {
+        return request;
+    }
+
+    public void setRequest(Request request) {
+        this.request = request;
     }
 }
