@@ -14,6 +14,7 @@ import dobby.session.service.SessionService;
 import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
+import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     private final Logger LOGGER = new Logger(Server.class);
@@ -64,6 +66,7 @@ public class Server {
         LOGGER.info("ready after " + (new Date().getTime() - startTime.getTime()) + "ms");
         LOGGER.info("Server started...");
         isRunning = true;
+        registerStopHandler();
         acceptConnections();
     }
 
@@ -85,6 +88,12 @@ public class Server {
                     } catch (IOException | InvocationTargetException | NoSuchMethodException | InstantiationException |
                              IllegalAccessException e) {
                         LOGGER.trace(e);
+                    } finally {
+                        try {
+                            client.close();
+                        } catch (IOException e) {
+                            LOGGER.trace(e);
+                        }
                     }
                 });
             } catch (IOException e) {
@@ -113,6 +122,20 @@ public class Server {
 
     public void stop() {
         isRunning = false;
+        LOGGER.info("Server stopping...");
+        threadPool.shutdown();
+        try {
+            if (threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                LOGGER.info("all tasks finished");
+            } else {
+                LOGGER.info("forcing shutdown");
+                threadPool.shutdownNow();
+            }
+            server.close();
+            LOGGER.info("Server stopped.");
+        } catch (IOException | InterruptedException e) {
+            LOGGER.trace(e);
+        }
     }
 
     public void addRoute(RequestTypes type, String route, IRequestHandler handler) {
@@ -153,5 +176,9 @@ public class Server {
         System.out.println("########   #######  ########  ########     ##");
         System.out.println("initializing...");
         System.out.println();
+    }
+
+    private void registerStopHandler() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 }
