@@ -1,7 +1,7 @@
 package dobby.io.response;
 
 import dobby.filter.FilterManager;
-import dobby.io.request.Request;
+import dobby.io.HttpContext;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,12 +13,13 @@ public class Response {
     private final Socket client;
     private final OutputStream out;
     private final HashMap<String, String> cookies = new HashMap<>();
+    private final HttpContext context;
     private ResponseCodes code = ResponseCodes.OK;
     private String body = "";
-    private Request request;
 
-    public Response(Socket client) throws IOException {
+    public Response(Socket client, HttpContext context) throws IOException {
         this.client = client;
+        this.context = context;
         out = client.getOutputStream();
     }
 
@@ -62,7 +63,7 @@ public class Response {
     }
 
     public void send() throws IOException {
-        FilterManager.getInstance().runPostFilters(this);
+        FilterManager.getInstance().runPostFilters(context);
         out.write(build());
         client.close();
     }
@@ -89,13 +90,5 @@ public class Response {
 
     public void setCookie(String key, String value, int maxAge, boolean httpOnly, boolean secure) {
         cookies.put(key, value + "; Max-Age=" + maxAge + "; HttpOnly; Secure");
-    }
-
-    public Request getRequest() {
-        return request;
-    }
-
-    public void setRequest(Request request) {
-        this.request = request;
     }
 }

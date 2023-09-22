@@ -1,12 +1,18 @@
 package pocs;
 
-import dobby.io.response.Response;
-import dobby.filter.post.PostFilter;
+import dobby.filter.Filter;
+import dobby.filter.FilterType;
+import dobby.io.HttpContext;
 
-public class TestPostFilter implements PostFilter {
+public class TestPostFilter implements Filter {
     @Override
     public String getName() {
         return "Test post filter";
+    }
+
+    @Override
+    public FilterType getType() {
+        return FilterType.POST;
     }
 
     @Override
@@ -15,7 +21,7 @@ public class TestPostFilter implements PostFilter {
     }
 
     @Override
-    public void run(Response in) {
-        in.setHeader("X-Test-Post-Filter", "Test post filter");
+    public void run(HttpContext ctx) {
+        ctx.getResponse().setHeader("X-Test-Post-Filter", "Test post filter");
     }
 }

@@ -1,14 +1,21 @@
-package dobby.filter.defaultFilter.post;
+package dobby.cookie.filter;
 
+import dobby.filter.Filter;
+import dobby.filter.FilterType;
+import dobby.io.HttpContext;
 import dobby.io.response.Response;
-import dobby.filter.post.PostFilter;
 
 import java.util.HashMap;
 
-public class CookiePostFilter implements PostFilter {
+public class CookiePostFilter implements Filter {
     @Override
     public String getName() {
         return "cookie";
+    }
+
+    @Override
+    public FilterType getType() {
+        return FilterType.POST;
     }
 
     @Override
@@ -17,7 +24,9 @@ public class CookiePostFilter implements PostFilter {
     }
 
     @Override
-    public void run(Response res) {
+    public void run(HttpContext ctx) {
+        Response res = ctx.getResponse();
+
         HashMap<String, String> cookies = res.getCookies();
 
         for (String key : cookies.keySet()) {

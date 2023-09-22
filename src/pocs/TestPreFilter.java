@@ -1,10 +1,11 @@
 package pocs;
 
-import dobby.io.request.Request;
+import dobby.filter.Filter;
+import dobby.filter.FilterType;
+import dobby.io.HttpContext;
 import dobby.util.logging.Logger;
-import dobby.filter.pre.PreFilter;
 
-public class TestPreFilter implements PreFilter {
+public class TestPreFilter implements Filter {
     private final Logger LOGGER = new Logger(TestPreFilter.class);
 
     @Override
@@ -13,15 +14,20 @@ public class TestPreFilter implements PreFilter {
     }
 
     @Override
+    public FilterType getType() {
+        return FilterType.PRE;
+    }
+
+    @Override
     public int getOrder() {
         return 0;
     }
 
     @Override
-    public void run(Request in) {
+    public void run(HttpContext ctx) {
         LOGGER.debug("Test pre filter");
-        LOGGER.debug(in.getPath());
+        LOGGER.debug(ctx.getRequest().getPath());
 
-        in.setHeader("X-Test-Pre-Filter", "Test pre filter");
+        ctx.getRequest().setHeader("X-Test-Pre-Filter", "Test pre filter");
     }
 }
