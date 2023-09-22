@@ -1,7 +1,7 @@
 package dobby.filter;
 
-import dobby.Request;
-import dobby.Response;
+import dobby.io.request.Request;
+import dobby.io.response.Response;
 import dobby.util.logging.Logger;
 import dobby.filter.post.PostFilter;
 import dobby.filter.pre.PreFilter;

@@ -1,4 +1,4 @@
-package dobby;
+package dobby.io.response;
 
 import dobby.filter.FilterManager;
 

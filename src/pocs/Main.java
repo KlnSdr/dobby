@@ -1,6 +1,6 @@
 package pocs;
 
-import dobby.ResponseCodes;
+import dobby.io.response.ResponseCodes;
 import dobby.Server;
 
 public class Main {

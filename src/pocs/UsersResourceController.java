@@ -1,8 +1,8 @@
 package pocs;
 
-import dobby.Request;
-import dobby.Response;
-import dobby.ResponseCodes;
+import dobby.io.request.Request;
+import dobby.io.response.Response;
+import dobby.io.response.ResponseCodes;
 import dobby.Session;
 import dobby.annotations.Get;
 import dobby.session.SessionService;

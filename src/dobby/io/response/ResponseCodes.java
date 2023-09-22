@@ -1,4 +1,4 @@
-package dobby;
+package dobby.io.response;
 
 public enum ResponseCodes {
     OK(200, "OK"), UNAUTHORIZED(401, "Unauthorized"), FORBIDDEN(403, "Forbidden"), NOT_FOUND(404, "Not Found"),

@@ -1,5 +1,6 @@
-package dobby;
+package dobby.io.request;
 
+import dobby.util.Json;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;

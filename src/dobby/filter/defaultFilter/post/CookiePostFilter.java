@@ -1,6 +1,6 @@
 package dobby.filter.defaultFilter.post;
 
-import dobby.Response;
+import dobby.io.response.Response;
 import dobby.filter.post.PostFilter;
 
 import java.util.HashMap;

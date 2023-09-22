@@ -1,6 +1,6 @@
 package pocs;
 
-import dobby.Response;
+import dobby.io.response.Response;
 import dobby.filter.post.PostFilter;
 
 public class TestPostFilter implements PostFilter {

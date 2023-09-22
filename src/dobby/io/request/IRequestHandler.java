@@ -1,4 +1,6 @@
-package dobby;
+package dobby.io.request;
+
+import dobby.io.response.Response;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

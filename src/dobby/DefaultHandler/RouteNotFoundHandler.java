@@ -1,9 +1,9 @@
 package dobby.DefaultHandler;
 
-import dobby.IRequestHandler;
-import dobby.Request;
-import dobby.Response;
-import dobby.ResponseCodes;
+import dobby.io.request.IRequestHandler;
+import dobby.io.request.Request;
+import dobby.io.response.Response;
+import dobby.io.response.ResponseCodes;
 
 import java.io.IOException;
 

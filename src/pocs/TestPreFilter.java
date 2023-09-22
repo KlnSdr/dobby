@@ -1,6 +1,6 @@
 package pocs;
 
-import dobby.Request;
+import dobby.io.request.Request;
 import dobby.util.logging.Logger;
 import dobby.filter.pre.PreFilter;
 

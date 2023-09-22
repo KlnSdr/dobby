@@ -1,7 +1,7 @@
 package pocs.sub;
 
-import dobby.Request;
-import dobby.Response;
+import dobby.io.request.Request;
+import dobby.io.response.Response;
 import dobby.annotations.Get;
 
 import java.io.IOException;

@@ -1,8 +1,8 @@
 package dobby.routes;
 
-import dobby.Request;
-import dobby.RequestTypes;
-import dobby.Response;
+import dobby.io.request.Request;
+import dobby.io.request.RequestTypes;
+import dobby.io.response.Response;
 import dobby.annotations.Delete;
 import dobby.annotations.Get;
 import dobby.annotations.Post;
