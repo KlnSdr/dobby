@@ -1,5 +1,7 @@
 package dobby.io.request;
 
+import dobby.Session;
+import dobby.io.response.Response;
 import dobby.util.Json;
 import dobby.util.logging.Logger;
 

@@ -1,7 +1,7 @@
 package dobby.filter.defaultFilter.pre;
 
-import dobby.Request;
 import dobby.filter.pre.PreFilter;
+import dobby.io.request.Request;
 import dobby.session.SessionService;
 
 public class SessionPreFilter implements PreFilter {

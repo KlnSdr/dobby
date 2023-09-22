@@ -1,8 +1,8 @@
 package dobby.filter.defaultFilter.post;
 
-import dobby.Response;
 import dobby.Session;
 import dobby.filter.post.PostFilter;
+import dobby.io.response.Response;
 import dobby.session.SessionService;
 
 public class SessionPostFilter implements PostFilter {

@@ -1,6 +1,7 @@
 package dobby.io.response;
 
 import dobby.filter.FilterManager;
+import dobby.io.request.Request;
 
 import java.io.IOException;
 import java.io.OutputStream;
