@@ -103,6 +103,10 @@ public class Server {
         Response res = new Response(client, ctx);
         Optional<Session> session = SessionService.getInstance().find(req.getCookie("DOBBY_SESSION"));
 
+        ctx.setRequest(req);
+        ctx.setResponse(res);
+        ctx.setSession(session.orElse(new Session()));
+
         FilterManager.getInstance().runPreFilters(ctx);
         RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(ctx);
     }
