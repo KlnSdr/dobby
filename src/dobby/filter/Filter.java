@@ -1,7 +1,13 @@
 package dobby.filter;
 
-public interface Filter<T> {
+import dobby.io.HttpContext;
+
+public interface Filter {
     String getName();
+
+    FilterType getType();
+
     int getOrder();
-    void run(T in);
+
+    void run(HttpContext ctx);
 }

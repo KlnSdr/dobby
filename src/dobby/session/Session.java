@@ -1,6 +1,6 @@
-package dobby;
+package dobby.session;
 
-import dobby.session.SessionService;
+import dobby.session.service.SessionService;
 
 import java.util.HashMap;
 

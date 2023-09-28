@@ -1,11 +1,12 @@
 package pocs;
 
-import dobby.Request;
-import dobby.Response;
-import dobby.ResponseCodes;
-import dobby.Session;
 import dobby.annotations.Get;
-import dobby.session.SessionService;
+import dobby.io.HttpContext;
+import dobby.io.request.Request;
+import dobby.io.response.Response;
+import dobby.io.response.ResponseCodes;
+import dobby.session.Session;
+import dobby.session.service.SessionService;
 import dobby.util.logging.Logger;
 
 import java.io.IOException;
@@ -14,10 +15,13 @@ public class UsersResourceController {
     private final Logger LOGGER = new Logger(UsersResourceController.class);
 
     @Get("/users/create")
-    public void createNewUser(Request req, Response res) throws IOException {
+    public void createNewUser(HttpContext context) throws IOException {
+        Request req = context.getRequest();
+        Response res = context.getResponse();
+
         LOGGER.debug("Creating new user...");
 
-        Session session = req.getSession();
+        Session session = context.getSession();
 
         if (session.get("user") != null) {
             res.setCode(ResponseCodes.FORBIDDEN);
@@ -28,17 +32,20 @@ public class UsersResourceController {
         session = SessionService.getInstance().newSession();
 
         session.set("user", "test");
-        req.setSession(session);
+        context.setSession(session);
 
         res.setCode(ResponseCodes.OK);
         res.send();
     }
 
     @Get("/users/info")
-    public void getUserInfo(Request req, Response res) throws IOException {
+    public void getUserInfo(HttpContext context) throws IOException {
+        Request req = context.getRequest();
+        Response res = context.getResponse();
+
         LOGGER.debug("Getting user info...");
 
-        Session session = req.getSession();
+        Session session = context.getSession();
 
         if (session.get("user") == null) {
             res.setCode(ResponseCodes.UNAUTHORIZED);
@@ -53,10 +60,10 @@ public class UsersResourceController {
     }
 
     @Get("/users/logout")
-    public void logout(Request req, Response res) throws IOException {
+    public void logout(HttpContext context) throws IOException {
         LOGGER.debug("Logging out...");
-
-        req.destroySession();
+        context.destroySession();
+        Response res = context.getResponse();
 
         res.setCode(ResponseCodes.OK);
         res.send();

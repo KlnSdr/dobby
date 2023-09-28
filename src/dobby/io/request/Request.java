@@ -1,5 +1,6 @@
-package dobby;
+package dobby.io.request;
 
+import dobby.util.Json;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -10,14 +11,11 @@ public class Request {
     private static final Logger LOGGER = new Logger(Request.class);
     private final HashMap<String, String> cookies = new HashMap<>();
     private RequestTypes type;
-    private Response response;
     private String path;
     private String rawBody;
     private Json body;
     private Map<String, String> headers;
     private Map<String, List<String>> query;
-
-    private Session session = new Session();
 
     public static Request parse(BufferedReader in) {
         Request req = new Request();
@@ -211,26 +209,5 @@ public class Request {
                 setCookie(parts[0], parts[1]);
             }
         }
-    }
-
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
-    public Response getResponse() {
-        return response;
-    }
-
-    public void setResponse(Response response) {
-        this.response = response;
-    }
-
-    public void destroySession() {
-        session.destroy();
-        response.setCookie("DOBBY_SESSION", "", -1);
     }
 }

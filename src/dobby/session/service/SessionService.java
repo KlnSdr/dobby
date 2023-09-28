@@ -1,6 +1,6 @@
-package dobby.session;
+package dobby.session.service;
 
-import dobby.Session;
+import dobby.session.Session;
 
 import java.util.Optional;
 import java.util.UUID;

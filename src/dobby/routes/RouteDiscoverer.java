@@ -1,12 +1,11 @@
 package dobby.routes;
 
-import dobby.Request;
-import dobby.RequestTypes;
-import dobby.Response;
 import dobby.annotations.Delete;
 import dobby.annotations.Get;
 import dobby.annotations.Post;
 import dobby.annotations.Put;
+import dobby.io.HttpContext;
+import dobby.io.request.RequestTypes;
 import dobby.util.Classloader;
 
 import java.lang.reflect.Method;
@@ -36,24 +35,27 @@ public class RouteDiscoverer extends Classloader<Object> {
 
             if (method.isAnnotationPresent(Get.class)) {
                 Get annotation = method.getAnnotation(Get.class);
-                RouteManager.getInstance().add(RequestTypes.GET, annotation.value(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
+                RouteManager.getInstance().add(RequestTypes.GET, annotation.value(),
+                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             } else if (method.isAnnotationPresent(Post.class)) {
                 Post annotation = method.getAnnotation(Post.class);
-                RouteManager.getInstance().add(RequestTypes.POST, annotation.value(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
+                RouteManager.getInstance().add(RequestTypes.POST, annotation.value(),
+                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             } else if (method.isAnnotationPresent(Put.class)) {
                 Put annotation = method.getAnnotation(Put.class);
-                RouteManager.getInstance().add(RequestTypes.PUT, annotation.value(), (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
+                RouteManager.getInstance().add(RequestTypes.PUT, annotation.value(),
+                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             } else if (method.isAnnotationPresent(Delete.class)) {
                 Delete annotation = method.getAnnotation(Delete.class);
                 RouteManager.getInstance().add(RequestTypes.DELETE, annotation.value(),
-                        (req, res) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), req, res));
+                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             }
         }
     }
 
     private boolean isValidHttpHandler(Method method) {
         Type[] types = method.getParameterTypes();
-        return types.length == 2 && types[0].equals(Request.class) && types[1].equals(Response.class);
+        return types.length == 1 && types[0].equals(HttpContext.class);
     }
 
     @Override

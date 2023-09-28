@@ -1,12 +1,19 @@
 package dobby;
 
+import dobby.filter.Filter;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
-import dobby.filter.post.PostFilter;
-import dobby.filter.pre.PreFilter;
+
+import dobby.io.HttpContext;
+import dobby.io.request.IRequestHandler;
+import dobby.io.request.Request;
+import dobby.io.request.RequestTypes;
+import dobby.io.response.Response;
+import dobby.session.Session;
+import dobby.session.service.SessionService;
+import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
-import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -64,7 +72,7 @@ public class Server {
     }
 
     private void discoverFilterDefinitions() {
-        FilterDiscoverer.discover();
+        FilterDiscoverer.discover("");
     }
 
     private void acceptConnections() {
@@ -89,14 +97,18 @@ public class Server {
             , InstantiationException, IllegalAccessException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
+        HttpContext ctx = new HttpContext();
+
         Request req = Request.parse(in);
-        Response res = new Response(client);
+        Response res = new Response(client, ctx);
+        Optional<Session> session = SessionService.getInstance().find(req.getCookie("DOBBY_SESSION"));
 
-        req.setResponse(res);
-        res.setRequest(req);
+        ctx.setRequest(req);
+        ctx.setResponse(res);
+        ctx.setSession(session.orElse(new Session()));
 
-        FilterManager.getInstance().runPreFilters(req);
-        RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(req, res);
+        FilterManager.getInstance().runPreFilters(ctx);
+        RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(ctx);
     }
 
     public void stop() {
@@ -123,11 +135,11 @@ public class Server {
         addRoute(RequestTypes.DELETE, route, handler);
     }
 
-    public void addPreFilter(PreFilter filter) {
+    public void addPreFilter(Filter filter) {
         FilterManager.getInstance().addPreFilter(filter);
     }
 
-    public void addPostFilter(PostFilter filter) {
+    public void addPostFilter(Filter filter) {
         FilterManager.getInstance().addPostFilter(filter);
     }
 

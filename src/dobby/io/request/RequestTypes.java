@@ -1,4 +1,4 @@
-package dobby;
+package dobby.io.request;
 
 public enum RequestTypes {
     GET, POST,PUT, DELETE, UNKNOWN;
