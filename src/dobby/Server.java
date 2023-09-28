@@ -14,7 +14,6 @@ import dobby.session.service.SessionService;
 import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
-import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;

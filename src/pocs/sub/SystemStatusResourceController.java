@@ -21,7 +21,7 @@ public class SystemStatusResourceController {
     }
 
     @Get("/system/wait")
-    public void wait(HttpContect ctx) throws IOException {
+    public void wait(HttpContext ctx) throws IOException {
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
