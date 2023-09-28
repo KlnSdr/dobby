@@ -5,6 +5,9 @@ import dobby.util.Classloader;
 import dobby.util.logging.Logger;
 
 
+/**
+ * Discovers filters in the classpath
+ */
 public class FilterDiscoverer extends Classloader<Filter> {
     private static final Logger LOGGER = new Logger(FilterDiscoverer.class);
 
@@ -12,6 +15,11 @@ public class FilterDiscoverer extends Classloader<Filter> {
         this.packageName = packageName;
     }
 
+    /**
+     * Discovers filters in the given package
+     *
+     * @param rootPackage The package to discover filters in
+     */
     public static void discover(String rootPackage) {
         if (rootPackage.startsWith(".")) {
             rootPackage = rootPackage.substring(1);

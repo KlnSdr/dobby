@@ -4,6 +4,9 @@ import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.session.Session;
 
+/**
+ * The HttpContext class is used to pass information between filters and handlers
+ */
 public class HttpContext {
     private Request request;
     private Response response;

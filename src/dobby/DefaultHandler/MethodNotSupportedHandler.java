@@ -6,6 +6,9 @@ import dobby.io.response.ResponseCodes;
 
 import java.io.IOException;
 
+/**
+ * Handler for requests with unsupported methods
+ */
 public class MethodNotSupportedHandler implements IRequestHandler {
     @Override
     public void handle(HttpContext context) throws IOException {

@@ -13,11 +13,19 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
+/**
+ * Classloader class
+ * @param <T> The type of class to load
+ */
 public abstract class Classloader<T> {
     private final Logger LOGGER = new Logger(Classloader.class);
     private static final String[] JarPathBlacklist = {"META-INF"};
     protected String packageName;
 
+    /**
+     * loads all classes in the given package
+     * @return A set of classes in the given package
+     */
     protected Set<Class<? extends T>> loadClasses() {
         Set<Class<? extends T>> clazzes;
         if (isJar()) {
@@ -29,6 +37,10 @@ public abstract class Classloader<T> {
         return clazzes;
     }
 
+    /**
+     * Gets all subpackages of the given package
+     * @return A set of subpackages of the given package
+     */
     public Set<String> getPackages() {
         if (isJar()) {
             return getPackagesFromJar();
@@ -37,6 +49,10 @@ public abstract class Classloader<T> {
         }
     }
 
+    /**
+     * Gets all subpackages of the given package
+     * @return A set of subpackages of the given package
+     */
     private Set<String> getPackagesFromDirectory() {
         InputStream istream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replace(".", "/"));
         if (istream == null) {
@@ -104,8 +120,18 @@ public abstract class Classloader<T> {
         return entry.getName().substring(packageName.length() + 1);
     }
 
+    /**
+     * Filters classes, needs to be implemented by the user
+     * @param line The line to filter
+     * @return The filtered class
+     */
     protected abstract Class<? extends T> filterClasses(String line);
 
+    /**
+     * The default class filter, only checks if a class can be loaded
+     * @param line The line to filter
+     * @return The filtered class
+     */
     protected Class<?> defaultClassFilter(String line) {
         try {
             String classPath = packageName + "." + line.substring(0, line.lastIndexOf('.')/*remove ".class" from
@@ -120,6 +146,12 @@ public abstract class Classloader<T> {
         return null;
     }
 
+    /**
+     * The default implements filter, checks if a class can be loaded and if it implements the given interface
+     * @param line The line to filter
+     * @param interfaceToImplement The interface to check
+     * @return The filtered class
+     */
     protected Class<? extends T> defaultImplementsFilter(String line, Class<T> interfaceToImplement) {
         Class<?> clazz = defaultClassFilter(line);
         if (interfaceToImplement.isAssignableFrom(clazz) && !clazz.equals(interfaceToImplement)) {

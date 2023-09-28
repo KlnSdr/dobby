@@ -27,6 +27,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The Server class is used to start the server
+ */
 public class Server {
     private final Logger LOGGER = new Logger(Server.class);
     private final Date startTime;
@@ -53,10 +56,20 @@ public class Server {
         start();
     }
 
+    /**
+     * Creates a new instance of the server with the default port 3000 and thread count 10
+     * @return A new instance of the server
+     */
     public static Server newInstance() {
         return newInstance(3000, 10);
     }
 
+    /**
+     * Creates a new instance of the server with the given port and thread count
+     * @param port The port to start the server on
+     * @param threadCount The number of threads to use
+     * @return A new instance of the server
+     */
     public static Server newInstance(int port, int threadCount) {
         return new Server(port, threadCount);
     }
@@ -119,6 +132,9 @@ public class Server {
         RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(ctx);
     }
 
+    /**
+     * Stops the server
+     */
     public void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");

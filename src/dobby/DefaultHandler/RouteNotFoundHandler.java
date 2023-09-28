@@ -8,6 +8,9 @@ import dobby.io.response.ResponseCodes;
 
 import java.io.IOException;
 
+/**
+ * Handler for requests to routes that don't exist
+ */
 public class RouteNotFoundHandler implements IRequestHandler {
     public void handle(HttpContext context) throws IOException {
         Response res = context.getResponse();
