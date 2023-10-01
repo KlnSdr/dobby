@@ -7,6 +7,9 @@ import dobby.io.response.Response;
 
 import java.util.HashMap;
 
+/**
+ * Filter for setting cookies
+ */
 public class CookiePostFilter implements Filter {
     @Override
     public String getName() {

@@ -5,6 +5,9 @@ import dobby.filter.FilterType;
 import dobby.io.HttpContext;
 import dobby.session.service.SessionService;
 
+/**
+ * The SessionPreFilter class is used to find the session in the database and set it in the HttpContext
+ */
 public class SessionPreFilter implements Filter {
     private final SessionService sessionService = SessionService.getInstance();
 

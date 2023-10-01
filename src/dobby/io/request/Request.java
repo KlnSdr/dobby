@@ -17,6 +17,11 @@ public class Request {
     private Map<String, String> headers;
     private Map<String, List<String>> query;
 
+    /**
+     * Parses a request from an input stream
+     * @param in The input stream to parse the request from
+     * @return The parsed request
+     */
     public static Request parse(BufferedReader in) {
         Request req = new Request();
 
@@ -121,6 +126,10 @@ public class Request {
         return headers;
     }
 
+    /**
+     * Gets the type of the request
+     * @return The type of the request
+     */
     public RequestTypes getType() {
         return type;
     }
@@ -129,6 +138,10 @@ public class Request {
         this.type = type;
     }
 
+    /**
+     * Gets the path of the request
+     * @return The path of the request
+     */
     public String getPath() {
         return path;
     }
@@ -137,10 +150,18 @@ public class Request {
         this.path = path;
     }
 
+    /**
+     * Gets the headers of the request
+     * @return The header key of the request
+     */
     public String getHeader(String key) {
         return headers.get(key);
     }
 
+    /**
+     * Gets the header keys of the request
+     * @return A set containing all header keys
+     */
     public Set<String> getHeaderKeys() {
         return headers.keySet();
     }
@@ -149,14 +170,27 @@ public class Request {
         this.headers = headers;
     }
 
+    /**
+     * Sets a header of the request
+     * @param key The key of the header
+     * @param value The value of the header
+     */
     public void setHeader(String key, String value) {
         headers.put(key, value);
     }
 
+    /**
+     * Gets the query of the request
+     * @return The query of the request
+     */
     public List<String> getQuery(String key) {
         return query.get(key);
     }
 
+    /**
+     * Gets the query keys of the request
+     * @return A set containing all query keys
+     */
     public Set<String> getQueryKeys() {
         return query.keySet();
     }
@@ -165,6 +199,11 @@ public class Request {
         this.query = query;
     }
 
+    /**
+     * Sets a query of the request
+     * @param key The key of the query
+     * @param value The value of the query
+     */
     public void setQuery(String key, String value) {
         if (!query.containsKey(key)) {
             query.put(key, new ArrayList<>());
@@ -173,6 +212,10 @@ public class Request {
         query.get(key).add(value);
     }
 
+    /**
+     * Gets the string representation of the body of the request
+     * @return The body of the request as a string
+     */
     public String getRawBody() {
         return rawBody;
     }
@@ -181,7 +224,11 @@ public class Request {
         this.rawBody = rawBody;
     }
 
-    private Json getBody() {
+    /**
+     * Gets the body of the request
+     * @return The body of the request
+     */
+    public Json getBody() {
         return body;
     }
 
@@ -193,6 +240,10 @@ public class Request {
         cookies.put(key, value);
     }
 
+    /**
+     * Gets the cookies of the request
+     * @return The cookies of the request
+     */
     public String getCookie(String key) {
         return cookies.get(key);
     }

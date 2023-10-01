@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 
+/**
+ * Response class
+ */
 public class Response {
     private final HashMap<String, String> headers = new HashMap<>();
     private final Socket client;
@@ -17,20 +20,40 @@ public class Response {
     private ResponseCodes code = ResponseCodes.OK;
     private String body = "";
 
+    /**
+     * Constructor
+     *
+     * @param client  Client socket
+     * @param context HttpContext
+     * @throws IOException If an I/O error occurs
+     */
     public Response(Socket client, HttpContext context) throws IOException {
         this.client = client;
         this.context = context;
         out = client.getOutputStream();
     }
 
+    /**
+     * Set response code
+     * @param code Response code
+     */
     public void setCode(ResponseCodes code) {
         this.code = code;
     }
 
+    /**
+     * Set response body
+     * @param body Response body
+     */
     public void setBody(String body) {
         this.body = body;
     }
 
+    /**
+     * Set response header
+     * @param key Header key
+     * @param value Header value
+     */
     public void setHeader(String key, String value) {
         headers.put(key, value);
     }
@@ -62,32 +85,72 @@ public class Response {
         return builder.toString().getBytes();
     }
 
+    /**
+     * Send response
+     * @throws IOException If an I/O error occurs
+     */
     public void send() throws IOException {
         FilterManager.getInstance().runPostFilters(context);
         out.write(build());
         client.close();
     }
 
+    /**
+     * Get the response cookies
+     * @return The response cookies
+     */
     public HashMap<String, String> getCookies() {
         return cookies;
     }
 
+    /**
+     * Set a cookie
+     * @param key The key of the cookie
+     * @param value The value of the cookie
+     */
     public void setCookie(String key, String value) {
         cookies.put(key, value);
     }
 
+    /**
+     * Set a cookie
+     * @param key The key of the cookie
+     * @param value The value of the cookie
+     * @param maxAge The max age of the cookie
+     */
     public void setCookie(String key, String value, int maxAge) {
         cookies.put(key, value + "; Max-Age=" + maxAge + "; Path=/");
     }
 
+    /**
+     * Set a cookie
+     * @param key The key of the cookie
+     * @param value The value of the cookie
+     * @param path The path of the cookie
+     */
     public void setCookie(String key, String value, String path) {
         cookies.put(key, value + "; Path=" + path);
     }
 
+    /**
+     * Set a cookie
+     * @param key The key of the cookie
+     * @param value The value of the cookie
+     * @param maxAge The max age of the cookie
+     * @param httpOnly Whether the cookie is http only
+     */
     public void setCookie(String key, String value, int maxAge, boolean httpOnly) {
         cookies.put(key, value + "; Max-Age=" + maxAge + "; HttpOnly");
     }
 
+    /**
+     * Set a cookie
+     * @param key The key of the cookie
+     * @param value The value of the cookie
+     * @param maxAge The max age of the cookie
+     * @param httpOnly Whether the cookie is http only
+     * @param secure Whether the cookie is secure
+     */
     public void setCookie(String key, String value, int maxAge, boolean httpOnly, boolean secure) {
         cookies.put(key, value + "; Max-Age=" + maxAge + "; HttpOnly; Secure");
     }

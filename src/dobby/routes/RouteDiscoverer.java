@@ -11,6 +11,9 @@ import dobby.util.Classloader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+/**
+ * Discovers routes in a given package
+ */
 public class RouteDiscoverer extends Classloader<Object> {
     private RouteDiscoverer(String packageName) {
         this.packageName = packageName;

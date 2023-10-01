@@ -6,6 +6,9 @@ import dobby.io.HttpContext;
 import dobby.session.Session;
 import dobby.session.service.SessionService;
 
+/**
+ * The SessionPostFilter class is used to save the session to the database and set the session cookie
+ */
 public class SessionPostFilter implements Filter {
     private final SessionService sessionService = SessionService.getInstance();
 

@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The SessionService class is used to manage sessions
+ */
 public class SessionService {
     private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
 
