@@ -61,7 +61,7 @@ public abstract class Classloader<T> {
         }
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(istream));
-        return reader.lines().filter(line -> !line.endsWith(".class")).collect(Collectors.toSet());
+        return reader.lines().filter(line -> !line.contains(".")).collect(Collectors.toSet());
     }
 
     private Set<Class<? extends T>> loadClassesFromDirectory() {
@@ -79,7 +79,7 @@ public abstract class Classloader<T> {
         try (JarFile jar =
                      new JarFile(new File(Classloader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath())) {
             return jar.stream().map(ZipEntry::getName)
-                    .filter(line -> !line.endsWith(".class"))
+                    .filter(line -> !line.contains("."))
                     .filter(line -> line.startsWith(packageName.replace(".", "/")))
                     .filter(line -> Arrays.stream(JarPathBlacklist).noneMatch(line::contains))
                     .map(line -> line.replace("/", "."))

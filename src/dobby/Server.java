@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -37,9 +38,19 @@ public class Server {
     private ExecutorService threadPool;
     private boolean isRunning = false;
 
+    public static void startApplication(Class<?> applicationClass) {
+        printBanner();
+        URL configFile = applicationClass.getResource("application.yml");
+        if (configFile == null) {
+            new Logger(Server.class).error("application.yml not found");
+            System.exit(1);
+        }
+
+        Server server = new Server(3000, 10);
+    }
+
     private Server(int port, int threadCount) {
         startTime = new Date();
-        printBanner();
         try {
             server = new ServerSocket(port);
         } catch (IOException e) {
@@ -54,24 +65,6 @@ public class Server {
         LOGGER.info("Discovering filters...");
         discoverFilterDefinitions();
         start();
-    }
-
-    /**
-     * Creates a new instance of the server with the default port 3000 and thread count 10
-     * @return A new instance of the server
-     */
-    public static Server newInstance() {
-        return newInstance(3000, 10);
-    }
-
-    /**
-     * Creates a new instance of the server with the given port and thread count
-     * @param port The port to start the server on
-     * @param threadCount The number of threads to use
-     * @return A new instance of the server
-     */
-    public static Server newInstance(int port, int threadCount) {
-        return new Server(port, threadCount);
     }
 
     private void start() {
@@ -135,7 +128,7 @@ public class Server {
     /**
      * Stops the server
      */
-    public void stop() {
+    private void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");
         threadPool.shutdown();
@@ -153,35 +146,7 @@ public class Server {
         }
     }
 
-    public void addRoute(RequestTypes type, String route, IRequestHandler handler) {
-        RouteManager.getInstance().add(type, route, handler);
-    }
-
-    public void get(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.GET, route, handler);
-    }
-
-    public void post(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.POST, route, handler);
-    }
-
-    public void put(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.PUT, route, handler);
-    }
-
-    public void delete(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.DELETE, route, handler);
-    }
-
-    public void addPreFilter(Filter filter) {
-        FilterManager.getInstance().addPreFilter(filter);
-    }
-
-    public void addPostFilter(Filter filter) {
-        FilterManager.getInstance().addPostFilter(filter);
-    }
-
-    private void printBanner() {
+    private static void printBanner() {
         System.out.println("########   #######  ########  ########  ##    ##");
         System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
         System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
