@@ -19,6 +19,7 @@ public class Response {
     private final HttpContext context;
     private ResponseCodes code = ResponseCodes.OK;
     private String body = "";
+    private boolean didSend = false;
 
     /**
      * Constructor
@@ -90,9 +91,17 @@ public class Response {
      * @throws IOException If an I/O error occurs
      */
     public void send() throws IOException {
-        FilterManager.getInstance().runPostFilters(context);
+        if (didSend) {
+            throw new IOException("Response already sent");
+        }
+        didSend = true;
+
         out.write(build());
         client.close();
+    }
+
+    public boolean didSend() {
+        return didSend;
     }
 
     /**
