@@ -24,10 +24,11 @@ public class TestPreFilter implements Filter {
     }
 
     @Override
-    public void run(HttpContext ctx) {
+    public boolean run(HttpContext ctx) {
         LOGGER.debug("Test pre filter");
         LOGGER.debug(ctx.getRequest().getPath());
 
         ctx.getRequest().setHeader("X-Test-Pre-Filter", "Test pre filter");
+        return true;
     }
 }
