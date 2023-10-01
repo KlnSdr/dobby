@@ -2,15 +2,15 @@ package dobby;
 
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
-
 import dobby.io.HttpContext;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
-import dobby.session.Session;
-import dobby.session.service.SessionService;
-import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
+import dobby.session.Session;
+import dobby.session.service.SessionService;
+import dobby.util.ConfigFile;
+import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -34,17 +33,6 @@ public class Dobby {
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
-
-    public static void startApplication(Class<?> applicationClass) {
-        printBanner();
-        URL configFile = applicationClass.getResource("application.yml");
-        if (configFile == null) {
-            new Logger(Dobby.class).error("application.yml not found");
-            System.exit(1);
-        }
-
-        Dobby server = new Dobby(3000, 10);
-    }
 
     private Dobby(int port, int threadCount) {
         startTime = new Date();
@@ -62,6 +50,24 @@ public class Dobby {
         LOGGER.info("Discovering filters...");
         discoverFilterDefinitions();
         start();
+    }
+
+    public static void startApplication(Class<?> applicationClass) {
+        printBanner();
+        ConfigFile config = new ConfigFile(applicationClass);
+        new Dobby(config.getPort(), config.getThreads());
+    }
+
+    private static void printBanner() {
+        System.out.println("########   #######  ########  ########  ##    ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
+        System.out.println("##     ## ##     ## ########  ########     ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
+        System.out.println("########   #######  ########  ########     ##");
+        System.out.println("initializing...");
+        System.out.println();
     }
 
     private void start() {
@@ -141,18 +147,6 @@ public class Dobby {
         } catch (IOException | InterruptedException e) {
             LOGGER.trace(e);
         }
-    }
-
-    private static void printBanner() {
-        System.out.println("########   #######  ########  ########  ##    ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
-        System.out.println("##     ## ##     ## ########  ########     ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
-        System.out.println("########   #######  ########  ########     ##");
-        System.out.println("initializing...");
-        System.out.println();
     }
 
     private void registerStopHandler() {
