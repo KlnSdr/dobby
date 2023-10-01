@@ -47,8 +47,10 @@ public class Dobby {
         LOGGER.info("Server initialized on port " + port + " with " + threadCount + " threads.");
         LOGGER.info("Discovering routes...");
         discoverRouteDefinitions();
+        LOGGER.info("done!");
         LOGGER.info("Discovering filters...");
         discoverFilterDefinitions();
+        LOGGER.info("done!");
         start();
     }
 
