@@ -1,5 +1,6 @@
 package dobby.session.filter;
 
+import dobby.cookie.Cookie;
 import dobby.filter.Filter;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
@@ -28,13 +29,13 @@ public class SessionPreFilter implements Filter {
 
     @Override
     public boolean run(HttpContext ctx) {
-        String sessionId = ctx.getRequest().getCookie("DOBBY_SESSION");
+        Cookie sessionId = ctx.getRequest().getCookie("DOBBY_SESSION");
 
         if (sessionId == null) {
             return true;
         }
 
-        sessionService.find(sessionId).ifPresent(ctx::setSession);
+        sessionService.find(sessionId.getValue()).ifPresent(ctx::setSession);
         return true;
     }
 }

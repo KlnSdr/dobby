@@ -1,6 +1,7 @@
 package pocs.sub;
 
 import dobby.annotations.Get;
+import dobby.cookie.Cookie;
 import dobby.io.HttpContext;
 import dobby.io.response.Response;
 import dobby.util.logging.Logger;
@@ -15,8 +16,12 @@ public class SystemStatusResourceController {
         Response res = context.getResponse();
 
         res.setBody("System is up and running!");
-        res.setCookie("system_status", "up");
-        res.setCookie("system_health", "good");
+
+        Cookie cookie_sysetmStatus = new Cookie("system_status", "up");
+        res.setCookie("system_status", cookie_sysetmStatus);
+
+        Cookie cookie_systemHealth = new Cookie("system_health", "good");
+        res.setCookie("system_health", cookie_systemHealth);
     }
 
     @Get("/system/wait")

@@ -1,5 +1,6 @@
 package dobby.io;
 
+import dobby.cookie.Cookie;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.session.Session;
@@ -41,6 +42,9 @@ public class HttpContext {
 
     public void destroySession() {
         session.destroy();
-        response.setCookie("DOBBY_SESSION", "", -1);
+
+        Cookie cookie = new Cookie("DOBBY_SESSION", "");
+        cookie.setMaxAge(-1);
+        response.setCookie("DOBBY_SESSION", cookie);
     }
 }

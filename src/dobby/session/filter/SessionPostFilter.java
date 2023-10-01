@@ -1,5 +1,6 @@
 package dobby.session.filter;
 
+import dobby.cookie.Cookie;
 import dobby.filter.Filter;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
@@ -36,7 +37,9 @@ public class SessionPostFilter implements Filter {
         }
 
         sessionService.set(session);
-        ctx.getResponse().setCookie("DOBBY_SESSION", session.getId(), "/");
+
+        Cookie cookie = new Cookie("DOBBY_SESSION", session.getId());
+        ctx.getResponse().setCookie("DOBBY_SESSION", cookie);
 
         return true;
     }
