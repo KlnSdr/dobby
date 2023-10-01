@@ -1,10 +1,9 @@
 package pocs;
 
-import dobby.Server;
-import dobby.io.response.ResponseCodes;
+import dobby.Dobby;
 
 public class Main {
     public static void main(String[] args) {
-        Server.startApplication(Main.class);
+        Dobby.startApplication(Main.class);
     }
 }

@@ -1,13 +1,10 @@
 package dobby;
 
-import dobby.filter.Filter;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
 
 import dobby.io.HttpContext;
-import dobby.io.request.IRequestHandler;
 import dobby.io.request.Request;
-import dobby.io.request.RequestTypes;
 import dobby.io.response.Response;
 import dobby.session.Session;
 import dobby.session.service.SessionService;
@@ -31,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * The Server class is used to start the server
  */
-public class Server {
-    private final Logger LOGGER = new Logger(Server.class);
+public class Dobby {
+    private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
     private ServerSocket server;
     private ExecutorService threadPool;
@@ -42,14 +39,14 @@ public class Server {
         printBanner();
         URL configFile = applicationClass.getResource("application.yml");
         if (configFile == null) {
-            new Logger(Server.class).error("application.yml not found");
+            new Logger(Dobby.class).error("application.yml not found");
             System.exit(1);
         }
 
-        Server server = new Server(3000, 10);
+        Dobby server = new Dobby(3000, 10);
     }
 
-    private Server(int port, int threadCount) {
+    private Dobby(int port, int threadCount) {
         startTime = new Date();
         try {
             server = new ServerSocket(port);
