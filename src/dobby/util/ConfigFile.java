@@ -3,10 +3,8 @@ package dobby.util;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.net.URL;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 public class ConfigFile {
@@ -14,26 +12,20 @@ public class ConfigFile {
     private final Json configJson;
 
     public ConfigFile(Class<?> applicationClass) {
-        URL configFile = applicationClass.getResource("application.json");
-        String rawConfig = loadFileContent(configFile);
+        InputStream stream = applicationClass.getResourceAsStream("application.json");
+        String rawConfig = loadFileContent(stream);
+
         configJson = Json.parse(rawConfig);
     }
 
-    private String loadFileContent(URL filePath) {
-        if (filePath == null) {
+    private String loadFileContent(InputStream stream) {
+        if (stream == null) {
             LOGGER.error("application.json not found");
             System.exit(1);
         }
 
-        File config = new File(filePath.getFile());
         BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader(config));
-        } catch (FileNotFoundException e) {
-            LOGGER.trace(e);
-            System.exit(1);
-            return "";
-        }
+        reader = new BufferedReader(new InputStreamReader(stream));
         return reader.lines().collect(Collectors.joining("\n"));
     }
 
