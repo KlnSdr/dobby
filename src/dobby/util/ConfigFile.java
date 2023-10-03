@@ -8,10 +8,21 @@ import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 public class ConfigFile {
+    private static ConfigFile instance;
     private final Logger LOGGER = new Logger(ConfigFile.class);
-    private final Json configJson;
+    private Json configJson;
 
-    public ConfigFile(Class<?> applicationClass) {
+    private ConfigFile() {
+    }
+
+    public static ConfigFile getInstance() {
+        if (instance == null) {
+            instance = new ConfigFile();
+        }
+        return instance;
+    }
+
+    public void loadConfig(Class<?> applicationClass) {
         InputStream stream = applicationClass.getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
 

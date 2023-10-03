@@ -56,7 +56,8 @@ public class Dobby {
 
     public static void startApplication(Class<?> applicationClass) {
         printBanner();
-        ConfigFile config = new ConfigFile(applicationClass);
+        ConfigFile config = ConfigFile.getInstance();
+        config.loadConfig(applicationClass);
         new Dobby(config.getPort(), config.getThreads());
     }
 
