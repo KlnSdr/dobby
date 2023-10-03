@@ -6,10 +6,8 @@ import dobby.io.HttpContext;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.routes.RouteDiscoverer;
-import dobby.routes.RouteManager;
 import dobby.session.Session;
-import dobby.session.service.SessionService;
-import dobby.util.ConfigFile;
+import dobby.util.Config;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -19,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -56,9 +53,9 @@ public class Dobby {
 
     public static void startApplication(Class<?> applicationClass) {
         printBanner();
-        ConfigFile config = ConfigFile.getInstance();
+        Config config = Config.getInstance();
         config.loadConfig(applicationClass);
-        new Dobby(config.getPort(), config.getThreads());
+        new Dobby(config.getInt("port", 3000), config.getInt("threads", 10));
     }
 
     private static void printBanner() {
