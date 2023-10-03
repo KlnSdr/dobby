@@ -21,7 +21,8 @@ public class TestPostFilter implements Filter {
     }
 
     @Override
-    public void run(HttpContext ctx) {
+    public boolean run(HttpContext ctx) {
         ctx.getResponse().setHeader("X-Test-Post-Filter", "Test post filter");
+        return true;
     }
 }

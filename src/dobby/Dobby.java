@@ -126,8 +126,7 @@ public class Dobby {
         ctx.setResponse(res);
         ctx.setSession(session.orElse(new Session()));
 
-        FilterManager.getInstance().runPreFilters(ctx);
-        RouteManager.getInstance().getHandler(req.getType(), req.getPath()).handle(ctx);
+        FilterManager.getInstance().runFilterChain(ctx);
     }
 
     /**

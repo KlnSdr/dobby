@@ -1,8 +1,11 @@
 package dobby.filter;
 
 import dobby.io.HttpContext;
+import dobby.routes.RouteManager;
 import dobby.util.logging.Logger;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -13,7 +16,9 @@ public class FilterManager {
     private static FilterManager instance;
     private final Logger LOGGER = new Logger(FilterManager.class);
     private Filter[] preFilters = new Filter[0];
+    private int preFilterCount = 0;
     private Filter[] postFilters = new Filter[0];
+    private int postFilterCount = 0;
 
     private FilterManager() {
     }
@@ -27,17 +32,53 @@ public class FilterManager {
 
     public void addPreFilter(Filter filter) {
         this.preFilters = addFilter(filter, this.preFilters);
+        preFilterCount = preFilters.length;
         LOGGER.debug(String.format("Added pre-filter %s", filter.getClass().getCanonicalName()));
     }
 
     public void addPostFilter(Filter filter) {
         this.postFilters = addFilter(filter, this.postFilters);
+        postFilterCount = postFilters.length;
         LOGGER.debug(String.format("Added post-filter %s", filter.getClass().getCanonicalName()));
+    }
+
+    public void runFilterChain(HttpContext ctx) throws IOException, InvocationTargetException, NoSuchMethodException,
+            InstantiationException, IllegalAccessException {
+        int i = 0;
+        while (i < preFilterCount) {
+            boolean result = preFilters[i].run(ctx);
+            if (!result) {
+                break;
+            }
+            i++;
+        }
+        if (ctx.getResponse().didSend()) {
+            return;
+        } else if (i < preFilterCount) {
+            ctx.getResponse().send();
+            return;
+        }
+
+        RouteManager.getInstance().getHandler(ctx.getRequest().getType(), ctx.getRequest().getPath()).handle(ctx);
+
+        i = 0;
+        while (i < postFilterCount) {
+            boolean result = postFilters[i].run(ctx);
+            if (!result) {
+                break;
+            }
+            i++;
+        }
+
+        if (!ctx.getResponse().didSend()) {
+            ctx.getResponse().send();
+        }
     }
 
     /**
      * Adds a filter to the given array of filters
-     * @param filter The filter to add
+     *
+     * @param filter  The filter to add
      * @param filters The array of filters to add the filter to
      * @return The new array of filters
      */
@@ -51,23 +92,8 @@ public class FilterManager {
     }
 
     /**
-     * Runs all pre-filters
-     * @param ctx The HttpContext to run the filters on
-     */
-    public void runPreFilters(HttpContext ctx) {
-        Arrays.stream(preFilters).forEach(filter -> filter.run(ctx));
-    }
-
-    /**
-     * Runs all post-filters
-     * @param ctx The HttpContext to run the filters on
-     */
-    public void runPostFilters(HttpContext ctx) {
-        Arrays.stream(postFilters).forEach(filter -> filter.run(ctx));
-    }
-
-    /**
      * Sorts the given array of filters by their order
+     *
      * @param filters The array of filters to sort
      */
     private void sortFilters(Filter[] filters) {

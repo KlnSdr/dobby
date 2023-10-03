@@ -28,14 +28,16 @@ public class SessionPostFilter implements Filter {
     }
 
     @Override
-    public void run(HttpContext ctx) {
+    public boolean run(HttpContext ctx) {
         Session session = ctx.getSession();
 
         if (session.getId() == null) {
-            return;
+            return true;
         }
 
         sessionService.set(session);
         ctx.getResponse().setCookie("DOBBY_SESSION", session.getId(), "/");
+
+        return true;
     }
 }

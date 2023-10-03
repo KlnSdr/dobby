@@ -15,7 +15,7 @@ public class UsersResourceController {
     private final Logger LOGGER = new Logger(UsersResourceController.class);
 
     @Get("/users/create")
-    public void createNewUser(HttpContext context) throws IOException {
+    public void createNewUser(HttpContext context) {
         Request req = context.getRequest();
         Response res = context.getResponse();
 
@@ -25,7 +25,6 @@ public class UsersResourceController {
 
         if (session.get("user") != null) {
             res.setCode(ResponseCodes.FORBIDDEN);
-            res.send();
             return;
         }
 
@@ -35,11 +34,10 @@ public class UsersResourceController {
         context.setSession(session);
 
         res.setCode(ResponseCodes.OK);
-        res.send();
     }
 
     @Get("/users/info")
-    public void getUserInfo(HttpContext context) throws IOException {
+    public void getUserInfo(HttpContext context) {
         Request req = context.getRequest();
         Response res = context.getResponse();
 
@@ -49,23 +47,20 @@ public class UsersResourceController {
 
         if (session.get("user") == null) {
             res.setCode(ResponseCodes.UNAUTHORIZED);
-            res.send();
             return;
         }
 
         res.setBody(session.get("user"));
 
         res.setCode(ResponseCodes.OK);
-        res.send();
     }
 
     @Get("/users/logout")
-    public void logout(HttpContext context) throws IOException {
+    public void logout(HttpContext context) {
         LOGGER.debug("Logging out...");
         context.destroySession();
         Response res = context.getResponse();
 
         res.setCode(ResponseCodes.OK);
-        res.send();
     }
 }

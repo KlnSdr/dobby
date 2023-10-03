@@ -9,5 +9,5 @@ public interface Filter {
 
     int getOrder();
 
-    void run(HttpContext ctx);
+    boolean run(HttpContext ctx);
 }

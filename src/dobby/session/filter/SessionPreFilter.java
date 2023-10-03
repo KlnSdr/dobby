@@ -27,13 +27,14 @@ public class SessionPreFilter implements Filter {
     }
 
     @Override
-    public void run(HttpContext ctx) {
+    public boolean run(HttpContext ctx) {
         String sessionId = ctx.getRequest().getCookie("DOBBY_SESSION");
 
         if (sessionId == null) {
-            return;
+            return true;
         }
 
         sessionService.find(sessionId).ifPresent(ctx::setSession);
+        return true;
     }
 }

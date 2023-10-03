@@ -27,7 +27,7 @@ public class CookiePostFilter implements Filter {
     }
 
     @Override
-    public void run(HttpContext ctx) {
+    public boolean run(HttpContext ctx) {
         Response res = ctx.getResponse();
 
         HashMap<String, String> cookies = res.getCookies();
@@ -35,5 +35,7 @@ public class CookiePostFilter implements Filter {
         for (String key : cookies.keySet()) {
             res.setHeader("Set-Cookie", key + "=" + cookies.get(key));
         }
+
+        return true;
     }
 }
