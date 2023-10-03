@@ -12,7 +12,7 @@ public class ConfigFile {
     private final Json configJson;
 
     public ConfigFile(Class<?> applicationClass) {
-        InputStream stream = applicationClass.getResourceAsStream("application.json");
+        InputStream stream = applicationClass.getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
 
         configJson = Json.parse(rawConfig);
