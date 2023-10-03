@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class Config {
     private static Config instance;
     private final Logger LOGGER = new Logger(Config.class);
-    private Json configJson;
+    private Json configJson = new Json();
 
     private Config() {
     }

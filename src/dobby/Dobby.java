@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * The Server class is used to start the server
  */
 public class Dobby {
+    private static final String version = "0.0.1";
     private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
     private ServerSocket server;
@@ -45,8 +46,11 @@ public class Dobby {
         LOGGER.info("Discovering routes...");
         discoverRouteDefinitions();
         LOGGER.info("done!");
-        LOGGER.info("Discovering filters...");
-        discoverFilterDefinitions();
+
+        if (!Config.getInstance().getBoolean("disableFilters")) {
+            LOGGER.info("Discovering filters...");
+            discoverFilterDefinitions();
+        }
         LOGGER.info("done!");
         start();
     }
@@ -55,6 +59,11 @@ public class Dobby {
         printBanner();
         Config config = Config.getInstance();
         config.loadConfig(applicationClass);
+
+        System.out.println(config.getString("applicationName", "[APP_NAME]") + "@" + config.getString(
+                "applicationVersion", "[APP_VERSION]"));
+        System.out.println();
+
         new Dobby(config.getInt("port", 3000), config.getInt("threads", 10));
     }
 
@@ -66,6 +75,7 @@ public class Dobby {
         System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
         System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
         System.out.println("########   #######  ########  ########     ##");
+        System.out.println("v" + version);
         System.out.println("initializing...");
         System.out.println();
     }
