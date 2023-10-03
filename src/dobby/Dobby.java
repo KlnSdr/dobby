@@ -1,19 +1,16 @@
 package dobby;
 
-import dobby.filter.Filter;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
-
 import dobby.io.HttpContext;
-import dobby.io.request.IRequestHandler;
 import dobby.io.request.Request;
-import dobby.io.request.RequestTypes;
 import dobby.io.response.Response;
-import dobby.session.Session;
-import dobby.session.service.SessionService;
-import dobby.util.logging.Logger;
 import dobby.routes.RouteDiscoverer;
 import dobby.routes.RouteManager;
+import dobby.session.Session;
+import dobby.session.service.SessionService;
+import dobby.util.ConfigFile;
+import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,16 +27,15 @@ import java.util.concurrent.TimeUnit;
 /**
  * The Server class is used to start the server
  */
-public class Server {
-    private final Logger LOGGER = new Logger(Server.class);
+public class Dobby {
+    private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
 
-    private Server(int port, int threadCount) {
+    private Dobby(int port, int threadCount) {
         startTime = new Date();
-        printBanner();
         try {
             server = new ServerSocket(port);
         } catch (IOException e) {
@@ -51,27 +47,29 @@ public class Server {
         LOGGER.info("Server initialized on port " + port + " with " + threadCount + " threads.");
         LOGGER.info("Discovering routes...");
         discoverRouteDefinitions();
+        LOGGER.info("done!");
         LOGGER.info("Discovering filters...");
         discoverFilterDefinitions();
+        LOGGER.info("done!");
         start();
     }
 
-    /**
-     * Creates a new instance of the server with the default port 3000 and thread count 10
-     * @return A new instance of the server
-     */
-    public static Server newInstance() {
-        return newInstance(3000, 10);
+    public static void startApplication(Class<?> applicationClass) {
+        printBanner();
+        ConfigFile config = new ConfigFile(applicationClass);
+        new Dobby(config.getPort(), config.getThreads());
     }
 
-    /**
-     * Creates a new instance of the server with the given port and thread count
-     * @param port The port to start the server on
-     * @param threadCount The number of threads to use
-     * @return A new instance of the server
-     */
-    public static Server newInstance(int port, int threadCount) {
-        return new Server(port, threadCount);
+    private static void printBanner() {
+        System.out.println("########   #######  ########  ########  ##    ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
+        System.out.println("##     ## ##     ## ########  ########     ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
+        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
+        System.out.println("########   #######  ########  ########     ##");
+        System.out.println("initializing...");
+        System.out.println();
     }
 
     private void start() {
@@ -135,7 +133,7 @@ public class Server {
     /**
      * Stops the server
      */
-    public void stop() {
+    private void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");
         threadPool.shutdown();
@@ -151,46 +149,6 @@ public class Server {
         } catch (IOException | InterruptedException e) {
             LOGGER.trace(e);
         }
-    }
-
-    public void addRoute(RequestTypes type, String route, IRequestHandler handler) {
-        RouteManager.getInstance().add(type, route, handler);
-    }
-
-    public void get(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.GET, route, handler);
-    }
-
-    public void post(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.POST, route, handler);
-    }
-
-    public void put(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.PUT, route, handler);
-    }
-
-    public void delete(String route, IRequestHandler handler) {
-        addRoute(RequestTypes.DELETE, route, handler);
-    }
-
-    public void addPreFilter(Filter filter) {
-        FilterManager.getInstance().addPreFilter(filter);
-    }
-
-    public void addPostFilter(Filter filter) {
-        FilterManager.getInstance().addPostFilter(filter);
-    }
-
-    private void printBanner() {
-        System.out.println("########   #######  ########  ########  ##    ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
-        System.out.println("##     ## ##     ## ########  ########     ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
-        System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
-        System.out.println("########   #######  ########  ########     ##");
-        System.out.println("initializing...");
-        System.out.println();
     }
 
     private void registerStopHandler() {
