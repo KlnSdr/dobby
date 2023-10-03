@@ -1,5 +1,6 @@
 package dobby.cookie.filter;
 
+import dobby.cookie.Cookie;
 import dobby.filter.Filter;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
@@ -30,10 +31,10 @@ public class CookiePostFilter implements Filter {
     public boolean run(HttpContext ctx) {
         Response res = ctx.getResponse();
 
-        HashMap<String, String> cookies = res.getCookies();
+        HashMap<String, Cookie> cookies = res.getCookies();
 
         for (String key : cookies.keySet()) {
-            res.setHeader("Set-Cookie", key + "=" + cookies.get(key));
+            res.setHeader("Set-Cookie", cookies.get(key).toString());
         }
 
         return true;

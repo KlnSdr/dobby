@@ -1,5 +1,6 @@
 package dobby.io.request;
 
+import dobby.cookie.Cookie;
 import dobby.util.Json;
 import dobby.util.logging.Logger;
 
@@ -9,7 +10,7 @@ import java.util.*;
 
 public class Request {
     private static final Logger LOGGER = new Logger(Request.class);
-    private final HashMap<String, String> cookies = new HashMap<>();
+    private final HashMap<String, Cookie> cookies = new HashMap<>();
     private RequestTypes type;
     private String path;
     private String rawBody;
@@ -237,14 +238,14 @@ public class Request {
     }
 
     private void setCookie(String key, String value) {
-        cookies.put(key, value);
+        cookies.put(key, new Cookie(key, value));
     }
 
     /**
      * Gets the cookies of the request
      * @return The cookies of the request
      */
-    public String getCookie(String key) {
+    public Cookie getCookie(String key) {
         return cookies.get(key);
     }
 

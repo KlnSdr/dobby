@@ -120,11 +120,10 @@ public class Dobby {
 
         Request req = Request.parse(in);
         Response res = new Response(client, ctx);
-        Optional<Session> session = SessionService.getInstance().find(req.getCookie("DOBBY_SESSION"));
 
         ctx.setRequest(req);
         ctx.setResponse(res);
-        ctx.setSession(session.orElse(new Session()));
+        ctx.setSession(new Session()); // if available, session will be set in SessionPreFilter
 
         FilterManager.getInstance().runFilterChain(ctx);
     }
