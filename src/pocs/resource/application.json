@@ -3,5 +3,6 @@
   "threads": "10",
   "applicationName": "poc",
   "applicationVersion": "0.0.1",
-  "disableFilters": "false"
+  "disableFilters": "false",
+  "staticContentDir": "static"
 }

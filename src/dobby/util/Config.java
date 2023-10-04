@@ -1,5 +1,6 @@
 package dobby.util;
 
+import dobby.Dobby;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -22,8 +23,8 @@ public class Config {
         return instance;
     }
 
-    public void loadConfig(Class<?> applicationClass) {
-        InputStream stream = applicationClass.getResourceAsStream("resource/application.json");
+    public void loadConfig() {
+        InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
 
         configJson = Json.parse(rawConfig);

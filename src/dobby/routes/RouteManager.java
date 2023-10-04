@@ -1,6 +1,6 @@
 package dobby.routes;
 
-import dobby.DefaultHandler.RouteNotFoundHandler;
+import dobby.DefaultHandler.StaticFileHandler;
 import dobby.io.request.IRequestHandler;
 import dobby.io.request.RequestTypes;
 import dobby.util.logging.Logger;
@@ -55,7 +55,7 @@ public class RouteManager {
     public IRequestHandler getHandler(RequestTypes type, String path) {
         path = path.toLowerCase();
         if (!hasRoute(path)) {
-            return new RouteNotFoundHandler();
+            return new StaticFileHandler();
         }
 
         return routes.get(path).getHandler(type);

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Dobby {
     private static final String version = "0.0.1";
+    private static Class<?> applicationClass;
     private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
     private ServerSocket server;
@@ -56,15 +57,20 @@ public class Dobby {
     }
 
     public static void startApplication(Class<?> applicationClass) {
+        Dobby.applicationClass = applicationClass;
         printBanner();
         Config config = Config.getInstance();
-        config.loadConfig(applicationClass);
+        config.loadConfig();
 
         System.out.println(config.getString("applicationName", "[APP_NAME]") + "@" + config.getString(
                 "applicationVersion", "[APP_VERSION]"));
         System.out.println();
 
         new Dobby(config.getInt("port", 3000), config.getInt("threads", 10));
+    }
+
+    public static Class<?> getMainClass() {
+        return applicationClass;
     }
 
     private static void printBanner() {
