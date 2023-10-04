@@ -4,6 +4,7 @@ import dobby.cookie.Cookie;
 import dobby.filter.FilterManager;
 import dobby.io.HttpContext;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -21,7 +22,7 @@ public class Response {
     private final HashMap<String, Cookie> cookies = new HashMap<>();
     private final HttpContext context;
     private ResponseCodes code = ResponseCodes.OK;
-    private String body = "";
+    private byte[] body = new byte[0];
     private boolean didSend = false;
 
     /**
@@ -52,6 +53,10 @@ public class Response {
      * @param body Response body
      */
     public void setBody(String body) {
+        this.body = body.getBytes();
+    }
+
+    public void setBodyBytes(byte[] body) {
         this.body = body;
     }
 
@@ -68,7 +73,7 @@ public class Response {
     }
 
     private void calculateContentLength() {
-        int length = body.getBytes().length;
+        int length = body.length;
         setHeader("Content-Length", Integer.toString(length));
     }
 
@@ -86,9 +91,18 @@ public class Response {
         }
 
         builder.append("\r\n");
-        builder.append(body);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        try {
+            outputStream.write(builder.toString().getBytes());
+            outputStream.write(body);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            return buildInternalError();
+        }
+    }
 
-        return builder.toString().getBytes();
+    private byte[] buildInternalError() {
+        return "HTTP/1.1 500 Internal Server Error\r\n".getBytes();
     }
 
     private String buildHeader(String key) {

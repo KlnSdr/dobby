@@ -2,7 +2,7 @@ package dobby.files;
 
 public class StaticFile {
     private String contentType = "text/html";
-    private String content = "";
+    private byte[] content = new byte[0];
 
     public StaticFile() {
     }
@@ -15,11 +15,11 @@ public class StaticFile {
         this.contentType = contentType;
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 }

@@ -24,7 +24,7 @@ public class StaticFileHandler implements IRequestHandler {
         }
 
         context.getResponse().setHeader("Content-Type", file.getContentType());
-        context.getResponse().setBody(file.getContent());
+        context.getResponse().setBodyBytes(file.getContent());
     }
 
     private void notFound(HttpContext context) {
