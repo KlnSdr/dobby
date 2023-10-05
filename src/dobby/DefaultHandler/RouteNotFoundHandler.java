@@ -12,12 +12,11 @@ import java.io.IOException;
  * Handler for requests to routes that don't exist
  */
 public class RouteNotFoundHandler implements IRequestHandler {
-    public void handle(HttpContext context) throws IOException {
+    public void handle(HttpContext context) {
         Response res = context.getResponse();
         Request req = context.getRequest();
 
         res.setCode(ResponseCodes.NOT_FOUND);
         res.setBody(String.format("Requested route %s not found", req.getPath()));
-        res.send();
     }
 }

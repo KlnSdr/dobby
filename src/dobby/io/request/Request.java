@@ -147,7 +147,7 @@ public class Request {
         return path;
     }
 
-    private void setPath(String path) {
+    public void setPath(String path) {
         this.path = path;
     }
 

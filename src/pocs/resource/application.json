@@ -1,0 +1,8 @@
+{
+  "port": "8080",
+  "threads": "10",
+  "applicationName": "poc",
+  "applicationVersion": "0.0.1",
+  "disableFilters": "false",
+  "staticContentDir": "static"
+}

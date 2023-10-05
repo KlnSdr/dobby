@@ -11,8 +11,7 @@ import java.io.IOException;
  */
 public class MethodNotSupportedHandler implements IRequestHandler {
     @Override
-    public void handle(HttpContext context) throws IOException {
+    public void handle(HttpContext context) {
         context.getResponse().setCode(ResponseCodes.METHOD_NOT_ALLOWED);
-        context.getResponse().send();
     }
 }

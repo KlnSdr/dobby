@@ -6,10 +6,8 @@ import dobby.io.HttpContext;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.routes.RouteDiscoverer;
-import dobby.routes.RouteManager;
 import dobby.session.Session;
-import dobby.session.service.SessionService;
-import dobby.util.ConfigFile;
+import dobby.util.Config;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -19,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +25,8 @@ import java.util.concurrent.TimeUnit;
  * The Server class is used to start the server
  */
 public class Dobby {
+    private static final String version = "0.0.1";
+    private static Class<?> applicationClass;
     private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
     private ServerSocket server;
@@ -48,16 +47,30 @@ public class Dobby {
         LOGGER.info("Discovering routes...");
         discoverRouteDefinitions();
         LOGGER.info("done!");
-        LOGGER.info("Discovering filters...");
-        discoverFilterDefinitions();
+
+        if (!Config.getInstance().getBoolean("disableFilters")) {
+            LOGGER.info("Discovering filters...");
+            discoverFilterDefinitions();
+        }
         LOGGER.info("done!");
         start();
     }
 
     public static void startApplication(Class<?> applicationClass) {
+        Dobby.applicationClass = applicationClass;
         printBanner();
-        ConfigFile config = new ConfigFile(applicationClass);
-        new Dobby(config.getPort(), config.getThreads());
+        Config config = Config.getInstance();
+        config.loadConfig();
+
+        System.out.println(config.getString("applicationName", "[APP_NAME]") + "@" + config.getString(
+                "applicationVersion", "[APP_VERSION]"));
+        System.out.println();
+
+        new Dobby(config.getInt("port", 3000), config.getInt("threads", 10));
+    }
+
+    public static Class<?> getMainClass() {
+        return applicationClass;
     }
 
     private static void printBanner() {
@@ -68,6 +81,7 @@ public class Dobby {
         System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
         System.out.println("##     ## ##     ## ##     ## ##     ##    ##");
         System.out.println("########   #######  ########  ########     ##");
+        System.out.println("v" + version);
         System.out.println("initializing...");
         System.out.println();
     }
