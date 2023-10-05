@@ -21,11 +21,11 @@ public class StaticFileService {
     private StaticFileService() {
         Config config = Config.getInstance();
 
-        if (config.getBoolean("disableStaticContent")) {
+        if (config.getBoolean("dobby.disableStaticContent")) {
             return;
         }
 
-        staticContentPath = config.getString("staticContentDir");
+        staticContentPath = config.getString("dobby.staticContentDir");
     }
 
     public static StaticFileService getInstance() {
