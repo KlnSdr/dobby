@@ -24,7 +24,7 @@ public class Json {
         }
 
         // https://stackoverflow.com/a/45167612
-        Pattern regex = Pattern.compile("[{\\[]{1}([,:{}\\[\\]0-9.\\-+Eaeflnr-u \\n\\r\\t]|\".*?\")+[}\\]]{1}");
+        Pattern regex = Pattern.compile("[{\\[]([,:{}\\[\\]0-9.\\-+Eaeflnr-u \\n\\r\\t]|\".*?\")+[}\\]]");
         Matcher matcher = regex.matcher(raw);
 
         if (!matcher.find()) {
@@ -41,28 +41,59 @@ public class Json {
         Json body = new Json();
 
         boolean isInString = false;
+        boolean isInNumber = false;
         StringBuilder buffer = new StringBuilder();
 
         String key = "";
         String value;
 
         for (int i = 0; i < raw.length(); i++) {
+            char currentChar = raw.charAt(i);
+
             if (isInString) {
-                if (raw.charAt(i) != '"') {
-                    buffer.append(raw.charAt(i));
-                } else if (key.isEmpty()) {
-                    isInString = false;
-                    key = buffer.toString();
-                    buffer = new StringBuilder();
+                if (currentChar != '"') {
+                    buffer.append(currentChar);
                 } else {
                     isInString = false;
+                    if (key.isEmpty()) {
+                        key = buffer.toString();
+                    } else {
+                        value = buffer.toString();
+                        body.setString(key, value);
+                        key = "";
+                    }
+                    buffer = new StringBuilder();
+                }
+            } else if (isInNumber || Character.isDigit(currentChar) || (buffer.length() == 0 && currentChar == '-')) {
+                isInNumber = true;
+                if (Character.isDigit(currentChar) || currentChar == '-') {
+                    buffer.append(currentChar);
+                } else {
+                    isInNumber = false;
                     value = buffer.toString();
-                    body.setString(key, value);
+                    body.setInt(key, Integer.parseInt(value));
                     key = "";
                     buffer = new StringBuilder();
                 }
-            } else if (raw.charAt(i) == '"') {
+            } else if (currentChar == '"') {
                 isInString = true;
+            } else if (currentChar == '{') {
+                buffer.append(currentChar);
+                int openingBraces = 1;
+                while (openingBraces > 0) {
+                    i++;
+                    char nestedChar = raw.charAt(i);
+                    buffer.append(nestedChar);
+                    if (nestedChar == '{') {
+                        openingBraces++;
+                    } else if (nestedChar == '}') {
+                        openingBraces--;
+                    }
+                }
+                value = buffer.toString();
+                body.setJson(key, parseJson(value.substring(1, value.length() - 1)));
+                key = "";
+                buffer = new StringBuilder();
             }
         }
 
