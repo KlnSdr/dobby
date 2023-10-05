@@ -8,6 +8,7 @@ import dobby.io.response.Response;
 import dobby.routes.RouteDiscoverer;
 import dobby.session.Session;
 import dobby.util.Config;
+import dobby.util.logging.LogLevel;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -66,7 +67,19 @@ public class Dobby {
                 "application.version", "[APP_VERSION]") + "]");
         System.out.println();
 
+        setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
+
         new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10));
+    }
+
+    private static void setLogLevel(String logLevelString) {
+        LogLevel logLevel = LogLevel.DEBUG;
+        try {
+            logLevel = LogLevel.valueOf(logLevelString.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            new Logger(Dobby.class).warn("invalid log level: " + logLevelString + ", using DEBUG");
+        }
+        Logger.setMaxLogLevel(logLevel);
     }
 
     public static Class<?> getMainClass() {

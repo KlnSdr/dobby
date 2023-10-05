@@ -4,7 +4,8 @@
     "threads": 10,
     "disableFilters": "false",
     "staticContentDir": "static",
-    "disableStaticContent": "false"
+    "disableStaticContent": "false",
+    "logLevel": "DEBUG"
   },
   "application": {
     "name": "poc",
