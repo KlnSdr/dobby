@@ -66,21 +66,17 @@ public class Config {
     }
 
     private int getIntOrDefault(String key, int defaultValue) {
-        String stringValue = configJson.get(key);
+        Integer intValue = configJson.getInt(key);
 
-        if (stringValue == null) {
+        if (intValue == null) {
             return defaultValue;
         }
 
-        try {
-            return Integer.parseInt(stringValue);
-        } catch (NumberFormatException ignored) {
-            return defaultValue;
-        }
+        return intValue;
     }
 
     private String getStringOrDefault(String key, String defaultValue) {
-        String stringValue = configJson.get(key);
+        String stringValue = configJson.getString(key);
 
         if (stringValue == null) {
             return defaultValue;
@@ -90,7 +86,7 @@ public class Config {
     }
 
     private boolean getBooleanOrDefault(String key, boolean defaultValue) {
-        String stringValue = configJson.get(key);
+        String stringValue = configJson.getString(key);
 
         if (stringValue == null) {
             return defaultValue;
