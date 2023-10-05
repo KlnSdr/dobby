@@ -111,7 +111,12 @@ public class Json {
      * @param value the value to set
      */
     public void setString(String key, String value) {
-        stringData.put(key, value);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            this.stringData.put(key, value);
+            return;
+        }
+        target.stringData.put(key, value);
     }
 
     /**
@@ -121,7 +126,11 @@ public class Json {
      * @return the value for the given key or null
      */
     public String getString(String key) {
-        return this.stringData.get(key);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.stringData.get(key.split("\\.")[key.split("\\.").length - 1]);
     }
 
     /**
@@ -131,7 +140,12 @@ public class Json {
      * @param value the value to set
      */
     public void setInt(String key, Integer value) {
-        intData.put(key, value);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            this.intData.put(key, value);
+            return;
+        }
+        target.intData.put(key, value);
     }
 
     /**
@@ -141,7 +155,11 @@ public class Json {
      * @return the value for the given key or null
      */
     public Integer getInt(String key) {
-        return this.intData.get(key);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.intData.get(key.split("\\.")[key.split("\\.").length - 1]);
     }
 
     /**
@@ -151,7 +169,11 @@ public class Json {
      * @param value the value to set
      */
     public void setJson(String key, Json value) {
-        jsonData.put(key, value);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.jsonData.put(key, value);
     }
 
     /**
@@ -161,7 +183,11 @@ public class Json {
      * @return the value for the given key or null
      */
     public Json getJson(String key) {
-        return this.jsonData.get(key);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.jsonData.get(key.split("\\.")[key.split("\\.").length - 1]);
     }
 
     /**
@@ -171,7 +197,11 @@ public class Json {
      * @return true if the key exists, false otherwise
      */
     public boolean hasKey(String key) {
-        return this.stringData.containsKey(key);
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return false;
+        }
+        return target.stringData.containsKey(key);
     }
 
     /**
@@ -186,6 +216,18 @@ public class Json {
             result = result & hasKey(key);
         }
         return result & keys.length > 0;
+    }
+
+    private Json getTargetJsonObjectFromPath(String key) {
+        String[] path = key.split("\\.");
+        Json target = this;
+        for (int i = 0; i < path.length - 1; i++) {
+            target = target.getJson(path[i]);
+            if (target == null) {
+                return null;
+            }
+        }
+        return target;
     }
 
     @Override
