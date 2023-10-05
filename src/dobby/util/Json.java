@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Json {
-    private final Map<String, String> data = new HashMap<>();
+    private final Map<String, String> stringData = new HashMap<>();
+    private final Map<String, Integer> intData = new HashMap<>();
+    private final Map<String, Json> jsonData = new HashMap<>();
 
     /**
      * parses a given json string into a Json object
@@ -54,7 +57,7 @@ public class Json {
                 } else {
                     isInString = false;
                     value = buffer.toString();
-                    body.set(key, value);
+                    body.setString(key, value);
                     key = "";
                     buffer = new StringBuilder();
                 }
@@ -64,7 +67,7 @@ public class Json {
         }
 
         if (!key.isEmpty()) {
-            body.set(key, buffer.toString());
+            body.setString(key, buffer.toString());
         }
 
         return body;
@@ -76,8 +79,8 @@ public class Json {
      * @param key   the key to set
      * @param value the value to set
      */
-    public void set(String key, String value) {
-        data.put(key, value);
+    public void setString(String key, String value) {
+        stringData.put(key, value);
     }
 
     /**
@@ -86,8 +89,48 @@ public class Json {
      * @param key the key to get
      * @return the value for the given key or null
      */
-    public String get(String key) {
-        return this.data.get(key);
+    public String getString(String key) {
+        return this.stringData.get(key);
+    }
+
+    /**
+     * sets the given key to the provided value
+     *
+     * @param key   the key to set
+     * @param value the value to set
+     */
+    public void setInt(String key, Integer value) {
+        intData.put(key, value);
+    }
+
+    /**
+     * gets the value of the given key
+     *
+     * @param key the key to get
+     * @return the value for the given key or null
+     */
+    public Integer getInt(String key) {
+        return this.intData.get(key);
+    }
+
+    /**
+     * sets the given key to the provided value
+     *
+     * @param key   the key to set
+     * @param value the value to set
+     */
+    public void setJson(String key, Json value) {
+        jsonData.put(key, value);
+    }
+
+    /**
+     * gets the value of the given key
+     *
+     * @param key the key to get
+     * @return the value for the given key or null
+     */
+    public Json getJson(String key) {
+        return this.jsonData.get(key);
     }
 
     /**
@@ -97,7 +140,7 @@ public class Json {
      * @return true if the key exists, false otherwise
      */
     public boolean hasKey(String key) {
-        return this.data.containsKey(key);
+        return this.stringData.containsKey(key);
     }
 
     /**
@@ -118,13 +161,36 @@ public class Json {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
+        String stringKeys = this.stringData.entrySet().stream().map(entry -> {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            return "\"" + key + "\":\"" + value + "\"";
+        }).collect(Collectors.joining(","));
 
-        for (String key : this.data.keySet()) {
-            builder.append("\"").append(key).append("\":\"").append(this.data.get(key)).append("\",");
+        String intKeys = this.intData.entrySet().stream().map(entry -> {
+            String key = entry.getKey();
+            Integer value = entry.getValue();
+            return "\"" + key + "\":" + value;
+        }).collect(Collectors.joining(","));
+
+        String jsonKeys = this.jsonData.entrySet().stream().map(entry -> {
+            String key = entry.getKey();
+            Json value = entry.getValue();
+            return "\"" + key + "\":" + value.toString();
+        }).collect(Collectors.joining(","));
+
+        builder.append(stringKeys);
+        if (!stringKeys.isEmpty() && (!intKeys.isEmpty() || !jsonKeys.isEmpty())) {
+            builder.append(",");
         }
-        if (builder.length() > 1) {
-            builder.deleteCharAt(builder.length() - 1);
+
+        builder.append(intKeys);
+        if (!intKeys.isEmpty() && !jsonKeys.isEmpty()) {
+            builder.append(",");
         }
+
+        builder.append(jsonKeys);
+
         builder.append("}");
         return builder.toString();
     }
