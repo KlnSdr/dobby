@@ -1,8 +1,13 @@
 {
-  "port": 8080,
-  "threads": 10,
-  "applicationName": "poc",
-  "applicationVersion": "0.0.1",
-  "disableFilters": "false",
-  "staticContentDir": "static"
+  "dobby": {
+    "port": 8080,
+    "threads": 10,
+    "disableFilters": "false",
+    "staticContentDir": "static",
+    "disableStaticContent": "false"
+  },
+  "application": {
+    "name": "poc",
+    "version": "0.0.1"
+  }
 }

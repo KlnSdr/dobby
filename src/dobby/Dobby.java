@@ -48,7 +48,7 @@ public class Dobby {
         discoverRouteDefinitions();
         LOGGER.info("done!");
 
-        if (!Config.getInstance().getBoolean("disableFilters")) {
+        if (!Config.getInstance().getBoolean("dobby.disableFilters")) {
             LOGGER.info("Discovering filters...");
             discoverFilterDefinitions();
         }
@@ -62,11 +62,11 @@ public class Dobby {
         Config config = Config.getInstance();
         config.loadConfig();
 
-        System.out.println(config.getString("applicationName", "[APP_NAME]") + "@" + config.getString(
-                "applicationVersion", "[APP_VERSION]"));
+        System.out.println("[" + config.getString("application.name", "[APP_NAME]") + "@" + config.getString(
+                "application.version", "[APP_VERSION]") + "]");
         System.out.println();
 
-        new Dobby(config.getInt("port", 3000), config.getInt("threads", 10));
+        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10));
     }
 
     public static Class<?> getMainClass() {
