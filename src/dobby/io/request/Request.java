@@ -11,6 +11,7 @@ import java.util.*;
 public class Request {
     private static final Logger LOGGER = new Logger(Request.class);
     private final HashMap<String, Cookie> cookies = new HashMap<>();
+    private final Map<String, String> pathParams = new HashMap<>();
     private RequestTypes type;
     private String path;
     private String rawBody;
@@ -20,6 +21,7 @@ public class Request {
 
     /**
      * Parses a request from an input stream
+     *
      * @param in The input stream to parse the request from
      * @return The parsed request
      */
@@ -129,6 +131,7 @@ public class Request {
 
     /**
      * Gets the type of the request
+     *
      * @return The type of the request
      */
     public RequestTypes getType() {
@@ -141,6 +144,7 @@ public class Request {
 
     /**
      * Gets the path of the request
+     *
      * @return The path of the request
      */
     public String getPath() {
@@ -153,6 +157,7 @@ public class Request {
 
     /**
      * Gets the headers of the request
+     *
      * @return The header key of the request
      */
     public String getHeader(String key) {
@@ -161,6 +166,7 @@ public class Request {
 
     /**
      * Gets the header keys of the request
+     *
      * @return A set containing all header keys
      */
     public Set<String> getHeaderKeys() {
@@ -173,7 +179,8 @@ public class Request {
 
     /**
      * Sets a header of the request
-     * @param key The key of the header
+     *
+     * @param key   The key of the header
      * @param value The value of the header
      */
     public void setHeader(String key, String value) {
@@ -182,6 +189,7 @@ public class Request {
 
     /**
      * Gets the query of the request
+     *
      * @return The query of the request
      */
     public List<String> getQuery(String key) {
@@ -190,6 +198,7 @@ public class Request {
 
     /**
      * Gets the query keys of the request
+     *
      * @return A set containing all query keys
      */
     public Set<String> getQueryKeys() {
@@ -202,7 +211,8 @@ public class Request {
 
     /**
      * Sets a query of the request
-     * @param key The key of the query
+     *
+     * @param key   The key of the query
      * @param value The value of the query
      */
     public void setQuery(String key, String value) {
@@ -215,6 +225,7 @@ public class Request {
 
     /**
      * Gets the string representation of the body of the request
+     *
      * @return The body of the request as a string
      */
     public String getRawBody() {
@@ -227,6 +238,7 @@ public class Request {
 
     /**
      * Gets the body of the request
+     *
      * @return The body of the request
      */
     public Json getBody() {
@@ -243,6 +255,7 @@ public class Request {
 
     /**
      * Gets the cookies of the request
+     *
      * @return The cookies of the request
      */
     public Cookie getCookie(String key) {
@@ -261,5 +274,24 @@ public class Request {
                 setCookie(parts[0], parts[1]);
             }
         }
+    }
+
+    /**
+     * Sets a path parameter of the request
+     *
+     * @param pathParams The path parameters
+     */
+    public void setPathParams(HashMap<String, String> pathParams) {
+        this.pathParams.putAll(pathParams);
+    }
+
+    /**
+     * Gets the path parameter of the request
+     *
+     * @param key The key of the path parameter
+     * @return The path parameter of the request
+     */
+    public String getParam(String key) {
+        return pathParams.get(key);
     }
 }

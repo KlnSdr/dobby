@@ -53,10 +53,16 @@ public class Response {
      * @param body Response body
      */
     public void setBody(String body) {
+        if (body == null) {
+            return;
+        }
         this.body = body.getBytes();
     }
 
     public void setBodyBytes(byte[] body) {
+        if (body == null) {
+            return;
+        }
         this.body = body;
     }
 

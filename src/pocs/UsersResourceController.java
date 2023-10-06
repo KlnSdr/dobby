@@ -9,8 +9,6 @@ import dobby.session.Session;
 import dobby.session.service.SessionService;
 import dobby.util.logging.Logger;
 
-import java.io.IOException;
-
 public class UsersResourceController {
     private final Logger LOGGER = new Logger(UsersResourceController.class);
 
@@ -53,6 +51,12 @@ public class UsersResourceController {
         res.setBody(session.get("user"));
 
         res.setCode(ResponseCodes.OK);
+    }
+
+    @Get("/users/{name}/info")
+    public void returnUsername(HttpContext context) {
+        LOGGER.info(context.getRequest().getParam("name"));
+        context.getResponse().setBody(context.getRequest().getParam("name"));
     }
 
     @Get("/users/logout")
