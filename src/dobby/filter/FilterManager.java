@@ -1,13 +1,16 @@
 package dobby.filter;
 
 import dobby.io.HttpContext;
+import dobby.io.request.IRequestHandler;
 import dobby.routes.RouteManager;
+import dobby.util.Tupel;
 import dobby.util.logging.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * Manages filters
@@ -59,7 +62,11 @@ public class FilterManager {
             return;
         }
 
-        RouteManager.getInstance().getHandler(ctx.getRequest().getType(), ctx.getRequest().getPath()).handle(ctx);
+        Tupel<IRequestHandler, HashMap<String, String>> handler =
+                RouteManager.getInstance().getHandler(ctx.getRequest().getType(), ctx.getRequest().getPath());
+
+        ctx.getRequest().setPathParams(handler._2());
+        handler._1().handle(ctx);
 
         i = 0;
         while (i < postFilterCount) {
