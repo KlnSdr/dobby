@@ -20,7 +20,7 @@ public class StaticFileService {
             return;
         }
 
-        staticContentPath = config.getString("com.klnsdr.dobby.staticContentDir");
+        staticContentPath = config.getString("dobby.staticContentDir");
     }
 
     public static StaticFileService getInstance() {

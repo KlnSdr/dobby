@@ -67,9 +67,9 @@ public class Dobby {
                 "application.version", "[APP_VERSION]") + "]");
         System.out.println();
 
-        setLogLevel(config.getString("com.klnsdr.dobby.logLevel", "DEBUG"));
+        setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
 
-        new Dobby(config.getInt("com.klnsdr.dobby.port", 3000), config.getInt("com.klnsdr.dobby.threads", 10));
+        new Dobby(config.getInt("dobby.port", 3000), config.getInt("com.klnsdr.dobby.threads", 10));
     }
 
     private static void setLogLevel(String logLevelString) {
