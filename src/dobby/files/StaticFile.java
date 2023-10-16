@@ -1,5 +1,8 @@
 package dobby.files;
 
+/**
+ * Static file
+ */
 public class StaticFile {
     private String contentType = "text/html";
     private byte[] content = new byte[0];

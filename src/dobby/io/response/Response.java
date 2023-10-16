@@ -1,8 +1,6 @@
 package dobby.io.response;
 
 import dobby.cookie.Cookie;
-import dobby.filter.FilterManager;
-import dobby.io.HttpContext;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,7 +18,6 @@ public class Response {
     private final Socket client;
     private final OutputStream out;
     private final HashMap<String, Cookie> cookies = new HashMap<>();
-    private final HttpContext context;
     private ResponseCodes code = ResponseCodes.OK;
     private byte[] body = new byte[0];
     private boolean didSend = false;
@@ -28,13 +25,11 @@ public class Response {
     /**
      * Constructor
      *
-     * @param client  Client socket
-     * @param context HttpContext
+     * @param client Client socket
      * @throws IOException If an I/O error occurs
      */
-    public Response(Socket client, HttpContext context) throws IOException {
+    public Response(Socket client) throws IOException {
         this.client = client;
-        this.context = context;
         out = client.getOutputStream();
     }
 
@@ -59,6 +54,11 @@ public class Response {
         this.body = body.getBytes();
     }
 
+    /**
+     * Set response body as bytes
+     *
+     * @param body Response body
+     */
     public void setBodyBytes(byte[] body) {
         if (body == null) {
             return;
@@ -97,7 +97,7 @@ public class Response {
         }
 
         builder.append("\r\n");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             outputStream.write(builder.toString().getBytes());
             outputStream.write(body);
@@ -139,6 +139,11 @@ public class Response {
         client.close();
     }
 
+    /**
+     * Check if the response was sent
+     *
+     * @return True if the response was sent, false otherwise
+     */
     public boolean didSend() {
         return didSend;
     }

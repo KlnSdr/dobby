@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
+/**
+ * Class for loading the config file
+ */
 public class Config {
     private static Config instance;
     private final Logger LOGGER = new Logger(Config.class);
@@ -23,6 +26,9 @@ public class Config {
         return instance;
     }
 
+    /**
+     * Loads the config file
+     */
     public void loadConfig() {
         InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
@@ -41,26 +47,65 @@ public class Config {
         return reader.lines().collect(Collectors.joining("\n"));
     }
 
+    /**
+     * Gets the value of the given key as an int
+     *
+     * @param key          The key to get the value of
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value of the given key as an int
+     */
     public int getInt(String key, int defaultValue) {
         return getIntOrDefault(key, defaultValue);
     }
 
+    /**
+     * Gets the value of the given key as an int
+     *
+     * @param key The key to get the value of
+     * @return The value of the given key as an int
+     */
     public int getInt(String key) {
         return getInt(key, 0);
     }
 
+    /**
+     * Gets the value of the given key as a string
+     *
+     * @param key          The key to get the value of
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value of the given key as a string
+     */
     public String getString(String key, String defaultValue) {
         return getStringOrDefault(key, defaultValue);
     }
 
+    /**
+     * Gets the value of the given key as a string
+     *
+     * @param key The key to get the value of
+     * @return The value of the given key as a string
+     */
     public String getString(String key) {
         return getString(key, "");
     }
 
+    /**
+     * Gets the value of the given key as a boolean
+     *
+     * @param key          The key to get the value of
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value of the given key as a boolean
+     */
     public boolean getBoolean(String key, boolean defaultValue) {
         return getBooleanOrDefault(key, defaultValue);
     }
 
+    /**
+     * Gets the value of the given key as a boolean
+     *
+     * @param key The key to get the value of
+     * @return The value of the given key as a boolean
+     */
     public boolean getBoolean(String key) {
         return getBoolean(key, false);
     }

@@ -33,18 +33,38 @@ public class FilterManager {
         return FilterManager.instance;
     }
 
+    /**
+     * Adds a pre filter to the filter chain
+     *
+     * @param filter The filter to add
+     */
     public void addPreFilter(Filter filter) {
         this.preFilters = addFilter(filter, this.preFilters);
         preFilterCount = preFilters.length;
         LOGGER.debug(String.format("Added pre-filter %s", filter.getClass().getCanonicalName()));
     }
 
+    /**
+     * Adds a post filter to the filter chain
+     *
+     * @param filter The filter to add
+     */
     public void addPostFilter(Filter filter) {
         this.postFilters = addFilter(filter, this.postFilters);
         postFilterCount = postFilters.length;
         LOGGER.debug(String.format("Added post-filter %s", filter.getClass().getCanonicalName()));
     }
 
+    /**
+     * Runs the filter chain
+     *
+     * @param ctx The HttpContext to run the filter chain on
+     * @throws IOException               If an IO error occurs
+     * @throws InvocationTargetException If an error occurs while invoking a method
+     * @throws NoSuchMethodException     If a method does not exist
+     * @throws InstantiationException    If a class could not be instantiated
+     * @throws IllegalAccessException    If a method could not be accessed
+     */
     public void runFilterChain(HttpContext ctx) throws IOException, InvocationTargetException, NoSuchMethodException,
             InstantiationException, IllegalAccessException {
         int i = 0;

@@ -86,6 +86,12 @@ public class RouteManager {
         return new Tupel<>(routes.get(path).getHandler(type), new HashMap<>());
     }
 
+    /**
+     * Gets the handler for the given request type and path based on pattern matching
+     * @param type The type of request to get the handler for
+     * @param path The path to get the handler for
+     * @return The handler for the given request type and path
+     */
     private Tupel<IRequestHandler, HashMap<String, String>> getHandlerMatchPaths(RequestTypes type, String path) {
         List<String> patternPaths = routes.keySet().stream().filter(p -> p.contains("*")).collect(Collectors.toList());
         for (String p : patternPaths) {

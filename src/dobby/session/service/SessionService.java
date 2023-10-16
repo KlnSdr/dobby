@@ -19,14 +19,30 @@ public class SessionService {
         return SessionServiceHolder.INSTANCE;
     }
 
+    /**
+     * Find a session by its id
+     *
+     * @param sessionId Session id
+     * @return The session if found, otherwise empty
+     */
     public Optional<Session> find(String sessionId) {
         return Optional.ofNullable(sessions.get(sessionId));
     }
 
+    /**
+     * Save a session
+     *
+     * @param session Session to save
+     */
     public void set(Session session) {
         sessions.put(session.getId(), session);
     }
 
+    /**
+     * Remove a session
+     *
+     * @param session Session to remove
+     */
     public void remove(Session session) {
         if (session.getId() == null) {
             return;
@@ -34,6 +50,11 @@ public class SessionService {
         sessions.remove(session.getId());
     }
 
+    /**
+     * Create a new session
+     *
+     * @return The new session
+     */
     public Session newSession() {
         Session session = new Session();
         session.setId(generateSessionId());

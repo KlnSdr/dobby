@@ -19,6 +19,11 @@ public class RouteDiscoverer extends Classloader<Object> {
         this.packageName = packageName;
     }
 
+    /**
+     * Discovers routes in a given package
+     *
+     * @param rootPackage Root package
+     */
     public static void discoverRoutes(String rootPackage) {
         if (rootPackage.startsWith(".")) {
             rootPackage = rootPackage.substring(1);
