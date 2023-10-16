@@ -43,7 +43,6 @@ public class RouteManager {
      * @param handler The handler to add the route for
      */
     public void add(RequestTypes type, String path, IRequestHandler handler) {
-        path = path.toLowerCase();
         Tupel<String, List<String>> pathAndParams = extractPathParams(path);
         path = pathAndParams._1();
         List<String> params = pathAndParams._2();
@@ -67,7 +66,7 @@ public class RouteManager {
                 parts[i] = "*";
             }
         }
-        return new Tupel<>(String.join("/", parts), params);
+        return new Tupel<>(String.join("/", parts).toLowerCase(), params);
     }
 
     /**
