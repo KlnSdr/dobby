@@ -57,6 +57,11 @@ public class Dobby {
         start();
     }
 
+    /**
+     * Starts the server
+     *
+     * @param applicationClass The main entry point of the application
+     */
     public static void startApplication(Class<?> applicationClass) {
         Dobby.applicationClass = applicationClass;
         printBanner();
@@ -82,6 +87,11 @@ public class Dobby {
         Logger.setMaxLogLevel(logLevel);
     }
 
+    /**
+     * Gets the main class of the application
+     *
+     * @return The main class of the application
+     */
     public static Class<?> getMainClass() {
         return applicationClass;
     }
@@ -99,6 +109,9 @@ public class Dobby {
         System.out.println();
     }
 
+    /**
+     * Starts the server
+     */
     private void start() {
         LOGGER.info("ready after " + (new Date().getTime() - startTime.getTime()) + "ms");
         LOGGER.info("Server started...");
@@ -115,6 +128,9 @@ public class Dobby {
         FilterDiscoverer.discover("");
     }
 
+    /**
+     * Accepts connections and creates threads to handles them
+     */
     private void acceptConnections() {
         while (isRunning) {
             try {
@@ -139,6 +155,18 @@ public class Dobby {
         }
     }
 
+    /**
+     * Handles a connection
+     *
+     * @param client The client to handle
+     * @throws IOException               if an I/O error occurs when creating the input stream, the socket is closed,
+     * the socket is
+     * @throws InvocationTargetException if the underlying method throws an exception.
+     * @throws NoSuchMethodException     if a matching method is not found.
+     * @throws InstantiationException    if the class that declares the underlying method represents an abstract class.
+     * @throws IllegalAccessException    if this Method object is enforcing Java language access control and the
+     * underlying method is inaccessible.
+     */
     private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException
             , InstantiationException, IllegalAccessException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -146,7 +174,7 @@ public class Dobby {
         HttpContext ctx = new HttpContext();
 
         Request req = Request.parse(in);
-        Response res = new Response(client, ctx);
+        Response res = new Response(client);
 
         ctx.setRequest(req);
         ctx.setResponse(res);

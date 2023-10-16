@@ -4,15 +4,13 @@ import dobby.Dobby;
 import dobby.files.StaticFile;
 import dobby.util.Config;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
+/**
+ * Service for serving static files
+ */
 public class StaticFileService {
     private static StaticFileService instance;
     private final HashMap<String, StaticFile> files = new HashMap<>();
@@ -35,6 +33,12 @@ public class StaticFileService {
         return instance;
     }
 
+    /**
+     * Get a static file
+     *
+     * @param path path to file
+     * @return static file
+     */
     public StaticFile get(String path) {
         if (!files.containsKey(path)) {
             return lookUpFile(path);
@@ -42,6 +46,12 @@ public class StaticFileService {
         return files.get(path);
     }
 
+    /**
+     * Look up a file in the resources folder
+     *
+     * @param path path to file
+     * @return static file
+     */
     private StaticFile lookUpFile(String path) {
         InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/" + staticContentPath + path);
 

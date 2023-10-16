@@ -5,6 +5,9 @@ import dobby.files.service.StaticFileService;
 import dobby.io.HttpContext;
 import dobby.io.request.IRequestHandler;
 
+/**
+ * Handler for static files
+ */
 public class StaticFileHandler implements IRequestHandler {
     @Override
     public void handle(HttpContext context) {
@@ -31,6 +34,12 @@ public class StaticFileHandler implements IRequestHandler {
         new RouteNotFoundHandler().handle(context);
     }
 
+    /**
+     * If the path ends with a slash, add index.html to the end of the path.
+     *
+     * @param path path to substitute
+     * @return substituted path
+     */
     private String substituteIndexFile(String path) {
         int lastSlash = path.lastIndexOf("/");
 

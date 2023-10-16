@@ -6,6 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Json class
+ */
 public class Json {
     private final Map<String, String> stringData = new HashMap<>();
     private final Map<String, Integer> intData = new HashMap<>();

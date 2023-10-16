@@ -24,6 +24,12 @@ public class ContentType {
         types.put("bmp", "image/bmp");
     }
 
+    /**
+     * Get the content type for a file extension
+     *
+     * @param extension file extension
+     * @return content type header
+     */
     public static String get(String extension) {
         return types.getOrDefault(extension, "application/octet-stream");
     }

@@ -4,6 +4,9 @@ import dobby.filter.Filter;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
 
+/**
+ * Cleans route paths
+ */
 public class CleanRoutePreFilter implements Filter {
     @Override
     public String getName() {

@@ -16,30 +16,63 @@ public class HttpContext {
     public HttpContext() {
     }
 
+    /**
+     * Get the request object
+     *
+     * @return Request object
+     */
     public Request getRequest() {
         return request;
     }
 
+    /**
+     * Set the request object
+     *
+     * @param request Request object
+     */
     public void setRequest(Request request) {
         this.request = request;
     }
 
+    /**
+     * Get the response object
+     *
+     * @return Response object
+     */
     public Response getResponse() {
         return response;
     }
 
+    /**
+     * Set the response object
+     *
+     * @param response Response object
+     */
     public void setResponse(Response response) {
         this.response = response;
     }
 
+    /**
+     * Get the session object
+     *
+     * @return Session object
+     */
     public Session getSession() {
         return session;
     }
 
+    /**
+     * Set the session object
+     *
+     * @param session Session object
+     */
     public void setSession(Session session) {
         this.session = session;
     }
 
+    /**
+     * Destroy the session
+     */
     public void destroySession() {
         session.destroy();
 
