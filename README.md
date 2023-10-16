@@ -21,7 +21,7 @@ class MyServer {
 }
 ```
 
-Routes and Filters are loaded automatically on the first call to `Server.getInstance()` from your project.
+Routes and Filters are loaded automatically when calling `Dobby.startApplication(...)`.
 
 ## Routes
 Routes are Methods annotated with `@Get`, `@Post`, `@Put`, and `@Delete` annotations defined in `dobby.annotations`.
@@ -79,3 +79,16 @@ public class TestPreFilter implements Filter {
 }
 
 ```
+## Configuration
+Dobby can be configured using a `application.json` file in the resource folder. The following properties are 
+available:
+- `dobby.port`: The port the server will listen on. Default: `3000`
+- `dobby.threads`: The number of threads the server will use to handle requests. Default: `10`
+- `dobby.disableFilters`: Disables all filters. Default: `false`
+- `dobby.staticContentDir`: The directory relative to the resource folder to serve static content from. Default: `./`
+- `dobby.disabelStaticContent`: Disables serving static content. Default: `false`
+- `application.name`: The name of the application
+- `application.version`: The version of the application
+The configuration is available from everywhere in the application using `Config.getInstance().getString(<key>)`, 
+  `Config.getInstance().getInt(<key>)`,`Config.getInstance().getBoolean(<key>)` and `Config.getInstance().getJson
+  (<key>)`. It is suggested to put application specific configuration under `application.data`.
