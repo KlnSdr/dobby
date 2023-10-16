@@ -17,6 +17,7 @@ public class RouteNotFoundHandler implements IRequestHandler {
         Request req = context.getRequest();
 
         res.setCode(ResponseCodes.NOT_FOUND);
+        res.setHeader("Content-Type", "text/plain");
         res.setBody(String.format("Requested route %s not found", req.getPath()));
     }
 }

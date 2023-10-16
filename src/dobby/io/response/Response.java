@@ -1,6 +1,7 @@
 package dobby.io.response;
 
 import dobby.cookie.Cookie;
+import dobby.util.Json;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,11 +60,23 @@ public class Response {
      *
      * @param body Response body
      */
-    public void setBodyBytes(byte[] body) {
+    public void setBody(byte[] body) {
         if (body == null) {
             return;
         }
         this.body = body;
+    }
+
+    /**
+     * Set response body as JSON
+     *
+     * @param body Response body
+     */
+    public void setBody(Json body) {
+        if (body == null) {
+            return;
+        }
+        this.body = body.toString().getBytes();
     }
 
     /**
