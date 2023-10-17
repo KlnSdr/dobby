@@ -3,10 +3,11 @@
 ---
 *master has given dobby a sock(et)*
 
-Dobby is a simple zero-dependency web server implementation based on the java socket server module. It is intended 
+Dobby is a simple zero-dependency web server implementation based on the java socket server module. It is intended
 to be used for testing purposes only.
 
 ## Usage
+
 - include the jar in your project
 - add routes and filters
 - create a new instance of the server
@@ -24,10 +25,13 @@ class MyServer {
 Routes and Filters are loaded automatically when calling `Dobby.startApplication(...)`.
 
 ## Routes
+
 Routes are Methods annotated with `@Get`, `@Post`, `@Put`, and `@Delete` annotations defined in `dobby.annotations`.
-These annotations can be used on any method that takes a single `HttpContext` parameter and returns `void`. The method will be called
-when the server receives a request matching the annotation's path. All annotations are loaded automatically on the 
+These annotations can be used on any method that takes a single `HttpContext` parameter and returns `void`. The method
+will be called
+when the server receives a request matching the annotation's path. All annotations are loaded automatically on the
 first call to `Dobby.startApplication()`. No manual registration is required.
+
 ```java
 import dobby.io.HttpContext;
 
@@ -40,12 +44,14 @@ public class MyRoutes {
 ```
 
 ## Filters
-Filters can be used to analyze and modify the request and response objects before and after the request is handled 
-by the server. All filters implement to `Filter` interface defined in `dobby.filter`. Filters are discovered on 
+
+Filters can be used to analyze and modify the request and response objects before and after the request is handled
+by the server. All filters implement to `Filter` interface defined in `dobby.filter`. Filters are discovered on
 server start up and don't need to be registered manually.
 
 ```java
 // filter.java
+
 import dobby.filter.Filter;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
@@ -79,16 +85,35 @@ public class TestPreFilter implements Filter {
 }
 
 ```
+
 ## Configuration
-Dobby can be configured using a `application.json` file in the resource folder. The following properties are 
+
+Dobby can be configured using a `application.json` file in the resource folder. The following properties are
 available:
+
 - `dobby.port`: The port the server will listen on. Default: `3000`
 - `dobby.threads`: The number of threads the server will use to handle requests. Default: `10`
 - `dobby.disableFilters`: Disables all filters. Default: `false`
 - `dobby.staticContentDir`: The directory relative to the resource folder to serve static content from. Default: `./`
 - `dobby.disabelStaticContent`: Disables serving static content. Default: `false`
+- `dobby.mode`: either `http` or `pure`. Default: `http`.
+    - `http`: The server processes incoming requests as HTTP requests. Filters and RouteHandler are available. This is
+      the default mode.
+    - `pure`: The server accepts incoming requests but does not process them. The raw request stream is available in
+      the handler. Filters and RouteHandler are NOT called.
 - `application.name`: The name of the application
 - `application.version`: The version of the application
-The configuration is available from everywhere in the application using `Config.getInstance().getString(<key>)`, 
-  `Config.getInstance().getInt(<key>)`,`Config.getInstance().getBoolean(<key>)` and `Config.getInstance().getJson
-  (<key>)`. It is suggested to put application specific configuration under `application.data`.
+
+The configuration is available from everywhere in the application using `Config.getInstance().getString(<key>)`,
+`Config.getInstance().getInt(<key>)`,`Config.getInstance().getBoolean(<key>)` and `Config.getInstance().getJson
+(<key>)`. It is suggested to put application specific configuration under `application.data`.
+
+## Additional Information about pure mode
+
+In pure mode, the server does not process incoming requests. Instead, the raw request stream is available in the
+handler. Filters and RouteHandler are NOT called. Instead, the `onRequest` method of a class implementing
+`PureRequestHandler` is called. Multiple classes implementing `PureRequestHandler` will cause the server to refuse
+to start.
+
+In this handler method it is not needed to close the socket connection manually. This is done automatically after
+the handler method returns. However, writing to and flushing the output stream is required.

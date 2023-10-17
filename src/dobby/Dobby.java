@@ -3,6 +3,8 @@ package dobby;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
 import dobby.io.HttpContext;
+import dobby.io.PureRequestHandler;
+import dobby.io.PureRequestHandlerFinder;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.routes.RouteDiscoverer;
@@ -33,9 +35,17 @@ public class Dobby {
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
+    private PureRequestHandler pureRequestHandler;
 
     private Dobby(int port, int threadCount) {
         startTime = new Date();
+        String serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
+        if (!serverMode.equals("http") && !serverMode.equals("pure")) {
+            LOGGER.error("invalid server mode: " + serverMode);
+            System.exit(1);
+            return;
+        }
+
         try {
             server = new ServerSocket(port);
         } catch (IOException e) {
@@ -45,15 +55,28 @@ public class Dobby {
         }
         threadPool = Executors.newFixedThreadPool(threadCount);
         LOGGER.info("Server initialized on port " + port + " with " + threadCount + " threads.");
-        LOGGER.info("Discovering routes...");
-        discoverRouteDefinitions();
-        LOGGER.info("done!");
 
-        if (!Config.getInstance().getBoolean("dobby.disableFilters")) {
-            LOGGER.info("Discovering filters...");
-            discoverFilterDefinitions();
+        if (serverMode.equals("http")) {
+            LOGGER.info("Discovering routes...");
+            discoverRouteDefinitions();
+            LOGGER.info("done!");
+
+            if (!Config.getInstance().getBoolean("dobby.disableFilters")) {
+                LOGGER.info("Discovering filters...");
+                discoverFilterDefinitions();
+            }
+            LOGGER.info("done!");
+        } else { // serverMode == pure, but since invalid options are rejected before "pure" is the only other option
+            LOGGER.info("Pure mode enabled, no routes or filters will be discovered");
+            LOGGER.info("registering pure request handler...");
+            PureRequestHandlerFinder.discover("", this);
+            if (pureRequestHandler == null) {
+                LOGGER.error("no pure request handler found");
+                System.exit(1);
+                return;
+            }
+            LOGGER.info("done!");
         }
-        LOGGER.info("done!");
         start();
     }
 
@@ -68,8 +91,8 @@ public class Dobby {
         Config config = Config.getInstance();
         config.loadConfig();
 
-        System.out.println("[" + config.getString("application.name", "[APP_NAME]") + "@" + config.getString(
-                "application.version", "[APP_VERSION]") + "]");
+        System.out.println("[" + config.getString("application.name", "<APP_NAME>") + "@" + config.getString(
+                "application.version", "<APP_VERSION>") + "]");
         System.out.println();
 
         setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
@@ -160,15 +183,24 @@ public class Dobby {
      *
      * @param client The client to handle
      * @throws IOException               if an I/O error occurs when creating the input stream, the socket is closed,
-     * the socket is
+     *                                   the socket is
      * @throws InvocationTargetException if the underlying method throws an exception.
      * @throws NoSuchMethodException     if a matching method is not found.
      * @throws InstantiationException    if the class that declares the underlying method represents an abstract class.
      * @throws IllegalAccessException    if this Method object is enforcing Java language access control and the
-     * underlying method is inaccessible.
+     *                                   underlying method is inaccessible.
      */
     private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException
             , InstantiationException, IllegalAccessException {
+        if (Config.getInstance().getString("dobby.mode", "http").equalsIgnoreCase("pure")) {
+            if (pureRequestHandler == null) {
+                LOGGER.error("no pure request handler found");
+                return;
+            }
+            pureRequestHandler.onRequest(client);
+            return;
+        }
+
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
         HttpContext ctx = new HttpContext();
@@ -206,5 +238,16 @@ public class Dobby {
 
     private void registerStopHandler() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+    }
+
+    public void registerPureRequestHandler(PureRequestHandler pureRequestHandler) {
+        if (this.pureRequestHandler != null) {
+            LOGGER.error("multiple pure request handlers found!");
+            LOGGER.error("overriding " + this.pureRequestHandler.getClass().getName() + " with " + pureRequestHandler.getClass().getName() + " would cause unexpected behavior");
+            LOGGER.error("aborting...");
+            System.exit(1);
+            return;
+        }
+        this.pureRequestHandler = pureRequestHandler;
     }
 }
