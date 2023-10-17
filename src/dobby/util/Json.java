@@ -1,6 +1,8 @@
 package dobby.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +15,7 @@ public class Json {
     private final Map<String, String> stringData = new HashMap<>();
     private final Map<String, Integer> intData = new HashMap<>();
     private final Map<String, Json> jsonData = new HashMap<>();
+    private final Map<String, List<Object>> listData = new HashMap<>();
 
     /**
      * parses a given json string into a Json object
@@ -194,6 +197,34 @@ public class Json {
     }
 
     /**
+     * sets the given key to the provided value
+     *
+     * @param key   the key to set
+     * @param value the value to set
+     */
+    public void setList(String key, List<Object> value) {
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.listData.put(key, value);
+    }
+
+    /**
+     * gets the value of the given key
+     *
+     * @param key the key to get
+     * @return the value for the given key or null
+     */
+    public List<Object> getList(String key) {
+        Json target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.listData.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
+    /**
      * checks if the given key exists
      *
      * @param key the key to check
@@ -255,13 +286,30 @@ public class Json {
             return "\"" + key + "\":" + value.toString();
         }).collect(Collectors.joining(","));
 
+        String listKeys = this.listData.entrySet().stream().map(entry -> {
+            String key = entry.getKey();
+            List<Object> value = entry.getValue();
+            String[] stringified = value.stream().map(object -> {
+                if (object instanceof String) {
+                    return "\"" + object + "\"";
+                }
+                return object.toString();
+            }).toArray(String[]::new);
+            return "\"" + key + "\":" + Arrays.toString(stringified);
+        }).collect(Collectors.joining(","));
+
         builder.append(stringKeys);
-        if (!stringKeys.isEmpty() && (!intKeys.isEmpty() || !jsonKeys.isEmpty())) {
+        if (!stringKeys.isEmpty() && (!intKeys.isEmpty() || !jsonKeys.isEmpty() || !listKeys.isEmpty())) {
             builder.append(",");
         }
 
         builder.append(intKeys);
-        if (!intKeys.isEmpty() && !jsonKeys.isEmpty()) {
+        if (!intKeys.isEmpty() && (!jsonKeys.isEmpty() || !listKeys.isEmpty())) {
+            builder.append(",");
+        }
+
+        builder.append(listKeys);
+        if (!listKeys.isEmpty() && !jsonKeys.isEmpty()) {
             builder.append(",");
         }
 
