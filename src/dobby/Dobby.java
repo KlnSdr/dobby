@@ -32,6 +32,7 @@ public class Dobby {
     private static Class<?> applicationClass;
     private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
+    private final String serverMode;
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
@@ -39,7 +40,7 @@ public class Dobby {
 
     private Dobby(int port, int threadCount) {
         startTime = new Date();
-        String serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
+        serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
         if (!serverMode.equals("http") && !serverMode.equals("pure")) {
             LOGGER.error("invalid server mode: " + serverMode);
             System.exit(1);
@@ -192,7 +193,7 @@ public class Dobby {
      */
     private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException
             , InstantiationException, IllegalAccessException {
-        if (Config.getInstance().getString("dobby.mode", "http").equalsIgnoreCase("pure")) {
+        if (serverMode.equals("pure")) {
             if (pureRequestHandler == null) {
                 LOGGER.error("no pure request handler found");
                 return;
