@@ -98,6 +98,8 @@ public class Dobby {
 
         setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
 
+        runPreStart();
+
         new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10));
     }
 
@@ -133,6 +135,32 @@ public class Dobby {
         System.out.println();
     }
 
+    private static void runPreStart() {
+        if (!DobbyEntryPoint.class.isAssignableFrom(getMainClass())) {
+            return;
+        }
+
+        try {
+            ((DobbyEntryPoint) getMainClass().getDeclaredConstructor().newInstance()).preStart();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            new Logger(Dobby.class).trace(e);
+        }
+    }
+
+    private static void runPostStart() {
+        if (!DobbyEntryPoint.class.isAssignableFrom(getMainClass())) {
+            return;
+        }
+
+        try {
+            ((DobbyEntryPoint) getMainClass().getDeclaredConstructor().newInstance()).postStart();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            new Logger(Dobby.class).trace(e);
+        }
+    }
+
     /**
      * Starts the server
      */
@@ -140,6 +168,7 @@ public class Dobby {
         LOGGER.info("ready after " + (new Date().getTime() - startTime.getTime()) + "ms");
         LOGGER.info("Server started...");
         isRunning = true;
+        runPostStart();
         registerStopHandler();
         acceptConnections();
     }
