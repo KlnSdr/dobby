@@ -1,22 +1,50 @@
 package dobby.session.service;
 
 import dobby.session.Session;
+import dobby.util.Config;
+import dobby.util.logging.Logger;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The SessionService class is used to manage sessions
  */
 public class SessionService {
+    private static final Logger LOGGER = new Logger(SessionService.class);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
+    private final int maxSessionAge = Config.getInstance().getInt("dobby.session.maxAge", 24);
 
     private SessionService() {
+        scheduler.scheduleAtFixedRate(this::cleanUpSessions, 0, Config.getInstance().getInt("dobby.session" +
+                ".cleanUpInterval", 30), TimeUnit.MINUTES);
     }
 
     public static SessionService getInstance() {
         return SessionServiceHolder.INSTANCE;
+    }
+
+    private long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
+
+    private void cleanUpSessions() {
+        LOGGER.info("Cleaning up sessions");
+        long currentTime = getCurrentTime();
+        sessions.forEach((id, session) -> {
+            if (currentTime - session.getLastAccessed() > (long) maxSessionAge * 60 * 60 * 1000) {
+                sessions.remove(id);
+            }
+        });
+    }
+
+    public void stopScheduler() {
+        scheduler.shutdown();
     }
 
     /**
@@ -26,7 +54,12 @@ public class SessionService {
      * @return The session if found, otherwise empty
      */
     public Optional<Session> find(String sessionId) {
-        return Optional.ofNullable(sessions.get(sessionId));
+        final Session session = sessions.get(sessionId);
+        if (session == null) {
+            return Optional.empty();
+        }
+        session.setLastAccessed(getCurrentTime());
+        return Optional.of(session);
     }
 
     /**
@@ -35,6 +68,7 @@ public class SessionService {
      * @param session Session to save
      */
     public void set(Session session) {
+        session.setLastAccessed(getCurrentTime());
         sessions.put(session.getId(), session);
     }
 
@@ -58,6 +92,7 @@ public class SessionService {
     public Session newSession() {
         Session session = new Session();
         session.setId(generateSessionId());
+        session.setLastAccessed(getCurrentTime());
         sessions.put(session.getId(), session);
         return session;
     }

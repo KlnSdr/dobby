@@ -9,6 +9,7 @@ import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.routes.RouteDiscoverer;
 import dobby.session.Session;
+import dobby.session.service.SessionService;
 import dobby.util.Config;
 import dobby.util.logging.LogLevel;
 import dobby.util.logging.Logger;
@@ -251,6 +252,7 @@ public class Dobby {
     private void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");
+        SessionService.getInstance().stopScheduler();
         threadPool.shutdown();
         try {
             if (threadPool.awaitTermination(5, TimeUnit.SECONDS)) {

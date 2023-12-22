@@ -101,6 +101,9 @@ available:
       the default mode.
     - `pure`: The server accepts incoming requests but does not process them. The raw request stream is available in
       the handler. Filters and RouteHandler are NOT called.
+- `dobby.session.cleanUpInterval`: The interval in minutes in which the session manager will clean up expired sessions.
+  Default: `30`
+- `dobby.session.maxAge`: The maximum age of a session in hours. Default: `24`
 - `application.name`: The name of the application
 - `application.version`: The version of the application
 
