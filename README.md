@@ -94,8 +94,13 @@ available:
 - `dobby.port`: The port the server will listen on. Default: `3000`
 - `dobby.threads`: The number of threads the server will use to handle requests. Default: `10`
 - `dobby.disableFilters`: Disables all filters. Default: `false`
-- `dobby.staticContentDir`: The directory relative to the resource folder to serve static content from. Default: `./`
-- `dobby.disabelStaticContent`: Disables serving static content. Default: `false`
+- `dobby.staticContent.directory`: The directory relative to the resource folder to serve static content from. 
+  Default: 
+  `./`
+- `dobby.staticContent.disable`: Disables serving static content. Default: `false`
+- `dobby.staticContent.cleanUpInterval`: The interval in minutes in which the staticFile manager will cleanup old 
+  files from the cache.
+- `dobby.staticContent.maxFileAge`: The maximum time in hours a file is allowed to stay in the cache.
 - `dobby.mode`: either `http` or `pure`. Default: `http`.
     - `http`: The server processes incoming requests as HTTP requests. Filters and RouteHandler are available. This is
       the default mode.
