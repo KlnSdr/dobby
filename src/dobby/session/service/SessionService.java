@@ -1,14 +1,13 @@
 package dobby.session.service;
 
 import dobby.session.Session;
+import dobby.task.SchedulerService;
 import dobby.util.Config;
 import dobby.util.logging.Logger;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,14 +15,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class SessionService {
     private static final Logger LOGGER = new Logger(SessionService.class);
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
     private final int maxSessionAge = Config.getInstance().getInt("dobby.session.maxAge", 24);
 
     private SessionService() {
         final int cleanupInterval = Config.getInstance().getInt("dobby.session.cleanUpInterval", 30);
         LOGGER.info("starting session cleanup scheduler with interval of " + cleanupInterval + " min...");
-        scheduler.scheduleAtFixedRate(this::cleanUpSessions, 0, cleanupInterval, TimeUnit.MINUTES);
+        SchedulerService.getInstance().addRepeating(this::cleanUpSessions, cleanupInterval, TimeUnit.MINUTES);
     }
 
     public static SessionService getInstance() {
@@ -42,10 +40,6 @@ public class SessionService {
                 sessions.remove(id);
             }
         });
-    }
-
-    public void stopScheduler() {
-        scheduler.shutdown();
     }
 
     /**

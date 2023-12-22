@@ -2,6 +2,7 @@ package dobby.files.service;
 
 import dobby.Dobby;
 import dobby.files.StaticFile;
+import dobby.task.SchedulerService;
 import dobby.util.Config;
 import dobby.util.logging.Logger;
 
@@ -17,7 +18,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class StaticFileService {
     private static final Logger LOGGER = new Logger(StaticFileService.class);
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static StaticFileService instance;
     private final HashMap<String, StaticFile> files = new HashMap<>();
     private String staticContentPath;
@@ -34,7 +34,7 @@ public class StaticFileService {
         final int cleanupInterval = config.getInt("dobby.staticContent.cleanUpInterval", 30);
 
         LOGGER.info("starting static file cleanup scheduler with interval of " + cleanupInterval + " min...");
-        scheduler.scheduleAtFixedRate(this::cleanUpStaticFiles, 0, cleanupInterval, TimeUnit.MINUTES);
+        SchedulerService.getInstance().addRepeating(this::cleanUpStaticFiles, cleanupInterval, TimeUnit.MINUTES);
     }
 
     public static StaticFileService getInstance() {
@@ -109,9 +109,5 @@ public class StaticFileService {
         String[] split = path.split("\\.");
         String extension = split[split.length - 1];
         return ContentType.get(extension);
-    }
-
-    public void stopScheduler() {
-        scheduler.shutdown();
     }
 }

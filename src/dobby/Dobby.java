@@ -11,6 +11,7 @@ import dobby.io.response.Response;
 import dobby.routes.RouteDiscoverer;
 import dobby.session.Session;
 import dobby.session.service.SessionService;
+import dobby.task.SchedulerService;
 import dobby.util.Config;
 import dobby.util.logging.LogLevel;
 import dobby.util.logging.Logger;
@@ -256,8 +257,7 @@ public class Dobby {
     private void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");
-        StaticFileService.getInstance().stopScheduler();
-        SessionService.getInstance().stopScheduler();
+        SchedulerService.getInstance().stopAll();
         threadPool.shutdown();
         try {
             if (threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
