@@ -99,6 +99,8 @@ public class Dobby {
 
         setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
 
+        SessionService.getInstance(); // initialize SessionService to start cleanup scheduler right at start
+
         runPreStart();
 
         new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10));
