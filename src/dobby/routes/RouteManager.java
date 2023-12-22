@@ -66,7 +66,13 @@ public class RouteManager {
                 parts[i] = "*";
             }
         }
-        return new Tupel<>(String.join("/", parts).toLowerCase(), params);
+
+        String processedPath = String.join("/", parts).toLowerCase();
+        if (processedPath.isEmpty()) {
+            processedPath = "/";
+        }
+
+        return new Tupel<>(processedPath, params);
     }
 
     /**
