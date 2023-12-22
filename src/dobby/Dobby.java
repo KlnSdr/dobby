@@ -1,5 +1,6 @@
 package dobby;
 
+import dobby.files.service.StaticFileService;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
 import dobby.io.HttpContext;
@@ -99,6 +100,7 @@ public class Dobby {
 
         setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
 
+        StaticFileService.getInstance(); // initialize StaticFileService to start cleanup scheduler right at start
         SessionService.getInstance(); // initialize SessionService to start cleanup scheduler right at start
 
         runPreStart();
@@ -254,6 +256,7 @@ public class Dobby {
     private void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");
+        StaticFileService.getInstance().stopScheduler();
         SessionService.getInstance().stopScheduler();
         threadPool.shutdown();
         try {

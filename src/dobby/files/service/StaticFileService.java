@@ -3,27 +3,38 @@ package dobby.files.service;
 import dobby.Dobby;
 import dobby.files.StaticFile;
 import dobby.util.Config;
+import dobby.util.logging.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service for serving static files
  */
 public class StaticFileService {
+    private static final Logger LOGGER = new Logger(StaticFileService.class);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static StaticFileService instance;
     private final HashMap<String, StaticFile> files = new HashMap<>();
     private String staticContentPath;
+    private int maxFileAge;
 
     private StaticFileService() {
         Config config = Config.getInstance();
 
-        if (config.getBoolean("dobby.disableStaticContent")) {
+        if (config.getBoolean("dobby.staticContent.disable")) {
             return;
         }
+        maxFileAge = config.getInt("dobby.staticContent.maxFileAge", 5);
+        staticContentPath = config.getString("dobby.staticContent.directory");
+        final int cleanupInterval = config.getInt("dobby.staticContent.cleanUpInterval", 30);
 
-        staticContentPath = config.getString("dobby.staticContentDir");
+        LOGGER.info("starting static file cleanup scheduler with interval of " + cleanupInterval + " min...");
+        scheduler.scheduleAtFixedRate(this::cleanUpStaticFiles, 0, cleanupInterval, TimeUnit.MINUTES);
     }
 
     public static StaticFileService getInstance() {
@@ -33,6 +44,20 @@ public class StaticFileService {
         return instance;
     }
 
+    private long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
+
+    private void cleanUpStaticFiles() {
+        LOGGER.info("Cleaning up static files...");
+        long currentTime = getCurrentTime();
+        files.forEach((path, file) -> {
+            if (currentTime - file.getLastAccessed() > (long) maxFileAge * 60 * 60 * 1000) {
+                files.remove(path);
+            }
+        });
+    }
+
     /**
      * Get a static file
      *
@@ -40,10 +65,18 @@ public class StaticFileService {
      * @return static file
      */
     public StaticFile get(String path) {
+        final StaticFile file;
         if (!files.containsKey(path)) {
-            return lookUpFile(path);
+            file = lookUpFile(path);
+        } else {
+            file = files.get(path);
         }
-        return files.get(path);
+
+        if (file != null) {
+            file.setLastAccessed(getCurrentTime());
+        }
+
+        return file;
     }
 
     /**
@@ -76,5 +109,9 @@ public class StaticFileService {
         String[] split = path.split("\\.");
         String extension = split[split.length - 1];
         return ContentType.get(extension);
+    }
+
+    public void stopScheduler() {
+        scheduler.shutdown();
     }
 }
