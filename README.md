@@ -109,6 +109,7 @@ available:
 - `dobby.session.cleanUpInterval`: The interval in minutes in which the session manager will clean up expired sessions.
   Default: `30`
 - `dobby.session.maxAge`: The maximum age of a session in hours. Default: `24`
+- `dobby.scheduler.disable`: Disables all schedulers. Default: `false`
 - `application.name`: The name of the application
 - `application.version`: The version of the application
 
