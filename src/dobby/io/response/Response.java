@@ -35,12 +35,30 @@ public class Response {
     }
 
     /**
+     * Get response code
+     *
+     * @return Response code
+     */
+    public ResponseCodes getCode() {
+        return code;
+    }
+
+    /**
      * Set response code
      *
      * @param code Response code
      */
     public void setCode(ResponseCodes code) {
         this.code = code;
+    }
+
+    /**
+     * Get response body
+     *
+     * @return Response body
+     */
+    public byte[] getBody() {
+        return body;
     }
 
     /**
@@ -89,6 +107,29 @@ public class Response {
         List<String> header = headers.getOrDefault(key, new ArrayList<>());
         header.add(value);
         headers.put(key, header);
+    }
+
+    /**
+     * Get response header
+     *
+     * @param key Header key
+     * @return Header value
+     */
+    public String getHeader(String key) {
+        List<String> header = headers.getOrDefault(key, new ArrayList<>());
+        if (header.isEmpty()) {
+            return null;
+        }
+        return header.get(0);
+    }
+
+    /**
+     * Get response headers
+     *
+     * @return Response headers
+     */
+    public HashMap<String, List<String>> getHeaders() {
+        return headers;
     }
 
     private void calculateContentLength() {
