@@ -4,13 +4,13 @@ import dobby.Dobby;
 import dobby.files.StaticFile;
 import dobby.task.SchedulerService;
 import dobby.util.Config;
+import dobby.util.Tupel;
 import dobby.util.logging.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,7 +20,7 @@ public class StaticFileService {
     private static final Logger LOGGER = new Logger(StaticFileService.class);
     private static StaticFileService instance;
     private final HashMap<String, StaticFile> files = new HashMap<>();
-    private String staticContentPath;
+    private Tupel<Class<?>, String>[] staticContentPath;
     private int maxFileAge;
 
     private StaticFileService() {
@@ -30,11 +30,40 @@ public class StaticFileService {
             return;
         }
         maxFileAge = config.getInt("dobby.staticContent.maxFileAge", 5);
-        staticContentPath = config.getString("dobby.staticContent.directory");
+        staticContentPath = getAllStaticContentPaths(config.getString("dobby.staticContent.directory"));
         final int cleanupInterval = config.getInt("dobby.staticContent.cleanUpInterval", 30);
 
         LOGGER.info("starting static file cleanup scheduler with interval of " + cleanupInterval + " min...");
         SchedulerService.getInstance().addRepeating(this::cleanUpStaticFiles, cleanupInterval, TimeUnit.MINUTES);
+    }
+
+    private static Tupel<Class<?>, String>[] getAllStaticContentPaths(String configPath) {
+        String[] paths = configPath.split(",");
+        ArrayList<Tupel<Class<?>, String>> staticContentPaths = new ArrayList<>();
+
+        for (String path: paths) {
+            final String[] split = path.split("\\\\"); // soo geistlos!
+            final Class<?> baseClass;
+            final String resourcePath;
+
+            if (split.length != 2) {
+                baseClass = Dobby.getMainClass();
+                resourcePath = path;
+
+                staticContentPaths.add(new Tupel<>(baseClass, resourcePath));
+                continue;
+            }
+
+            try {
+                baseClass = Class.forName(split[0]);
+                resourcePath = split[1];
+                staticContentPaths.add(new Tupel<>(baseClass, resourcePath));
+            } catch (ClassNotFoundException e) {
+                LOGGER.error("Class not found: " + split[0]);
+                LOGGER.trace(e);
+            }
+        }
+        return staticContentPaths.toArray(new Tupel[0]);
     }
 
     public static StaticFileService getInstance() {
@@ -80,27 +109,40 @@ public class StaticFileService {
     }
 
     /**
-     * Look up a file in the resources folder
+     * Look up a file in the resources folder<br>
+     * If the file is found, it is added to the files map<br>
+     * If the file is not found, null is returned<br>
+     * All static content paths are tried in order<br>
      *
      * @param path path to file
      * @return static file
      */
     private StaticFile lookUpFile(String path) {
-        InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/" + staticContentPath + path);
+        InputStream stream;
+        int i = 0;
+        StaticFile file = null;
 
-        if (stream == null) {
-            return null;
-        }
+        do {
+            stream = staticContentPath[i]._1().getResourceAsStream("resource/" + staticContentPath[i]._2() + path);
+            i++;
 
-        StaticFile file = new StaticFile();
-        file.setContentType(determineContentType(path));
-        try {
-            file.setContent(stream.readAllBytes());
-        } catch (IOException e) {
-            return null;
-        }
+            if (stream == null) {
+                continue;
+            }
 
-        files.put(path, file);
+            file = new StaticFile();
+            file.setContentType(determineContentType(path));
+
+            try {
+                file.setContent(stream.readAllBytes());
+                files.put(path, file);
+                break;
+            } catch (IOException e) {
+                LOGGER.error("Error reading file: " + path);
+                LOGGER.trace(e);
+                file = null;
+            }
+        } while (stream == null && i < staticContentPath.length);
 
         return file;
     }
