@@ -17,6 +17,7 @@ public class Config {
     private Json configJson = new Json();
 
     private Config() {
+        loadConfig();
     }
 
     public static Config getInstance() {
@@ -29,7 +30,7 @@ public class Config {
     /**
      * Loads the config file
      */
-    public void loadConfig() {
+    private void loadConfig() {
         InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
 
@@ -68,6 +69,10 @@ public class Config {
         return getInt(key, 0);
     }
 
+    public void setInt(String key, int value) {
+        configJson.setInt(key, value);
+    }
+
     /**
      * Gets the value of the given key as a string
      *
@@ -89,6 +94,10 @@ public class Config {
         return getString(key, "");
     }
 
+    public void setString(String key, String value) {
+        configJson.setString(key, value);
+    }
+
     /**
      * Gets the value of the given key as a boolean
      *
@@ -108,6 +117,10 @@ public class Config {
      */
     public boolean getBoolean(String key) {
         return getBoolean(key, false);
+    }
+
+    public void setBoolean(String key, boolean value) {
+        configJson.setString(key, Boolean.toString(value));
     }
 
     private int getIntOrDefault(String key, int defaultValue) {

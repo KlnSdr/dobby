@@ -122,7 +122,7 @@ public class Json {
             this.stringData.put(key, value);
             return;
         }
-        target.stringData.put(key, value);
+        target.stringData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     /**
@@ -151,7 +151,7 @@ public class Json {
             this.intData.put(key, value);
             return;
         }
-        target.intData.put(key, value);
+        target.intData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     /**
@@ -179,7 +179,7 @@ public class Json {
         if (target == null) {
             return;
         }
-        target.jsonData.put(key, value);
+        target.jsonData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     /**
@@ -207,7 +207,7 @@ public class Json {
         if (target == null) {
             return;
         }
-        target.listData.put(key, value);
+        target.listData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     /**
@@ -235,7 +235,7 @@ public class Json {
         if (target == null) {
             return false;
         }
-        return target.stringData.containsKey(key);
+        return target.stringData.containsKey(key.split("\\.")[key.split("\\.").length - 1]);
     }
 
     /**
