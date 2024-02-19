@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * The Server class is used to start the server
  */
 public class Dobby {
-    private static final String version = "0.1.1";
+    private static final String version = "0.1.2-dev";
     private static Class<?> applicationClass;
     private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
@@ -93,7 +93,6 @@ public class Dobby {
         Dobby.applicationClass = applicationClass;
         printBanner();
         Config config = Config.getInstance();
-        config.loadConfig();
 
         System.out.println("[" + config.getString("application.name", "<APP_NAME>") + "@" + config.getString(
                 "application.version", "<APP_VERSION>") + "]");
@@ -101,10 +100,10 @@ public class Dobby {
 
         setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
 
+        runPreStart();
+
         StaticFileService.getInstance(); // initialize StaticFileService to start cleanup scheduler right at start
         SessionService.getInstance(); // initialize SessionService to start cleanup scheduler right at start
-
-        runPreStart();
 
         new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10));
     }
