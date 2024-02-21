@@ -235,7 +235,11 @@ public class Json {
         if (target == null) {
             return false;
         }
-        return target.stringData.containsKey(key.split("\\.")[key.split("\\.").length - 1]);
+        final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
+        return target.stringData.containsKey(pathKey) ||
+            target.intData.containsKey(pathKey) ||
+            target.jsonData.containsKey(pathKey) ||
+            target.listData.containsKey(pathKey);
     }
 
     /**
