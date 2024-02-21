@@ -6,11 +6,12 @@ import dobby.io.request.RequestTypes;
 import dobby.util.Tupel;
 import dobby.util.logging.Logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static dobby.util.RouteHelper.extractPathParams;
+import static dobby.util.RouteHelper.matches;
 
 /**
  * Manages routes
@@ -56,25 +57,6 @@ public class RouteManager {
         LOGGER.debug(String.format("Added route %s for %s", path, type.name()));
     }
 
-    private Tupel<String, List<String>> extractPathParams(String path) {
-        List<String> params = new ArrayList<>();
-        String[] parts = path.split("/");
-
-        for (int i = 0; i < parts.length; i++) {
-            if (parts[i].startsWith("{") && parts[i].endsWith("}")) {
-                params.add(parts[i].substring(1, parts[i].length() - 1));
-                parts[i] = "*";
-            }
-        }
-
-        String processedPath = String.join("/", parts).toLowerCase();
-        if (processedPath.isEmpty()) {
-            processedPath = "/";
-        }
-
-        return new Tupel<>(processedPath, params);
-    }
-
     /**
      * Gets the handler for the given request type and path
      *
@@ -93,6 +75,7 @@ public class RouteManager {
 
     /**
      * Gets the handler for the given request type and path based on pattern matching
+     *
      * @param type The type of request to get the handler for
      * @param path The path to get the handler for
      * @return The handler for the given request type and path
@@ -100,8 +83,7 @@ public class RouteManager {
     private Tupel<IRequestHandler, HashMap<String, String>> getHandlerMatchPaths(RequestTypes type, String path) {
         List<String> patternPaths = routes.keySet().stream().filter(p -> p.contains("*")).collect(Collectors.toList());
         for (String p : patternPaths) {
-            Pattern pattern = prepareRoutePattern(p);
-            if (pattern.matcher(path).matches()) {
+            if (matches(path, p)) {
                 Route route = routes.get(p);
                 HashMap<String, String> pathParams = getPathParamValues(p, path, route.getPathParams(type));
                 return new Tupel<>(route.getHandler(type), pathParams);
@@ -122,10 +104,5 @@ public class RouteManager {
             }
         }
         return pathParams;
-    }
-
-    private Pattern prepareRoutePattern(String path) {
-        path = path.replace("*", "[^/]*");
-        return Pattern.compile(path);
     }
 }
