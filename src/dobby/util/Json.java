@@ -101,7 +101,11 @@ public class Json {
         }
 
         if (!key.isEmpty()) {
-            body.setString(key, buffer.toString());
+            if (isInNumber) {
+                body.setInt(key, Integer.parseInt(buffer.toString()));
+            } else {
+                body.setString(key, buffer.toString());
+            }
         }
 
         return body;
