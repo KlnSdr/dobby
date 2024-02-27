@@ -1,9 +1,6 @@
 package dobby.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -108,6 +105,23 @@ public class Json {
         }
 
         return body;
+    }
+
+    private static void cutLoop(Json src) {
+        final Set<Json> visited = new HashSet<>();
+        visited.add(src);
+        cutLoop(src, visited);
+    }
+
+    private static void cutLoop(Json src, Set<Json> visited) {
+        src.jsonData.forEach((key, json) -> {
+            if (visited.contains(json)) {
+                src.jsonData.put(key, new Json());
+            } else {
+                visited.add(json);
+                cutLoop(json, visited);
+            }
+        });
     }
 
     /**
@@ -270,6 +284,7 @@ public class Json {
 
     @Override
     public String toString() {
+        cutLoop(this);
         StringBuilder builder = new StringBuilder();
         builder.append("{");
         String stringKeys = this.stringData.entrySet().stream().map(entry -> {
