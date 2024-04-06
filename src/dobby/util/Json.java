@@ -1,5 +1,6 @@
 package dobby.util;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Json class
  */
-public class Json {
+public class Json implements Serializable {
     private final Map<String, String> stringData = new HashMap<>();
     private final Map<String, Integer> intData = new HashMap<>();
     private final Map<String, Json> jsonData = new HashMap<>();

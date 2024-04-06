@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * The Server class is used to start the server
  */
 public class Dobby {
-    private static final String version = "0.1.2";
+    private static final String version = "0.1.3-SNAPSHOT";
     private static Class<?> applicationClass;
     private final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
