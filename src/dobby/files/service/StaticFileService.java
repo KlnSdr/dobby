@@ -94,9 +94,14 @@ public class StaticFileService {
      * @return static file
      */
     public StaticFile get(String path) {
-        final StaticFile file;
+        StaticFile file;
         if (!files.containsKey(path)) {
-            file = lookUpFile(path);
+            file = ExternalDocRootService.getInstance().get(path);
+            if (file == null) {
+                file = lookUpFile(path);
+            } else {
+                files.put(path, file);
+            }
         } else {
             file = files.get(path);
         }
@@ -147,7 +152,7 @@ public class StaticFileService {
         return file;
     }
 
-    private String determineContentType(String path) {
+    public static String determineContentType(String path) {
         String[] split = path.split("\\.");
         String extension = split[split.length - 1];
         return ContentType.get(extension);
