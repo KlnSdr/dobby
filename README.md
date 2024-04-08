@@ -97,6 +97,7 @@ available:
 - `dobby.staticContent.directory`: The directory relative to the resource folder to serve static content from. 
   Default: 
   `./`
+- `dobby.staticContent.externalDocRoot`: A directory located on the computer to server static content from. 
 - `dobby.staticContent.disable`: Disables serving static content. Default: `false`
 - `dobby.staticContent.cleanUpInterval`: The interval in minutes in which the staticFile manager will cleanup old 
   files from the cache.
