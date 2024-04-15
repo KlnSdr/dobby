@@ -43,6 +43,7 @@ public class Cookie {
     private String path = "/";
     private int maxAge = 30 * 24 * 60 * 60;
     private String expires;
+    private String sameSite = "None";
 
     /**
      * Create a cookie with default path, maxAge, secure and httpOnly.
@@ -107,6 +108,14 @@ public class Cookie {
         this.expires = expires;
     }
 
+    public void setSameSite(String sameSite) {
+        this.sameSite = sameSite;
+    }
+
+    public String getSameSite() {
+        return sameSite;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -125,6 +134,9 @@ public class Cookie {
         }
         if (httpOnly) {
             sb.append("; HttpOnly");
+        }
+        if (sameSite != null) {
+            sb.append("; SameSite=").append(sameSite);
         }
         return sb.toString();
     }
