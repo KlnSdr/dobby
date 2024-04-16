@@ -104,9 +104,9 @@ public class Response {
      * @param value Header value
      */
     public void setHeader(String key, String value) {
-        List<String> header = headers.getOrDefault(key, new ArrayList<>());
+        List<String> header = headers.getOrDefault(key.toLowerCase(), new ArrayList<>());
         header.add(value);
-        headers.put(key, header);
+        headers.put(key.toLowerCase(), header);
     }
 
     /**
@@ -116,7 +116,7 @@ public class Response {
      * @return Header value
      */
     public String getHeader(String key) {
-        List<String> header = headers.getOrDefault(key, new ArrayList<>());
+        List<String> header = headers.getOrDefault(key.toLowerCase(), new ArrayList<>());
         if (header.isEmpty()) {
             return null;
         }

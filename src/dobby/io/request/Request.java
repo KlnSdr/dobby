@@ -161,7 +161,7 @@ public class Request {
      * @return The header key of the request
      */
     public String getHeader(String key) {
-        return headers.get(key);
+        return headers.get(key.toLowerCase());
     }
 
     /**
@@ -175,6 +175,12 @@ public class Request {
 
     private void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+
+        final Map<String, String> newHeaders = new HashMap<>();
+        for (String key : headers.keySet()) {
+            newHeaders.put(key.toLowerCase(), headers.get(key));
+        }
+        this.headers = newHeaders;
     }
 
     /**
@@ -184,7 +190,7 @@ public class Request {
      * @param value The value of the header
      */
     public void setHeader(String key, String value) {
-        headers.put(key, value);
+        headers.put(key.toLowerCase(), value);
     }
 
     /**
