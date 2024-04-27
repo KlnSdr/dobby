@@ -20,9 +20,10 @@ public class DataExtractionHelper {
             final char c = raw.charAt(i);
 
             if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
-                if (sb.toString().equals("true")) {
+                final String value = sb.toString().trim();
+                if (value.equals("true")) {
                     return new Tupel<>(true, i);
-                } else if (sb.toString().equals("false")) {
+                } else if (value.equals("false")) {
                     return new Tupel<>(false, i);
                 } else {
                     return null;
@@ -31,9 +32,10 @@ public class DataExtractionHelper {
             sb.append(c);
         }
 
-        if (sb.toString().equals("true")) {
+        final String value = sb.toString().trim();
+        if (value.equals("true")) {
             return new Tupel<>(true, raw.length());
-        } else if (sb.toString().equals("false")) {
+        } else if (value.equals("false")) {
             return new Tupel<>(false, raw.length());
         } else {
             return null;
@@ -47,11 +49,11 @@ public class DataExtractionHelper {
             final char c = raw.charAt(i);
 
             if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
-                return new Tupel<>(sb.toString(), i);
+                return new Tupel<>(sb.toString().trim(), i);
             }
             sb.append(c);
         }
-        return new Tupel<>(sb.toString(), raw.length());
+        return new Tupel<>(sb.toString().trim(), raw.length());
     }
 
     public static Tupel<String, Integer> extractNextString(String raw, int offset) {
