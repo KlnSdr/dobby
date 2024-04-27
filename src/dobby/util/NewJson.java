@@ -16,6 +16,7 @@ public class NewJson implements Serializable {
     private final HashMap<String, String> stringData = new HashMap<>();
     private final HashMap<String, NewJson> jsonData = new HashMap<>();
     private final HashMap<String, Integer> intData = new HashMap<>();
+    private final HashMap<String, Double> floatData = new HashMap<>();
 
     public static void setSilentExceptions(boolean silentExceptions) {
         SILENT_EXCEPTIONS = silentExceptions;
@@ -88,7 +89,7 @@ public class NewJson implements Serializable {
                         i = res._2();
                     }
                 } else if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9') {
-                    final Tupel<Integer, Integer> res = extractNextInt(raw, i);
+                    final Tupel<String, Integer> res = extractNextNumber(raw, i);
                     if (res == null) {
                         LOGGER.error("Malformed JSON: " + raw);
                         if (!SILENT_EXCEPTIONS) {
@@ -104,7 +105,12 @@ public class NewJson implements Serializable {
                         }
                         return null;
                     } else {
-                        json.intData.put(key, res._1());
+                        if (res._1().contains(".")) {
+                            json.floatData.put(key, Double.parseDouble(res._1()));
+                        } else {
+                            json.intData.put(key, Integer.parseInt(res._1()));
+                        }
+
                         key = null;
                         i = res._2();
                     }
@@ -124,14 +130,14 @@ public class NewJson implements Serializable {
         return json;
     }
 
-    private static Tupel<Integer, Integer> extractNextInt(String raw, int offset) {
+    private static Tupel<String, Integer> extractNextNumber(String raw, int offset) {
         final StringBuilder sb = new StringBuilder();
 
         for (int i = offset; i < raw.length(); i++) {
             final char c = raw.charAt(i);
 
             if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
-                return new Tupel<>(Integer.parseInt(sb.toString()), i);
+                return new Tupel<>(sb.toString(), i);
             }
             sb.append(c);
         }
@@ -215,6 +221,10 @@ public class NewJson implements Serializable {
             sb.append("\"").append(key).append("\": ").append(intData.get(key)).append(", ");
         }
 
+        for (String key : floatData.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(floatData.get(key)).append(", ");
+        }
+
         if (sb.length() > 1) {
             sb.delete(sb.length() - 2, sb.length());
         }
@@ -236,6 +246,10 @@ public class NewJson implements Serializable {
         intData.put(key, value);
     }
 
+    public void setFloat(String key, double value) {
+        floatData.put(key, value);
+    }
+
     public String getString(String key) {
         return stringData.get(key);
     }
@@ -248,8 +262,12 @@ public class NewJson implements Serializable {
         return intData.get(key);
     }
 
+    public double getFloat(String key) {
+        return floatData.get(key);
+    }
+
     public boolean hasKey(String key) {
-        return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key);
+        return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key) || floatData.containsKey(key);
     }
 
     public Set<String> getStringKeys() {
@@ -264,10 +282,15 @@ public class NewJson implements Serializable {
         return intData.keySet();
     }
 
+    public Set<String> getFloatKeys() {
+        return floatData.keySet();
+    }
+
     public Set<String> getKeys() {
         final Set<String> keys = stringData.keySet();
         keys.addAll(jsonData.keySet());
         keys.addAll(intData.keySet());
+        keys.addAll(floatData.keySet());
         return keys;
     }
 }
