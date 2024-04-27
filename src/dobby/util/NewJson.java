@@ -1,16 +1,27 @@
 package dobby.util;
 
+import dobby.exceptions.MalformedJsonException;
 import dobby.util.logging.Logger;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class NewJson implements Serializable {
+    private static boolean SILENT_EXCEPTIONS = false;
     private static final Logger LOGGER = new Logger(NewJson.class);
+    private static final String[] VALUE_DELIMITERS = new String[] {"{", "}", "[", "]", ":", "\""};
+
     private final HashMap<String, String> stringData = new HashMap<>();
     private final HashMap<String, NewJson> jsonData = new HashMap<>();
 
-    public static NewJson parse(String raw) {
+    public static void setSilentExceptions(boolean silentExceptions) {
+        SILENT_EXCEPTIONS = silentExceptions;
+    }
+
+    public static NewJson parse(String raw) throws MalformedJsonException {
+        boolean isFirstKey = true;
+
         final NewJson json = new NewJson();
         System.out.println(raw);
         int depth = -1;
@@ -29,7 +40,11 @@ public class NewJson implements Serializable {
                 final Tupel<String, Integer> res = extractNextJson(raw, i);
 
                 if (res == null) {
-                    break;
+                    LOGGER.error("Malformed JSON: " + raw);
+                    if (!SILENT_EXCEPTIONS) {
+                        throw new MalformedJsonException(raw);
+                    }
+                    return null;
                 }
                 i = res._2();
 
@@ -42,10 +57,24 @@ public class NewJson implements Serializable {
                 if (c == '"') {
                     final Tupel<String, Integer> res = extractNextString(raw, i);
                     if (res == null) {
-                        break;
+                        LOGGER.error("Malformed JSON: " + raw);
+                        if (!SILENT_EXCEPTIONS) {
+                            throw new MalformedJsonException(raw);
+                        }
+                        return null;
                     }
 
                     if (key == null) {
+                        if (isFirstKey) {
+                            isFirstKey = false;
+                        } else if(!hasValueKeyDelimiter(raw, i)) {
+                            LOGGER.error("Malformed JSON: " + raw);
+                            if (!SILENT_EXCEPTIONS) {
+                                throw new MalformedJsonException(raw);
+                            }
+                            return null;
+                        }
+
                         key = res._1();
                         System.out.println("Key: " + key);
                         i = findKeyValueDelimiter(raw, res._2());
@@ -62,8 +91,10 @@ public class NewJson implements Serializable {
         }
 
         if (depth != -1) {
-            LOGGER.error("Invalid JSON");
-            LOGGER.error(raw);
+            LOGGER.error("Malformed JSON: " + raw);
+            if (!SILENT_EXCEPTIONS) {
+                throw new MalformedJsonException(raw);
+            }
             return null;
         }
 
@@ -93,6 +124,20 @@ public class NewJson implements Serializable {
             }
         }
         return raw.length();
+    }
+
+    private static boolean hasValueKeyDelimiter(String raw, int offset) {
+        for (int i = offset - 1; i > 0; i--) {
+            final char c = raw.charAt(i);
+
+            if (c == ',') {
+                return true;
+            } else if (Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     private static Tupel<String, Integer> extractNextJson(String raw, int offset) {
