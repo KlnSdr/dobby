@@ -319,35 +319,51 @@ public class NewJson implements Serializable {
     // getter =======================================================================================
 
     public String getString(String key) {
-        return getValue(key, stringData);
-    }
-
-    public NewJson getJson(String key) {
-        return getValue(key, jsonData);
-    }
-
-    public Integer getInt(String key) {
-        return getValue(key, intData);
-    }
-
-    public Double getFloat(String key) {
-        return getValue(key, floatData);
-    }
-
-    public Boolean getBoolean(String key) {
-        return getValue(key, boolData);
-    }
-
-    public List<Object> getList(String key) {
-        return getValue(key, listData);
-    }
-
-    private <T> T getValue(String key, HashMap<String, T> data) {
         final NewJson target = getTargetJsonObjectFromPath(key);
         if (target == null) {
             return null;
         }
-        return data.get(key.split("\\.")[key.split("\\.").length - 1]);
+        return target.stringData.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
+    public NewJson getJson(String key) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.jsonData.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
+    public Integer getInt(String key) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.intData.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
+    public Double getFloat(String key) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.floatData.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
+    public Boolean getBoolean(String key) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.boolData.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
+    public List<Object> getList(String key) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return target.listData.get(key.split("\\.")[key.split("\\.").length - 1]);
     }
 
     // has key =======================================================================================
@@ -397,7 +413,8 @@ public class NewJson implements Serializable {
     }
 
     public Set<String> getKeys() {
-        final Set<String> keys = stringData.keySet();
+        final Set<String> keys = new HashSet<>();
+        keys.addAll(stringData.keySet());
         keys.addAll(jsonData.keySet());
         keys.addAll(intData.keySet());
         keys.addAll(floatData.keySet());
