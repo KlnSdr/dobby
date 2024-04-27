@@ -47,6 +47,18 @@ public class NewJson implements Serializable {
      * @throws NumberFormatException  If a number could not be parsed
      */
     public static NewJson parse(String raw) throws MalformedJsonException, NumberFormatException {
+        return parse(raw, false);
+    }
+
+    /**
+     * Parse a JSON string into a NewJson object.
+     *
+     * @param raw The raw JSON string
+     * @return The parsed NewJson object or null
+     * @throws MalformedJsonException If the JSON is malformed
+     * @throws NumberFormatException  If a number could not be parsed
+     */
+    public static NewJson parse(String raw, boolean isChild) throws MalformedJsonException, NumberFormatException {
         boolean isFirstKey = true;
 
         final NewJson json = new NewJson();
@@ -61,7 +73,7 @@ public class NewJson implements Serializable {
             // parse JSON
             if (c == '{') {
                 depth++;
-                if (depth == 0) {
+                if (depth == 0 && !isChild) {
                     continue;
                 }
                 final Tupel<String, Integer> res = extractNextJson(raw, i);
@@ -75,7 +87,7 @@ public class NewJson implements Serializable {
                 }
                 i = res._2();
 
-                json.jsonData.put(key, parse(res._1()));
+                json.jsonData.put(key, parse(res._1(), true));
                 key = null;
                 depth--;
             } else if (c == '}') {
