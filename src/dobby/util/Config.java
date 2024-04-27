@@ -1,11 +1,14 @@
 package dobby.util;
 
 import dobby.Dobby;
+import dobby.exceptions.MalformedJsonException;
+import dobby.util.json.NewJson;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -14,10 +17,16 @@ import java.util.stream.Collectors;
 public class Config {
     private static Config instance;
     private final Logger LOGGER = new Logger(Config.class);
-    private Json configJson = new Json();
+    private NewJson configJson = new NewJson();
 
     private Config() {
-        loadConfig();
+        try {
+            loadConfig();
+        } catch (MalformedJsonException e) {
+            LOGGER.error("Failed to load config file");
+            LOGGER.trace(e);
+            System.exit(1);
+        }
     }
 
     public static Config getInstance() {
@@ -30,11 +39,11 @@ public class Config {
     /**
      * Loads the config file
      */
-    private void loadConfig() {
+    private void loadConfig() throws MalformedJsonException {
         InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
 
-        configJson = Json.parse(rawConfig);
+        configJson = NewJson.parse(rawConfig);
     }
 
     private String loadFileContent(InputStream stream) {
@@ -120,11 +129,51 @@ public class Config {
     }
 
     public void setBoolean(String key, boolean value) {
-        configJson.setString(key, Boolean.toString(value));
+        configJson.setBoolean(key, value);
+    }
+
+    public double getFloat(String key, double defaultValue) {
+        final Double floatValue = configJson.getFloat(key);
+
+        if (floatValue == null) {
+            return defaultValue;
+        }
+
+        return floatValue;
+    }
+
+    public double getFloat(String key) {
+        return getFloat(key, 0.0);
+    }
+
+    public void setFloat(String key, double value) {
+        configJson.setFloat(key, value);
+    }
+
+    public List<Object> getList(String key, List<Object> defaultValue) {
+        return getListOrDefault(key, defaultValue);
+    }
+
+    public List<Object> getList(String key) {
+        return getList(key, List.of());
+    }
+
+    public void setList(String key, List<Object> value) {
+        configJson.setList(key, value);
+    }
+
+    private List<Object> getListOrDefault(String key, List<Object> defaultValue) {
+        final List<Object> listValue = configJson.getList(key);
+
+        if (listValue == null) {
+            return defaultValue;
+        }
+
+        return listValue;
     }
 
     private int getIntOrDefault(String key, int defaultValue) {
-        Integer intValue = configJson.getInt(key);
+        final Integer intValue = configJson.getInt(key);
 
         if (intValue == null) {
             return defaultValue;
@@ -144,12 +193,12 @@ public class Config {
     }
 
     private boolean getBooleanOrDefault(String key, boolean defaultValue) {
-        String stringValue = configJson.getString(key);
+        final Boolean boolValue = configJson.getBoolean(key);
 
-        if (stringValue == null) {
+        if (boolValue == null) {
             return defaultValue;
         }
 
-        return Boolean.parseBoolean(stringValue);
+        return boolValue;
     }
 }

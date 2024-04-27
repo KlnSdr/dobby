@@ -1,7 +1,8 @@
 package dobby.io.request;
 
 import dobby.cookie.Cookie;
-import dobby.util.Json;
+import dobby.exceptions.MalformedJsonException;
+import dobby.util.json.NewJson;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -15,7 +16,7 @@ public class Request {
     private RequestTypes type;
     private String path;
     private String rawBody;
-    private Json body;
+    private NewJson body;
     private Map<String, String> headers;
     private Map<String, List<String>> query;
 
@@ -25,7 +26,7 @@ public class Request {
      * @param in The input stream to parse the request from
      * @return The parsed request
      */
-    public static Request parse(BufferedReader in) {
+    public static Request parse(BufferedReader in) throws MalformedJsonException {
         Request req = new Request();
 
         ArrayList<String> lines = consumeInputStream(in);
@@ -42,7 +43,11 @@ public class Request {
         if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT) {
             int contentLength = Integer.parseInt(req.getHeader("Content-Length")); // todo catch exception
             req.setRawBody(extractBody(in, contentLength));
-            req.setBody(Json.parse(req.getRawBody()));
+
+            final String contentTypeHeader = req.getHeader("Content-Type");
+            if (contentTypeHeader != null && contentTypeHeader.contains("application/json")) {
+                req.setBody(NewJson.parse(req.getRawBody()));
+            }
         }
         return req;
     }
@@ -247,11 +252,11 @@ public class Request {
      *
      * @return The body of the request
      */
-    public Json getBody() {
+    public NewJson getBody() {
         return body;
     }
 
-    private void setBody(Json body) {
+    private void setBody(NewJson body) {
         this.body = body;
     }
 
