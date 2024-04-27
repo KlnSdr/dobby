@@ -1,7 +1,7 @@
 package dobby.io.response;
 
 import dobby.cookie.Cookie;
-import dobby.util.Json;
+import dobby.util.json.NewJson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class Response {
      *
      * @param body Response body
      */
-    public void setBody(Json body) {
+    public void setBody(NewJson body) {
         if (body == null) {
             return;
         }

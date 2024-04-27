@@ -1,6 +1,8 @@
 package dobby.util;
 
 import dobby.Dobby;
+import dobby.exceptions.MalformedJsonException;
+import dobby.util.json.NewJson;
 import dobby.util.logging.Logger;
 
 import java.io.BufferedReader;
@@ -14,10 +16,16 @@ import java.util.stream.Collectors;
 public class Config {
     private static Config instance;
     private final Logger LOGGER = new Logger(Config.class);
-    private Json configJson = new Json();
+    private NewJson configJson = new NewJson();
 
     private Config() {
-        loadConfig();
+        try {
+            loadConfig();
+        } catch (MalformedJsonException e) {
+            LOGGER.error("Failed to load config file");
+            LOGGER.trace(e);
+            System.exit(1);
+        }
     }
 
     public static Config getInstance() {
@@ -30,11 +38,11 @@ public class Config {
     /**
      * Loads the config file
      */
-    private void loadConfig() {
+    private void loadConfig() throws MalformedJsonException {
         InputStream stream = Dobby.getMainClass().getResourceAsStream("resource/application.json");
         String rawConfig = loadFileContent(stream);
 
-        configJson = Json.parse(rawConfig);
+        configJson = NewJson.parse(rawConfig);
     }
 
     private String loadFileContent(InputStream stream) {
