@@ -13,16 +13,30 @@ public class NewJson implements Serializable {
     private static final Logger LOGGER = new Logger(NewJson.class);
     private static final String[] VALUE_DELIMITERS = new String[] {"{", "}", "[", "]", ":", "\""};
 
+    // data maps
     private final HashMap<String, String> stringData = new HashMap<>();
     private final HashMap<String, NewJson> jsonData = new HashMap<>();
     private final HashMap<String, Integer> intData = new HashMap<>();
     private final HashMap<String, Double> floatData = new HashMap<>();
     private final HashMap<String, Boolean> boolData = new HashMap<>();
 
+    /**
+     * Set whether exceptions should be thrown or not.<br>
+     * ATTENTION: If set to true, exceptions will not be thrown and the method will return null if the JSON is malformed.
+     * This might lead to unexpected behavior/missing data.
+     * @param silentExceptions Whether exceptions should be thrown or not
+     */
     public static void setSilentExceptions(boolean silentExceptions) {
         SILENT_EXCEPTIONS = silentExceptions;
     }
 
+    /**
+     * Parse a JSON string into a NewJson object.
+     * @param raw The raw JSON string
+     * @return The parsed NewJson object or null
+     * @throws MalformedJsonException If the JSON is malformed
+     * @throws NumberFormatException If a number could not be parsed
+     */
     public static NewJson parse(String raw) throws MalformedJsonException, NumberFormatException {
         boolean isFirstKey = true;
 
@@ -252,25 +266,11 @@ public class NewJson implements Serializable {
 
         sb.append("{");
 
-        for (String key : stringData.keySet()) {
-            sb.append("\"").append(key).append("\": \"").append(stringData.get(key)).append("\", ");
-        }
-
-        for (String key : jsonData.keySet()) {
-            sb.append("\"").append(key).append("\": ").append(jsonData.get(key)).append(", ");
-        }
-
-        for (String key : intData.keySet()) {
-            sb.append("\"").append(key).append("\": ").append(intData.get(key)).append(", ");
-        }
-
-        for (String key : floatData.keySet()) {
-            sb.append("\"").append(key).append("\": ").append(floatData.get(key)).append(", ");
-        }
-
-        for (String key : boolData.keySet()) {
-            sb.append("\"").append(key).append("\": ").append(boolData.get(key)).append(", ");
-        }
+        appendData(sb, stringData);
+        appendData(sb, jsonData);
+        appendData(sb, intData);
+        appendData(sb, floatData);
+        appendData(sb, boolData);
 
         if (sb.length() > 1) {
             sb.delete(sb.length() - 2, sb.length());
@@ -280,6 +280,14 @@ public class NewJson implements Serializable {
 
         return sb.toString();
     }
+
+    private static void appendData(StringBuilder sb, HashMap<String, ?> data) {
+        for (String key : data.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(data.get(key)).append(", ");
+        }
+    }
+
+    // setter =======================================================================================
 
     public void setString(String key, String value) {
         stringData.put(key, value);
@@ -301,6 +309,8 @@ public class NewJson implements Serializable {
         boolData.put(key, value);
     }
 
+    // getter =======================================================================================
+
     public String getString(String key) {
         return stringData.get(key);
     }
@@ -321,9 +331,13 @@ public class NewJson implements Serializable {
         return boolData.get(key);
     }
 
+    // has key =======================================================================================
+
     public boolean hasKey(String key) {
         return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key) || floatData.containsKey(key) || boolData.containsKey(key);
     }
+
+    // get keys =======================================================================================
 
     public Set<String> getStringKeys() {
         return stringData.keySet();
