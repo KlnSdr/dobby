@@ -260,23 +260,43 @@ public class NewJson implements Serializable {
     // setter =======================================================================================
 
     public void setString(String key, String value) {
-        stringData.put(key, value);
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.stringData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     public void setJson(String key, NewJson value) {
-        jsonData.put(key, value);
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.jsonData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     public void setInt(String key, int value) {
-        intData.put(key, value);
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.intData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     public void setFloat(String key, double value) {
-        floatData.put(key, value);
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.floatData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     public void setBoolean(String key, boolean value) {
-        boolData.put(key, value);
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.boolData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
     // getter =======================================================================================
@@ -289,16 +309,16 @@ public class NewJson implements Serializable {
         return getValue(key, jsonData);
     }
 
-    public int getInt(String key) {
-        return intData.get(key);
+    public Integer getInt(String key) {
+        return getValue(key, intData);
     }
 
-    public double getFloat(String key) {
-        return floatData.get(key);
+    public Double getFloat(String key) {
+        return getValue(key, floatData);
     }
 
-    public boolean getBoolean(String key) {
-        return boolData.get(key);
+    public Boolean getBoolean(String key) {
+        return getValue(key, boolData);
     }
 
     private <T> T getValue(String key, HashMap<String, T> data) {
