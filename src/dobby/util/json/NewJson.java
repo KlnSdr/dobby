@@ -6,6 +6,7 @@ import dobby.util.logging.Logger;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import static dobby.util.json.helper.DataExtractionHelper.*;
@@ -161,6 +162,7 @@ public class NewJson implements Serializable {
 
     @Override
     public String toString() {
+        cutLoop(this);
         final StringBuilder sb = new StringBuilder();
 
         sb.append("{");
@@ -178,6 +180,23 @@ public class NewJson implements Serializable {
         sb.append("}");
 
         return sb.toString();
+    }
+
+    private static void cutLoop(NewJson src) {
+        final Set<NewJson> visited = new HashSet<>();
+        visited.add(src);
+        cutLoop(src, visited);
+    }
+
+    private static void cutLoop(NewJson src, Set<NewJson> visited) {
+        src.jsonData.forEach((key, json) -> {
+            if (visited.contains(json)) {
+                src.jsonData.put(key, new NewJson());
+            } else {
+                visited.add(json);
+                cutLoop(json, visited);
+            }
+        });
     }
 
     // setter =======================================================================================
