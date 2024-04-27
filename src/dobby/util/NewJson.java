@@ -3,32 +3,62 @@ package dobby.util;
 import dobby.util.logging.Logger;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class NewJson implements Serializable {
     private static final Logger LOGGER = new Logger(NewJson.class);
     private final HashMap<String, String> stringData = new HashMap<>();
+    private final HashMap<String, NewJson> jsonData = new HashMap<>();
 
     public static NewJson parse(String raw) {
         final NewJson json = new NewJson();
         System.out.println(raw);
         int depth = -1;
-        final ArrayList<String> data = new ArrayList<>();
 
-        for (char c : raw.toCharArray()) {
+        String key = null;
+
+
+        for (int i = 0; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
+
             if (c == '{') {
                 depth++;
-                data.add("");
+                if (depth == 0) {
+                    continue;
+                }
+                final Tupel<String, Integer> res = extractNextJson(raw, i);
+
+                if (res == null) {
+                    break;
+                }
+                i = res._2();
+
+                json.jsonData.put(key, parse(res._1()));
+                key = null;
+                depth--;
             } else if (c == '}') {
-                final Map<String, String> strings = extractStrings(data.get(depth).trim());
-                json.stringData.putAll(strings);
-                data.remove(depth);
                 depth--;
             } else {
-                data.set(depth, data.get(depth).concat(String.valueOf(c)));
+                if (c == '"') {
+                    final Tupel<String, Integer> res = extractNextString(raw, i);
+                    if (res == null) {
+                        break;
+                    }
+
+                    if (key == null) {
+                        key = res._1();
+                        System.out.println("Key: " + key);
+                        i = findKeyValueDelimiter(raw, res._2());
+                    } else {
+                        final String value = res._1();
+                        System.out.println("Value: " + value);
+                        json.stringData.put(key, value);
+                        key = null;
+                        i = res._2();
+                    }
+                }
             }
+            System.out.println(c);
         }
 
         if (depth != -1) {
@@ -40,26 +70,71 @@ public class NewJson implements Serializable {
         return json;
     }
 
-    private static Map<String, String> extractStrings(String raw) {
-        final HashMap<String, String> strings = new HashMap<>();
-        final String[] parts = raw.split(",");
+    private static Tupel<String, Integer> extractNextString(String raw, int offset) {
+        final StringBuilder sb = new StringBuilder();
 
-        for (String part : parts) {
-            final String[] keyValue = part.split(":");
-            for (int i = 0; i < keyValue.length; i++) {
-                keyValue[i] = keyValue[i].trim();
+        for (int i = offset + 1; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
+
+            if (c == '"') {
+                return new Tupel<>(sb.toString(), i);
             }
+            sb.append(c);
+        }
+        return null;
+    }
 
-            if (keyValue.length != 2) {
-                continue;
-            }
+    private static int findKeyValueDelimiter(String raw, int offset) {
+        for (int i = offset; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
 
-            keyValue[0] = keyValue[0].replace("\"", "");
-
-            if (keyValue[1].startsWith("\"") && keyValue[1].endsWith("\"")) {
-                strings.put(keyValue[0].trim(), keyValue[1].substring(1, keyValue[1].length() - 1));
+            if (c == ':') {
+                return i;
             }
         }
-        return strings;
+        return raw.length();
+    }
+
+    private static Tupel<String, Integer> extractNextJson(String raw, int offset) {
+        final StringBuilder sb = new StringBuilder();
+        int depth = 0;
+
+        for (int i = offset + 1; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
+
+            if (c == '{') {
+                depth++;
+            } else if (c == '}') {
+                if (depth == 0) {
+                    return new Tupel<>(sb.toString(), i);
+                }
+                depth--;
+            }
+            sb.append(c);
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("{");
+
+        for (String key : stringData.keySet()) {
+            sb.append("\"").append(key).append("\": \"").append(stringData.get(key)).append("\", ");
+        }
+
+        for (String key : jsonData.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(jsonData.get(key)).append(", ");
+        }
+
+        if (sb.length() > 1) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+
+        sb.append("}");
+
+        return sb.toString();
     }
 }
