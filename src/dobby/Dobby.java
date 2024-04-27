@@ -1,5 +1,6 @@
 package dobby;
 
+import dobby.exceptions.MalformedJsonException;
 import dobby.files.service.StaticFileService;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
@@ -197,7 +198,7 @@ public class Dobby {
                     try {
                         handleConnection(client);
                     } catch (IOException | InvocationTargetException | NoSuchMethodException | InstantiationException |
-                             IllegalAccessException e) {
+                             IllegalAccessException | MalformedJsonException e) {
                         LOGGER.trace(e);
                     } finally {
                         try {
@@ -226,7 +227,7 @@ public class Dobby {
      *                                   underlying method is inaccessible.
      */
     private void handleConnection(Socket client) throws IOException, InvocationTargetException, NoSuchMethodException
-            , InstantiationException, IllegalAccessException {
+            , InstantiationException, IllegalAccessException, MalformedJsonException {
         if (serverMode.equals("pure")) {
             if (pureRequestHandler == null) {
                 LOGGER.error("no pure request handler found");
