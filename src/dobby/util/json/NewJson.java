@@ -160,6 +160,23 @@ public class NewJson implements Serializable {
         }
     }
 
+    private static void cutLoop(NewJson src) {
+        final Set<NewJson> visited = new HashSet<>();
+        visited.add(src);
+        cutLoop(src, visited);
+    }
+
+    private static void cutLoop(NewJson src, Set<NewJson> visited) {
+        src.jsonData.forEach((key, json) -> {
+            if (visited.contains(json)) {
+                src.jsonData.put(key, new NewJson());
+            } else {
+                visited.add(json);
+                cutLoop(json, visited);
+            }
+        });
+    }
+
     @Override
     public String toString() {
         cutLoop(this);
@@ -180,23 +197,6 @@ public class NewJson implements Serializable {
         sb.append("}");
 
         return sb.toString();
-    }
-
-    private static void cutLoop(NewJson src) {
-        final Set<NewJson> visited = new HashSet<>();
-        visited.add(src);
-        cutLoop(src, visited);
-    }
-
-    private static void cutLoop(NewJson src, Set<NewJson> visited) {
-        src.jsonData.forEach((key, json) -> {
-            if (visited.contains(json)) {
-                src.jsonData.put(key, new NewJson());
-            } else {
-                visited.add(json);
-                cutLoop(json, visited);
-            }
-        });
     }
 
     // setter =======================================================================================
@@ -224,11 +224,11 @@ public class NewJson implements Serializable {
     // getter =======================================================================================
 
     public String getString(String key) {
-        return stringData.get(key);
+        return getValue(key, stringData);
     }
 
     public NewJson getJson(String key) {
-        return jsonData.get(key);
+        return getValue(key, jsonData);
     }
 
     public int getInt(String key) {
@@ -243,10 +243,32 @@ public class NewJson implements Serializable {
         return boolData.get(key);
     }
 
+    private <T> T getValue(String key, HashMap<String, T> data) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return null;
+        }
+        return data.get(key.split("\\.")[key.split("\\.").length - 1]);
+    }
+
     // has key =======================================================================================
 
+    public boolean hasKeys(String... keys) {
+        for (String key : keys) {
+            if (!hasKey(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean hasKey(String key) {
-        return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key) || floatData.containsKey(key) || boolData.containsKey(key);
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return false;
+        }
+        final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
+        return stringData.containsKey(pathKey) || jsonData.containsKey(pathKey) || intData.containsKey(pathKey) || floatData.containsKey(pathKey) || boolData.containsKey(pathKey);
     }
 
     // get keys =======================================================================================
@@ -278,5 +300,18 @@ public class NewJson implements Serializable {
         keys.addAll(floatData.keySet());
         keys.addAll(boolData.keySet());
         return keys;
+    }
+
+
+    private NewJson getTargetJsonObjectFromPath(String key) {
+        String[] path = key.split("\\.");
+        NewJson target = this;
+        for (int i = 0; i < path.length - 1; i++) {
+            target = target.getJson(path[i]);
+            if (target == null) {
+                return null;
+            }
+        }
+        return target;
     }
 }
