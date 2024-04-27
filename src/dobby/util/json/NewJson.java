@@ -5,15 +5,14 @@ import dobby.util.Tupel;
 import dobby.util.logging.Logger;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
-public class NewJson implements Serializable {
-    private static boolean SILENT_EXCEPTIONS = false;
-    private static final Logger LOGGER = new Logger(NewJson.class);
-    private static final String[] VALUE_DELIMITERS = new String[] {"{", "}", "[", "]", ":", "\""};
+import static dobby.util.json.helper.DataExtractionHelper.*;
 
+public class NewJson implements Serializable {
+    private static final Logger LOGGER = new Logger(NewJson.class);
+    private static boolean SILENT_EXCEPTIONS = false;
     // data maps
     private final HashMap<String, String> stringData = new HashMap<>();
     private final HashMap<String, NewJson> jsonData = new HashMap<>();
@@ -25,6 +24,7 @@ public class NewJson implements Serializable {
      * Set whether exceptions should be thrown or not.<br>
      * ATTENTION: If set to true, exceptions will not be thrown and the method will return null if the JSON is malformed.
      * This might lead to unexpected behavior/missing data.
+     *
      * @param silentExceptions Whether exceptions should be thrown or not
      */
     public static void setSilentExceptions(boolean silentExceptions) {
@@ -33,10 +33,11 @@ public class NewJson implements Serializable {
 
     /**
      * Parse a JSON string into a NewJson object.
+     *
      * @param raw The raw JSON string
      * @return The parsed NewJson object or null
      * @throws MalformedJsonException If the JSON is malformed
-     * @throws NumberFormatException If a number could not be parsed
+     * @throws NumberFormatException  If a number could not be parsed
      */
     public static NewJson parse(String raw) throws MalformedJsonException, NumberFormatException {
         boolean isFirstKey = true;
@@ -86,7 +87,7 @@ public class NewJson implements Serializable {
                     if (key == null) {
                         if (isFirstKey) {
                             isFirstKey = false;
-                        } else if(!hasValueKeyDelimiter(raw, i)) {
+                        } else if (!hasValueKeyDelimiter(raw, i)) {
                             LOGGER.error("Malformed JSON: " + raw);
                             if (!SILENT_EXCEPTIONS) {
                                 throw new MalformedJsonException(raw);
@@ -168,97 +169,10 @@ public class NewJson implements Serializable {
         return json;
     }
 
-    private static Tupel<Boolean, Integer> extractNextBoolean(String raw, int offset) {
-        final StringBuilder sb = new StringBuilder();
-
-        for (int i = offset; i < raw.length(); i++) {
-            final char c = raw.charAt(i);
-
-            if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
-                if (sb.toString().equals("true")) {
-                    return new Tupel<>(true, i);
-                } else if (sb.toString().equals("false")) {
-                    return new Tupel<>(false, i);
-                } else {
-                    return null;
-                }
-            }
-            sb.append(c);
+    private static void appendData(StringBuilder sb, HashMap<String, ?> data) {
+        for (String key : data.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(data.get(key)).append(", ");
         }
-        return null;
-    }
-
-    private static Tupel<String, Integer> extractNextNumber(String raw, int offset) {
-        final StringBuilder sb = new StringBuilder();
-
-        for (int i = offset; i < raw.length(); i++) {
-            final char c = raw.charAt(i);
-
-            if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
-                return new Tupel<>(sb.toString(), i);
-            }
-            sb.append(c);
-        }
-        return null;
-    }
-
-    private static Tupel<String, Integer> extractNextString(String raw, int offset) {
-        final StringBuilder sb = new StringBuilder();
-
-        for (int i = offset + 1; i < raw.length(); i++) {
-            final char c = raw.charAt(i);
-
-            if (c == '"') {
-                return new Tupel<>(sb.toString(), i);
-            }
-            sb.append(c);
-        }
-        return null;
-    }
-
-    private static int findKeyValueDelimiter(String raw, int offset) {
-        for (int i = offset; i < raw.length(); i++) {
-            final char c = raw.charAt(i);
-
-            if (c == ':') {
-                return i;
-            }
-        }
-        return raw.length();
-    }
-
-    private static boolean hasValueKeyDelimiter(String raw, int offset) {
-        for (int i = offset - 1; i > 0; i--) {
-            final char c = raw.charAt(i);
-
-            if (c == ',') {
-                return true;
-            } else if (Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
-                return false;
-            }
-        }
-
-        return false;
-    }
-
-    private static Tupel<String, Integer> extractNextJson(String raw, int offset) {
-        final StringBuilder sb = new StringBuilder();
-        int depth = 0;
-
-        for (int i = offset + 1; i < raw.length(); i++) {
-            final char c = raw.charAt(i);
-
-            if (c == '{') {
-                depth++;
-            } else if (c == '}') {
-                if (depth == 0) {
-                    return new Tupel<>(sb.toString(), i);
-                }
-                depth--;
-            }
-            sb.append(c);
-        }
-        return null;
     }
 
     @Override
@@ -280,12 +194,6 @@ public class NewJson implements Serializable {
         sb.append("}");
 
         return sb.toString();
-    }
-
-    private static void appendData(StringBuilder sb, HashMap<String, ?> data) {
-        for (String key : data.keySet()) {
-            sb.append("\"").append(key).append("\": ").append(data.get(key)).append(", ");
-        }
     }
 
     // setter =======================================================================================
