@@ -117,7 +117,7 @@ public class NewJson implements Serializable {
                 } else if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9') {
                     // parse int or float
                     final Tupel<String, Integer> res = extractNextNumber(raw, i);
-                    if (res == null || key == null) {
+                    if (key == null) {
                         LOGGER.error("Malformed JSON: " + raw);
                         if (!SILENT_EXCEPTIONS) {
                             throw new MalformedJsonException(raw);
@@ -299,6 +299,14 @@ public class NewJson implements Serializable {
         target.boolData.put(key.split("\\.")[key.split("\\.").length - 1], value);
     }
 
+    public void setList(String key, List<Object> value) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        target.listData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+    }
+
     // getter =======================================================================================
 
     public String getString(String key) {
@@ -319,6 +327,10 @@ public class NewJson implements Serializable {
 
     public Boolean getBoolean(String key) {
         return getValue(key, boolData);
+    }
+
+    public List<Object> getList(String key) {
+        return getValue(key, listData);
     }
 
     private <T> T getValue(String key, HashMap<String, T> data) {
@@ -346,7 +358,7 @@ public class NewJson implements Serializable {
             return false;
         }
         final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
-        return stringData.containsKey(pathKey) || jsonData.containsKey(pathKey) || intData.containsKey(pathKey) || floatData.containsKey(pathKey) || boolData.containsKey(pathKey);
+        return stringData.containsKey(pathKey) || jsonData.containsKey(pathKey) || intData.containsKey(pathKey) || floatData.containsKey(pathKey) || boolData.containsKey(pathKey) || listData.containsKey(pathKey);
     }
 
     // get keys =======================================================================================
@@ -371,12 +383,17 @@ public class NewJson implements Serializable {
         return boolData.keySet();
     }
 
+    public Set<String> getListKeys() {
+        return listData.keySet();
+    }
+
     public Set<String> getKeys() {
         final Set<String> keys = stringData.keySet();
         keys.addAll(jsonData.keySet());
         keys.addAll(intData.keySet());
         keys.addAll(floatData.keySet());
         keys.addAll(boolData.keySet());
+        keys.addAll(listData.keySet());
         return keys;
     }
 
