@@ -17,6 +17,7 @@ public class NewJson implements Serializable {
     private final HashMap<String, NewJson> jsonData = new HashMap<>();
     private final HashMap<String, Integer> intData = new HashMap<>();
     private final HashMap<String, Double> floatData = new HashMap<>();
+    private final HashMap<String, Boolean> boolData = new HashMap<>();
 
     public static void setSilentExceptions(boolean silentExceptions) {
         SILENT_EXCEPTIONS = silentExceptions;
@@ -114,6 +115,28 @@ public class NewJson implements Serializable {
                         key = null;
                         i = res._2();
                     }
+                } else if (c == 't' || c == 'f') {
+                    final Tupel<Boolean, Integer> res = extractNextBoolean(raw, i);
+
+                    if (res == null) {
+                        LOGGER.error("Malformed JSON: " + raw);
+                        if (!SILENT_EXCEPTIONS) {
+                            throw new MalformedJsonException(raw);
+                        }
+                        return null;
+                    }
+
+                    if (key == null) {
+                        LOGGER.error("Malformed JSON: " + raw);
+                        if (!SILENT_EXCEPTIONS) {
+                            throw new MalformedJsonException(raw);
+                        }
+                        return null;
+                    } else {
+                        json.boolData.put(key, res._1());
+                        key = null;
+                        i = res._2();
+                    }
                 }
             }
             System.out.println(c);
@@ -128,6 +151,26 @@ public class NewJson implements Serializable {
         }
 
         return json;
+    }
+
+    private static Tupel<Boolean, Integer> extractNextBoolean(String raw, int offset) {
+        final StringBuilder sb = new StringBuilder();
+
+        for (int i = offset; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
+
+            if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
+                if (sb.toString().equals("true")) {
+                    return new Tupel<>(true, i);
+                } else if (sb.toString().equals("false")) {
+                    return new Tupel<>(false, i);
+                } else {
+                    return null;
+                }
+            }
+            sb.append(c);
+        }
+        return null;
     }
 
     private static Tupel<String, Integer> extractNextNumber(String raw, int offset) {
@@ -225,6 +268,10 @@ public class NewJson implements Serializable {
             sb.append("\"").append(key).append("\": ").append(floatData.get(key)).append(", ");
         }
 
+        for (String key : boolData.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(boolData.get(key)).append(", ");
+        }
+
         if (sb.length() > 1) {
             sb.delete(sb.length() - 2, sb.length());
         }
@@ -250,6 +297,10 @@ public class NewJson implements Serializable {
         floatData.put(key, value);
     }
 
+    public void setBoolean(String key, boolean value) {
+        boolData.put(key, value);
+    }
+
     public String getString(String key) {
         return stringData.get(key);
     }
@@ -266,8 +317,12 @@ public class NewJson implements Serializable {
         return floatData.get(key);
     }
 
+    public boolean getBoolean(String key) {
+        return boolData.get(key);
+    }
+
     public boolean hasKey(String key) {
-        return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key) || floatData.containsKey(key);
+        return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key) || floatData.containsKey(key) || boolData.containsKey(key);
     }
 
     public Set<String> getStringKeys() {
@@ -286,11 +341,16 @@ public class NewJson implements Serializable {
         return floatData.keySet();
     }
 
+    public Set<String> getBooleanKeys() {
+        return boolData.keySet();
+    }
+
     public Set<String> getKeys() {
         final Set<String> keys = stringData.keySet();
         keys.addAll(jsonData.keySet());
         keys.addAll(intData.keySet());
         keys.addAll(floatData.keySet());
+        keys.addAll(boolData.keySet());
         return keys;
     }
 }
