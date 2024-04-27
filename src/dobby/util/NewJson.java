@@ -6,6 +6,7 @@ import dobby.util.logging.Logger;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 
 public class NewJson implements Serializable {
     private static boolean SILENT_EXCEPTIONS = false;
@@ -181,5 +182,39 @@ public class NewJson implements Serializable {
         sb.append("}");
 
         return sb.toString();
+    }
+
+    public void setString(String key, String value) {
+        stringData.put(key, value);
+    }
+
+    public void setJson(String key, NewJson value) {
+        jsonData.put(key, value);
+    }
+
+    public String getString(String key) {
+        return stringData.get(key);
+    }
+
+    public NewJson getJson(String key) {
+        return jsonData.get(key);
+    }
+
+    public boolean hasKey(String key) {
+        return stringData.containsKey(key) || jsonData.containsKey(key);
+    }
+
+    public Set<String> getStringKeys() {
+        return stringData.keySet();
+    }
+
+    public Set<String> getJsonKeys() {
+        return jsonData.keySet();
+    }
+
+    public Set<String> getKeys() {
+        final Set<String> keys = stringData.keySet();
+        keys.addAll(jsonData.keySet());
+        return keys;
     }
 }
