@@ -59,7 +59,7 @@ public class NewJson implements Serializable {
                 }
                 final Tupel<String, Integer> res = extractNextJson(raw, i);
 
-                if (res == null) {
+                if (res == null || key == null) {
                     LOGGER.error("Malformed JSON: " + raw);
                     if (!SILENT_EXCEPTIONS) {
                         throw new MalformedJsonException(raw);
@@ -107,7 +107,7 @@ public class NewJson implements Serializable {
                     }
                 } else if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9') {
                     final Tupel<String, Integer> res = extractNextNumber(raw, i);
-                    if (res == null) {
+                    if (res == null || key == null) {
                         LOGGER.error("Malformed JSON: " + raw);
                         if (!SILENT_EXCEPTIONS) {
                             throw new MalformedJsonException(raw);
@@ -115,26 +115,18 @@ public class NewJson implements Serializable {
                         return null;
                     }
 
-                    if (key == null) {
-                        LOGGER.error("Malformed JSON: " + raw);
-                        if (!SILENT_EXCEPTIONS) {
-                            throw new MalformedJsonException(raw);
-                        }
-                        return null;
+                    if (res._1().contains(".")) {
+                        json.floatData.put(key, Double.parseDouble(res._1()));
                     } else {
-                        if (res._1().contains(".")) {
-                            json.floatData.put(key, Double.parseDouble(res._1()));
-                        } else {
-                            json.intData.put(key, Integer.parseInt(res._1()));
-                        }
-
-                        key = null;
-                        i = res._2();
+                        json.intData.put(key, Integer.parseInt(res._1()));
                     }
+
+                    key = null;
+                    i = res._2();
                 } else if (c == 't' || c == 'f') {
                     final Tupel<Boolean, Integer> res = extractNextBoolean(raw, i);
 
-                    if (res == null) {
+                    if (res == null || key == null) {
                         LOGGER.error("Malformed JSON: " + raw);
                         if (!SILENT_EXCEPTIONS) {
                             throw new MalformedJsonException(raw);
@@ -142,17 +134,9 @@ public class NewJson implements Serializable {
                         return null;
                     }
 
-                    if (key == null) {
-                        LOGGER.error("Malformed JSON: " + raw);
-                        if (!SILENT_EXCEPTIONS) {
-                            throw new MalformedJsonException(raw);
-                        }
-                        return null;
-                    } else {
-                        json.boolData.put(key, res._1());
-                        key = null;
-                        i = res._2();
-                    }
+                    json.boolData.put(key, res._1());
+                    key = null;
+                    i = res._2();
                 }
             }
             System.out.println(c);
