@@ -7,6 +7,7 @@ import dobby.util.logging.Logger;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static dobby.util.json.helper.DataExtractionHelper.*;
@@ -20,6 +21,11 @@ public class NewJson implements Serializable {
     private final HashMap<String, Integer> intData = new HashMap<>();
     private final HashMap<String, Double> floatData = new HashMap<>();
     private final HashMap<String, Boolean> boolData = new HashMap<>();
+    private final HashMap<String, List<Object>> listData = new HashMap<>();
+
+    public static boolean isSilentExceptions() {
+        return SILENT_EXCEPTIONS;
+    }
 
     /**
      * Set whether exceptions should be thrown or not.<br>
@@ -53,6 +59,7 @@ public class NewJson implements Serializable {
         for (int i = 0; i < raw.length(); i++) {
             final char c = raw.charAt(i);
 
+            // parse JSON
             if (c == '{') {
                 depth++;
                 if (depth == 0) {
@@ -75,6 +82,7 @@ public class NewJson implements Serializable {
             } else if (c == '}') {
                 depth--;
             } else {
+                // parse string or key
                 if (c == '"') {
                     final Tupel<String, Integer> res = extractNextString(raw, i);
                     if (res == null) {
@@ -107,6 +115,7 @@ public class NewJson implements Serializable {
                         i = res._2();
                     }
                 } else if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9') {
+                    // parse int or float
                     final Tupel<String, Integer> res = extractNextNumber(raw, i);
                     if (res == null || key == null) {
                         LOGGER.error("Malformed JSON: " + raw);
@@ -125,6 +134,7 @@ public class NewJson implements Serializable {
                     key = null;
                     i = res._2();
                 } else if (c == 't' || c == 'f') {
+                    // parse boolean
                     final Tupel<Boolean, Integer> res = extractNextBoolean(raw, i);
 
                     if (res == null || key == null) {
@@ -138,9 +148,26 @@ public class NewJson implements Serializable {
                     json.boolData.put(key, res._1());
                     key = null;
                     i = res._2();
+                } else if (c == '[') {
+                    // parse array
+                    final Tupel<String, Integer> res = extractNextArray(raw, i);
+
+                    if (res == null || key == null) {
+                        LOGGER.error("Malformed JSON: " + raw);
+                        if (!SILENT_EXCEPTIONS) {
+                            throw new MalformedJsonException(raw);
+                        }
+                        return null;
+                    }
+
+                    final List<Object> array = extractArrayData(res._1());
+
+                    json.listData.put(key, array);
+
+                    key = null;
+                    i = res._2();
                 }
             }
-            System.out.println(c);
         }
 
         if (depth != -1) {
@@ -158,6 +185,36 @@ public class NewJson implements Serializable {
         for (String key : data.keySet()) {
             sb.append("\"").append(key).append("\": ").append(data.get(key)).append(", ");
         }
+    }
+
+    private static void appendListData(StringBuilder sb, HashMap<String, List<Object>> data) {
+        for (String key : data.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(listToString(data.get(key))).append(", ");
+        }
+    }
+
+    private static String listToString(List<Object> data) {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("[");
+
+        for (Object obj : data) {
+            if (obj instanceof String) {
+                sb.append("\"").append(obj).append("\"");
+            } else {
+                sb.append(obj.toString());
+            }
+
+            sb.append(", ");
+        }
+
+        if (sb.length() > 1) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+
+        sb.append("]");
+
+        return sb.toString();
     }
 
     private static void cutLoop(NewJson src) {
@@ -189,6 +246,7 @@ public class NewJson implements Serializable {
         appendData(sb, intData);
         appendData(sb, floatData);
         appendData(sb, boolData);
+        appendListData(sb, listData);
 
         if (sb.length() > 1) {
             sb.delete(sb.length() - 2, sb.length());
