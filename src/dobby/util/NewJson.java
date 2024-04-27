@@ -15,12 +15,13 @@ public class NewJson implements Serializable {
 
     private final HashMap<String, String> stringData = new HashMap<>();
     private final HashMap<String, NewJson> jsonData = new HashMap<>();
+    private final HashMap<String, Integer> intData = new HashMap<>();
 
     public static void setSilentExceptions(boolean silentExceptions) {
         SILENT_EXCEPTIONS = silentExceptions;
     }
 
-    public static NewJson parse(String raw) throws MalformedJsonException {
+    public static NewJson parse(String raw) throws MalformedJsonException, NumberFormatException {
         boolean isFirstKey = true;
 
         final NewJson json = new NewJson();
@@ -86,6 +87,27 @@ public class NewJson implements Serializable {
                         key = null;
                         i = res._2();
                     }
+                } else if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9') {
+                    final Tupel<Integer, Integer> res = extractNextInt(raw, i);
+                    if (res == null) {
+                        LOGGER.error("Malformed JSON: " + raw);
+                        if (!SILENT_EXCEPTIONS) {
+                            throw new MalformedJsonException(raw);
+                        }
+                        return null;
+                    }
+
+                    if (key == null) {
+                        LOGGER.error("Malformed JSON: " + raw);
+                        if (!SILENT_EXCEPTIONS) {
+                            throw new MalformedJsonException(raw);
+                        }
+                        return null;
+                    } else {
+                        json.intData.put(key, res._1());
+                        key = null;
+                        i = res._2();
+                    }
                 }
             }
             System.out.println(c);
@@ -100,6 +122,20 @@ public class NewJson implements Serializable {
         }
 
         return json;
+    }
+
+    private static Tupel<Integer, Integer> extractNextInt(String raw, int offset) {
+        final StringBuilder sb = new StringBuilder();
+
+        for (int i = offset; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
+
+            if (c == ',' || Arrays.stream(VALUE_DELIMITERS).anyMatch(d -> d.equals(String.valueOf(c)))) {
+                return new Tupel<>(Integer.parseInt(sb.toString()), i);
+            }
+            sb.append(c);
+        }
+        return null;
     }
 
     private static Tupel<String, Integer> extractNextString(String raw, int offset) {
@@ -175,6 +211,10 @@ public class NewJson implements Serializable {
             sb.append("\"").append(key).append("\": ").append(jsonData.get(key)).append(", ");
         }
 
+        for (String key : intData.keySet()) {
+            sb.append("\"").append(key).append("\": ").append(intData.get(key)).append(", ");
+        }
+
         if (sb.length() > 1) {
             sb.delete(sb.length() - 2, sb.length());
         }
@@ -192,6 +232,10 @@ public class NewJson implements Serializable {
         jsonData.put(key, value);
     }
 
+    public void setInt(String key, int value) {
+        intData.put(key, value);
+    }
+
     public String getString(String key) {
         return stringData.get(key);
     }
@@ -200,8 +244,12 @@ public class NewJson implements Serializable {
         return jsonData.get(key);
     }
 
+    public int getInt(String key) {
+        return intData.get(key);
+    }
+
     public boolean hasKey(String key) {
-        return stringData.containsKey(key) || jsonData.containsKey(key);
+        return stringData.containsKey(key) || jsonData.containsKey(key) || intData.containsKey(key);
     }
 
     public Set<String> getStringKeys() {
@@ -212,9 +260,14 @@ public class NewJson implements Serializable {
         return jsonData.keySet();
     }
 
+    public Set<String> getIntKeys() {
+        return intData.keySet();
+    }
+
     public Set<String> getKeys() {
         final Set<String> keys = stringData.keySet();
         keys.addAll(jsonData.keySet());
+        keys.addAll(intData.keySet());
         return keys;
     }
 }
