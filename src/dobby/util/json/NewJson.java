@@ -50,7 +50,6 @@ public class NewJson implements Serializable {
         boolean isFirstKey = true;
 
         final NewJson json = new NewJson();
-        System.out.println(raw);
         int depth = -1;
 
         String key = null;
@@ -105,11 +104,9 @@ public class NewJson implements Serializable {
                         }
 
                         key = res._1();
-                        System.out.println("Key: " + key);
                         i = findKeyValueDelimiter(raw, res._2());
                     } else {
                         final String value = res._1();
-                        System.out.println("Value: " + value);
                         json.stringData.put(key, value);
                         key = null;
                         i = res._2();
