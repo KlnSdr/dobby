@@ -423,6 +423,19 @@ public class NewJson implements Serializable {
         return keys;
     }
 
+    public void deleteKey(String key) {
+        final NewJson target = getTargetJsonObjectFromPath(key);
+        if (target == null) {
+            return;
+        }
+        final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
+        stringData.remove(pathKey);
+        jsonData.remove(pathKey);
+        intData.remove(pathKey);
+        floatData.remove(pathKey);
+        boolData.remove(pathKey);
+        listData.remove(pathKey);
+    }
 
     private NewJson getTargetJsonObjectFromPath(String key) {
         String[] path = key.split("\\.");
