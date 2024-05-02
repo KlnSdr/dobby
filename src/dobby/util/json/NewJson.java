@@ -192,7 +192,16 @@ public class NewJson implements Serializable {
 
     private static void appendData(StringBuilder sb, HashMap<String, ?> data) {
         for (String key : data.keySet()) {
-            sb.append("\"").append(key).append("\": ").append(data.get(key)).append(", ");
+            sb.append("\"").append(key).append("\": ");
+            if (data.get(key) instanceof String) {
+                sb.append("\"");
+            }
+
+            sb.append(data.get(key)).append(", ");
+
+            if (data.get(key) instanceof String) {
+                sb.append("\"");
+            }
         }
     }
 
