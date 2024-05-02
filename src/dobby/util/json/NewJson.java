@@ -197,11 +197,13 @@ public class NewJson implements Serializable {
                 sb.append("\"");
             }
 
-            sb.append(data.get(key)).append(", ");
+            sb.append(data.get(key));
 
             if (data.get(key) instanceof String) {
                 sb.append("\"");
             }
+
+            sb.append(", ");
         }
     }
 
