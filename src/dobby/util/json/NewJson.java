@@ -59,6 +59,14 @@ public class NewJson implements Serializable {
      * @throws NumberFormatException  If a number could not be parsed
      */
     public static NewJson parse(String raw, boolean isChild) throws MalformedJsonException, NumberFormatException {
+        if (raw == null || !isValidJson(raw)) {
+            LOGGER.error("Malformed JSON: " + raw);
+            if (!SILENT_EXCEPTIONS) {
+                throw new MalformedJsonException(raw);
+            }
+            return null;
+        }
+
         boolean isFirstKey = true;
 
         final NewJson json = new NewJson();
@@ -89,8 +97,6 @@ public class NewJson implements Serializable {
 
                 json.jsonData.put(key, parse(res._1(), true));
                 key = null;
-                depth--;
-            } else if (c == '}') {
                 depth--;
             } else {
                 // parse string or key
@@ -179,15 +185,21 @@ public class NewJson implements Serializable {
             }
         }
 
-        if (depth != -1) {
-            LOGGER.error("Malformed JSON: " + raw);
-            if (!SILENT_EXCEPTIONS) {
-                throw new MalformedJsonException(raw);
+        return json;
+    }
+
+    private static boolean isValidJson(String raw) {
+        int depth = 0;
+        for (int i = 0; i < raw.length(); i++) {
+            final char c = raw.charAt(i);
+            if (c == '{') {
+                depth++;
+            } else if (c == '}') {
+                depth--;
             }
-            return null;
         }
 
-        return json;
+        return depth == 0;
     }
 
     private static void appendData(StringBuilder sb, HashMap<String, ?> data) {
