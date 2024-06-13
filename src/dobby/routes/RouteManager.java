@@ -3,9 +3,14 @@ package dobby.routes;
 import dobby.DefaultHandler.StaticFileHandler;
 import dobby.io.request.IRequestHandler;
 import dobby.io.request.RequestTypes;
+import dobby.observer.Event;
+import dobby.observer.EventType;
+import dobby.observer.Observable;
+import dobby.observer.Observer;
 import dobby.util.Tupel;
 import dobby.util.logging.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +21,7 @@ import static dobby.util.RouteHelper.matches;
 /**
  * Manages routes
  */
-public class RouteManager {
+public class RouteManager implements Observable<Tupel<String, Route>> {
     private static RouteManager instance;
     private final Logger LOGGER = new Logger(RouteManager.class);
 
@@ -55,6 +60,7 @@ public class RouteManager {
         routes.get(path).addHandler(type, handler);
         routes.get(path).addPathParams(type, params);
         LOGGER.debug(String.format("Added route %s for %s", path, type.name()));
+        fireEvent(createEvent(path, routes.get(path)));
     }
 
     /**
@@ -104,5 +110,26 @@ public class RouteManager {
             }
         }
         return pathParams;
+    }
+
+    private final ArrayList<Observer<Tupel<String, Route>>> observers = new ArrayList<>();
+
+    @Override
+    public void addObserver(Observer<Tupel<String, Route>> observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Tupel<String, Route>> observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void fireEvent(Event<Tupel<String, Route>> event) {
+        observers.forEach(observer -> observer.onEvent(event));
+    }
+
+    private Event<Tupel<String, Route>> createEvent(String path, Route route) {
+        return new Event<>(EventType.CREATED, new Tupel<>(path, route));
     }
 }
