@@ -2,6 +2,10 @@ package dobby.files.service;
 
 import dobby.Dobby;
 import dobby.files.StaticFile;
+import dobby.observer.Event;
+import dobby.observer.EventType;
+import dobby.observer.Observable;
+import dobby.observer.Observer;
 import dobby.task.SchedulerService;
 import dobby.util.Config;
 import dobby.util.Tupel;
@@ -16,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Service for serving static files
  */
-public class StaticFileService {
+public class StaticFileService implements Observable<Tupel<String, StaticFile>> {
     private static final Logger LOGGER = new Logger(StaticFileService.class);
     private static StaticFileService instance;
     private final HashMap<String, StaticFile> files = new HashMap<>();
@@ -37,6 +41,7 @@ public class StaticFileService {
         SchedulerService.getInstance().addRepeating(this::cleanUpStaticFiles, cleanupInterval, TimeUnit.MINUTES);
     }
 
+    @SuppressWarnings("unchecked")
     private static Tupel<Class<?>, String>[] getAllStaticContentPaths(String configPath) {
         String[] paths = configPath.split(",");
         ArrayList<Tupel<Class<?>, String>> staticContentPaths = new ArrayList<>();
@@ -82,9 +87,25 @@ public class StaticFileService {
         long currentTime = getCurrentTime();
         files.forEach((path, file) -> {
             if (currentTime - file.getLastAccessed() > (long) maxFileAge * 60 * 60 * 1000) {
-                files.remove(path);
+                deleteFile(path);
             }
         });
+    }
+
+    public void storeFile(String path, StaticFile file) {
+        storeFileNoEvent(path, file);
+        fireEvent(createEvent(path, file));
+    }
+
+    public void storeFileNoEvent(String path, StaticFile file) {
+        files.put(path, file);
+    }
+
+    public void deleteFile(String path) {
+        StaticFile file = files.remove(path);
+        if (file != null) {
+            fireEvent(deleteEvent(path, file));
+        }
     }
 
     /**
@@ -95,19 +116,27 @@ public class StaticFileService {
      */
     public StaticFile get(String path) {
         StaticFile file;
+
+        boolean fileNewlyAdded = false;
         if (!files.containsKey(path)) {
             file = ExternalDocRootService.getInstance().get(path);
             if (file == null) {
                 file = lookUpFile(path);
             } else {
-                files.put(path, file);
+                storeFile(path, file);
             }
+            fileNewlyAdded = true;
         } else {
             file = files.get(path);
         }
 
         if (file != null) {
             file.setLastAccessed(getCurrentTime());
+
+            storeFileNoEvent(path, file);
+            if (!fileNewlyAdded) {
+                fireEvent(modifyEvent(path, file));
+            }
         }
 
         return file;
@@ -140,7 +169,7 @@ public class StaticFileService {
 
             try {
                 file.setContent(stream.readAllBytes());
-                files.put(path, file);
+                storeFile(path, file);
                 break;
             } catch (IOException e) {
                 LOGGER.error("Error reading file: " + path);
@@ -156,5 +185,34 @@ public class StaticFileService {
         String[] split = path.split("\\.");
         String extension = split[split.length - 1];
         return ContentType.get(extension);
+    }
+
+    private final ArrayList<Observer<Tupel<String, StaticFile>>> observers = new ArrayList<>();
+
+    @Override
+    public void addObserver(Observer<Tupel<String, StaticFile>> observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Tupel<String, StaticFile>> observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void fireEvent(Event<Tupel<String, StaticFile>> event) {
+        observers.forEach(observer -> observer.onEvent(event));
+    }
+
+    private Event<Tupel<String, StaticFile>> createEvent(String path, StaticFile file) {
+        return new Event<>(EventType.CREATED, new Tupel<>(path, file));
+    }
+
+    private Event<Tupel<String, StaticFile>> deleteEvent(String path, StaticFile file) {
+        return new Event<>(EventType.DELETED, new Tupel<>(path, file));
+    }
+
+    private Event<Tupel<String, StaticFile>> modifyEvent(String path, StaticFile file) {
+        return new Event<>(EventType.MODIFIED, new Tupel<>(path, file));
     }
 }

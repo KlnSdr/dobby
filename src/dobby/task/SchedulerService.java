@@ -27,7 +27,7 @@ public class SchedulerService {
 
     public void addRepeating(Runnable task, int interval, TimeUnit unit) {
         if (isDisabled) {
-            LOGGER.info("Scheduler is disabled, not scheduling task");
+            LOGGER.warn("Scheduler is disabled, not scheduling task");
             return;
         }
         final ScheduledExecutorService scheduler = java.util.concurrent.Executors.newScheduledThreadPool(1);
