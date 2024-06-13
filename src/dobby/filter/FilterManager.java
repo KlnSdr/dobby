@@ -2,12 +2,17 @@ package dobby.filter;
 
 import dobby.io.HttpContext;
 import dobby.io.request.IRequestHandler;
+import dobby.observer.Event;
+import dobby.observer.EventType;
+import dobby.observer.Observable;
+import dobby.observer.Observer;
 import dobby.routes.RouteManager;
 import dobby.util.Tupel;
 import dobby.util.logging.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,7 +20,7 @@ import java.util.HashMap;
 /**
  * Manages filters
  */
-public class FilterManager {
+public class FilterManager implements Observable<Filter> {
     private static FilterManager instance;
     private final Logger LOGGER = new Logger(FilterManager.class);
     private Filter[] preFilters = new Filter[0];
@@ -115,6 +120,7 @@ public class FilterManager {
         newFilters[filters.length] = filter;
         sortFilters(newFilters);
         filters = newFilters;
+        fireEvent(createEvent(filter));
         return filters;
     }
 
@@ -125,5 +131,25 @@ public class FilterManager {
      */
     private void sortFilters(Filter[] filters) {
         Arrays.sort(filters, Comparator.comparingInt(Filter::getOrder));
+    }
+
+    private final ArrayList<Observer<Filter>> observers = new ArrayList<>();
+    @Override
+    public void addObserver(Observer<Filter> observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Filter> observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void fireEvent(Event<Filter> event) {
+        observers.forEach(observer -> observer.onEvent(event));
+    }
+
+    private Event<Filter> createEvent(Filter filter) {
+        return new Event<>(EventType.CREATED, filter);
     }
 }
