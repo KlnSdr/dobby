@@ -122,8 +122,6 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>> 
             file = ExternalDocRootService.getInstance().get(path);
             if (file == null) {
                 file = lookUpFile(path);
-            } else {
-                storeFile(path, file);
             }
             fileNewlyAdded = true;
         } else {
@@ -132,11 +130,16 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>> 
 
         if (file != null) {
             file.setLastAccessed(getCurrentTime());
-
             storeFileNoEvent(path, file);
-            if (!fileNewlyAdded) {
+
+            if (fileNewlyAdded) {
+                fireEvent(createEvent(path, file));
+            } else {
                 fireEvent(modifyEvent(path, file));
             }
+
+            // read file from cache again to ensure that changes made by observers are applied
+            file = this.files.get(path);
         }
 
         return file;
