@@ -46,8 +46,8 @@ public class Dobby {
         return version;
     }
 
-    private Dobby(int port, int threadCount) {
-        startTime = new Date();
+    private Dobby(int port, int threadCount, Date startTime) {
+        this.startTime = startTime;
         serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
         if (!serverMode.equals("http") && !serverMode.equals("pure")) {
             LOGGER.error("invalid server mode: " + serverMode);
@@ -95,6 +95,7 @@ public class Dobby {
      * @param applicationClass The main entry point of the application
      */
     public static void startApplication(Class<?> applicationClass) {
+        final Date startTime = new Date();
         Dobby.applicationClass = applicationClass;
         printBanner();
         Config config = Config.getInstance();
@@ -110,7 +111,7 @@ public class Dobby {
         StaticFileService.getInstance(); // initialize StaticFileService to start cleanup scheduler right at start
         SessionService.getInstance(); // initialize SessionService to start cleanup scheduler right at start
 
-        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10));
+        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime);
     }
 
     private static void setLogLevel(String logLevelString) {
