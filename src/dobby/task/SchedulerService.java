@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 public class SchedulerService {
     private static SchedulerService instance;
     private final ArrayList<ScheduledExecutorService> schedulers = new ArrayList<>();
-    private final boolean isDisabled;
     private static final Logger LOGGER = new Logger(SchedulerService.class);
 
     public static SchedulerService getInstance() {
@@ -22,11 +21,10 @@ public class SchedulerService {
     }
 
     private SchedulerService() {
-        isDisabled = Config.getInstance().getBoolean("dobby.scheduler.disabled", false);
     }
 
     public void addRepeating(Runnable task, int interval, TimeUnit unit) {
-        if (isDisabled) {
+        if (isDisabled()) {
             LOGGER.warn("Scheduler is disabled, not scheduling task");
             return;
         }
@@ -37,5 +35,9 @@ public class SchedulerService {
 
     public void stopAll() {
         schedulers.forEach(ExecutorService::shutdown);
+    }
+
+    private boolean isDisabled() {
+        return Config.getInstance().getBoolean("dobby.scheduler.disabled", false);
     }
 }
