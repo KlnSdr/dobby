@@ -10,6 +10,7 @@ public enum ResponseCodes {
     PERMANENT_REDIRECT(308, "Permanent Redirect"),
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
+    PAYMENT_REQUIRED(402, "Payment Required"),
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     CONFLICT(409, "Conflict"),
