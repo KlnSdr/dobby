@@ -1,5 +1,7 @@
 package dobby.routes;
 
+import dobby.DefaultHandler.MethodNotSupportedHandler;
+import dobby.DefaultHandler.RouteNotFoundHandler;
 import dobby.DefaultHandler.StaticFileHandler;
 import dobby.io.request.IRequestHandler;
 import dobby.io.request.RequestTypes;
@@ -91,7 +93,13 @@ public class RouteManager implements Observable<Tupel<String, Route>> {
         for (String p : patternPaths) {
             if (matches(path, p)) {
                 Route route = routes.get(p);
-                HashMap<String, String> pathParams = getPathParamValues(p, path, route.getPathParams(type));
+
+                final List<String> paramKeys = route.getPathParams(type);
+                if (paramKeys == null) { // route exists but no paramKeys exist for the given request type
+                    return new Tupel<>(new MethodNotSupportedHandler(), new HashMap<>());
+                }
+
+                HashMap<String, String> pathParams = getPathParamValues(p, path, paramKeys);
                 return new Tupel<>(route.getHandler(type), pathParams);
             }
         }
