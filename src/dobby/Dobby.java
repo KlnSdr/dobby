@@ -9,6 +9,7 @@ import dobby.io.PureRequestHandler;
 import dobby.io.PureRequestHandlerFinder;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
+import dobby.io.response.ResponseCodes;
 import dobby.routes.RouteDiscoverer;
 import dobby.session.Session;
 import dobby.session.service.SessionService;
@@ -253,7 +254,14 @@ public class Dobby {
         ctx.setResponse(res);
         ctx.setSession(new Session()); // if available, session will be set in SessionPreFilter
 
-        FilterManager.getInstance().runFilterChain(ctx);
+        try {
+            FilterManager.getInstance().runFilterChain(ctx);
+        } catch(Exception e) {
+            LOGGER.trace(e);
+            res.setCode(ResponseCodes.INTERNAL_SERVER_ERROR);
+            res.setBody("Internal Server Error");
+            res.send();
+        }
     }
 
     /**
