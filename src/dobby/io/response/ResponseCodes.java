@@ -14,11 +14,16 @@ public enum ResponseCodes {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     CONFLICT(409, "Conflict"),
+    CONTENT_TOO_LARGE(413, "Content Too Large"),
+    UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
+    I_AM_A_TEAPOT(418, "I'm a teapot"),
     UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
     NOT_IMPLEMENTED(501, "Not Implemented"),
-    SERVICE_UNAVAILABLE(503, "Service Unavailable");
+    BAD_GATEWAY(502, "Bad Gateway"),
+    SERVICE_UNAVAILABLE(503, "Service Unavailable"),
+    GATEWAY_TIMEOUT(504, "Gateway Timeout");
 
 
     private final int code;
