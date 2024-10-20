@@ -1,6 +1,7 @@
 package dobby.routes.filter;
 
 import dobby.filter.Filter;
+import dobby.filter.FilterOrder;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
 
@@ -20,7 +21,7 @@ public class CleanRoutePreFilter implements Filter {
 
     @Override
     public int getOrder() {
-        return 0;
+        return FilterOrder.CLEAN_ROUTES_PRE_FILTER.getOrder();
     }
 
     @Override

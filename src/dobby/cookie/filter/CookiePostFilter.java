@@ -2,6 +2,7 @@ package dobby.cookie.filter;
 
 import dobby.cookie.Cookie;
 import dobby.filter.Filter;
+import dobby.filter.FilterOrder;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
 import dobby.io.response.Response;
@@ -24,7 +25,7 @@ public class CookiePostFilter implements Filter {
 
     @Override
     public int getOrder() {
-        return 1;
+        return FilterOrder.COOKIE_POST_FILTER.getOrder();
     }
 
     @Override

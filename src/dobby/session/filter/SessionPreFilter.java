@@ -2,6 +2,7 @@ package dobby.session.filter;
 
 import dobby.cookie.Cookie;
 import dobby.filter.Filter;
+import dobby.filter.FilterOrder;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
 import dobby.session.service.SessionService;
@@ -24,7 +25,7 @@ public class SessionPreFilter implements Filter {
 
     @Override
     public int getOrder() {
-        return 0;
+        return FilterOrder.SESSION_PRE_FILTER.getOrder();
     }
 
     @Override
