@@ -13,6 +13,8 @@ import java.util.Set;
 import static dobby.util.json.helper.DataExtractionHelper.*;
 
 public class NewJson implements Serializable {
+    private static final long serialVersionUID = -1743660742568899293L;
+
     private static final Logger LOGGER = new Logger(NewJson.class);
     private static boolean SILENT_EXCEPTIONS = false;
     // data maps
