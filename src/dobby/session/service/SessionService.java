@@ -1,10 +1,14 @@
 package dobby.session.service;
 
+import dobby.session.DefaultSessionStore;
+import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.task.SchedulerService;
 import dobby.util.Config;
 import dobby.util.logging.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SessionService {
     private static final Logger LOGGER = new Logger(SessionService.class);
-    private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
+    private ISessionStore sessionStore = new DefaultSessionStore(); // initialize with default session store because the config option is read AFTER running preStart(). accessing sessions (for what ever reason) before the config is read will result in a NPE
     private final int maxSessionAge = Config.getInstance().getInt("dobby.session.maxAge", 24);
 
     private SessionService() {
@@ -28,6 +32,10 @@ public class SessionService {
         return SessionServiceHolder.INSTANCE;
     }
 
+    public void setSessionStore(ISessionStore sessionStore) {
+        this.sessionStore = sessionStore;
+    }
+
     private long getCurrentTime() {
         return System.currentTimeMillis();
     }
@@ -35,9 +43,11 @@ public class SessionService {
     private void cleanUpSessions() {
         LOGGER.info("Cleaning up sessions");
         long currentTime = getCurrentTime();
-        sessions.forEach((id, session) -> {
-            if (currentTime - session.getLastAccessed() > (long) maxSessionAge * 60 * 60 * 1000) {
-                sessions.remove(id);
+        final Map<String, Long> sessions = sessionStore.getSessionAges();
+
+        sessions.forEach((id, lastAccessed) -> {
+            if (currentTime - lastAccessed > (long) maxSessionAge * 60 * 60 * 1000) {
+                sessionStore.remove(id);
             }
         });
     }
@@ -49,12 +59,14 @@ public class SessionService {
      * @return The session if found, otherwise empty
      */
     public Optional<Session> find(String sessionId) {
-        final Session session = sessions.get(sessionId);
-        if (session == null) {
+        final Optional<Session> optSession = sessionStore.find(sessionId);
+
+        if (optSession.isEmpty()) {
             return Optional.empty();
         }
-        session.setLastAccessed(getCurrentTime());
-        return Optional.of(session);
+
+        optSession.get().setLastAccessed(getCurrentTime());
+        return optSession;
     }
 
     /**
@@ -64,7 +76,7 @@ public class SessionService {
      */
     public void set(Session session) {
         session.setLastAccessed(getCurrentTime());
-        sessions.put(session.getId(), session);
+        sessionStore.update(session);
     }
 
     /**
@@ -76,7 +88,7 @@ public class SessionService {
         if (session.getId() == null) {
             return;
         }
-        sessions.remove(session.getId());
+        sessionStore.remove(session.getId());
     }
 
     /**
@@ -88,7 +100,7 @@ public class SessionService {
         Session session = new Session();
         session.setId(generateSessionId());
         session.setLastAccessed(getCurrentTime());
-        sessions.put(session.getId(), session);
+        sessionStore.update(session);
         return session;
     }
 

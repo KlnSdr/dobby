@@ -11,6 +11,7 @@ import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.io.response.ResponseCodes;
 import dobby.routes.RouteDiscoverer;
+import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.session.service.SessionService;
 import dobby.task.SchedulerService;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class Dobby {
     private static final String version = "1.6";
     private static Class<?> applicationClass;
-    private final Logger LOGGER = new Logger(Dobby.class);
+    private static final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
     private final String serverMode;
     private ServerSocket server;
@@ -109,8 +110,9 @@ public class Dobby {
 
         runPreStart();
 
+        configureSessionStore(config);
+
         StaticFileService.getInstance(); // initialize StaticFileService to start cleanup scheduler right at start
-        SessionService.getInstance(); // initialize SessionService to start cleanup scheduler right at start
 
         new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime);
     }
@@ -120,9 +122,27 @@ public class Dobby {
         try {
             logLevel = LogLevel.valueOf(logLevelString.toUpperCase());
         } catch (IllegalArgumentException e) {
-            new Logger(Dobby.class).warn("invalid log level: " + logLevelString + ", using DEBUG");
+            LOGGER.warn("invalid log level: " + logLevelString + ", using DEBUG");
         }
         Logger.setMaxLogLevel(logLevel);
+    }
+
+    private static void configureSessionStore(Config config) {
+        final String sessionStoreClassName = config.getString("dobby.session.store", "dobby.session.DefaultSessionStore");
+
+        try {
+            final Class<?> sessionStoreClass = Class.forName(sessionStoreClassName);
+            if (!ISessionStore.class.isAssignableFrom(sessionStoreClass)) {
+                throw new ClassCastException("session store class must implement ISessionStore");
+            }
+            final ISessionStore sessionStore = (ISessionStore) sessionStoreClass.getDeclaredConstructor().newInstance();
+            SessionService.getInstance().setSessionStore(sessionStore);
+            LOGGER.info("registered session store: " + sessionStoreClassName);
+        } catch (Exception e) {
+            LOGGER.error("invalid session store class: " + sessionStoreClassName);
+            LOGGER.trace(e);
+            System.exit(1);
+        }
     }
 
     /**
@@ -156,7 +176,7 @@ public class Dobby {
             ((DobbyEntryPoint) getMainClass().getDeclaredConstructor().newInstance()).preStart();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
-            new Logger(Dobby.class).trace(e);
+            LOGGER.trace(e);
         }
     }
 
@@ -169,7 +189,7 @@ public class Dobby {
             ((DobbyEntryPoint) getMainClass().getDeclaredConstructor().newInstance()).postStart();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
-            new Logger(Dobby.class).trace(e);
+            LOGGER.trace(e);
         }
     }
 
