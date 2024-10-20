@@ -290,101 +290,110 @@ public class NewJson implements Serializable {
     // setter =======================================================================================
 
     public void setString(String key, String value) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return;
-        }
-        target.stringData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+        setValue(key, value);
     }
 
     public void setJson(String key, NewJson value) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return;
-        }
-        target.jsonData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+        setValue(key, value);
     }
 
     public void setInt(String key, int value) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return;
-        }
-        target.intData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+        setValue(key, value);
     }
 
     public void setFloat(String key, double value) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return;
-        }
-        target.floatData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+        setValue(key, value);
     }
 
     public void setBoolean(String key, boolean value) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return;
-        }
-        target.boolData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+        setValue(key, value);
     }
 
     public void setList(String key, List<Object> value) {
+        setValue(key, value);
+    }
+
+    private <T> void setValue(String key, T value) {
         final NewJson target = getTargetJsonObjectFromPath(key);
         if (target == null) {
             return;
         }
-        target.listData.put(key.split("\\.")[key.split("\\.").length - 1], value);
+
+        final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
+        if (value instanceof String) {
+            target.stringData.put(pathKey, (String) value);
+        } else if (value instanceof NewJson) {
+            target.jsonData.put(pathKey, (NewJson) value);
+        } else if (value instanceof Integer) {
+            target.intData.put(pathKey, (Integer) value);
+        } else if (value instanceof Double) {
+            target.floatData.put(pathKey, (Double) value);
+        } else if (value instanceof Boolean) {
+            target.boolData.put(pathKey, (Boolean) value);
+        } else if (value instanceof List) {
+            target.listData.put(pathKey, (List<Object>) value);
+        } else {
+            LOGGER.error("Unsupported data type: " + value.getClass().getCanonicalName());
+        }
     }
 
     // getter =======================================================================================
 
     public String getString(String key) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return null;
-        }
-        return target.stringData.get(key.split("\\.")[key.split("\\.").length - 1]);
+        return getValue(key, JsonDataTypes.STRING);
     }
 
     public NewJson getJson(String key) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return null;
-        }
-        return target.jsonData.get(key.split("\\.")[key.split("\\.").length - 1]);
+        return getValue(key, JsonDataTypes.JSON);
     }
 
     public Integer getInt(String key) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return null;
-        }
-        return target.intData.get(key.split("\\.")[key.split("\\.").length - 1]);
+        return getValue(key, JsonDataTypes.INTEGER);
     }
 
     public Double getFloat(String key) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return null;
-        }
-        return target.floatData.get(key.split("\\.")[key.split("\\.").length - 1]);
+        return getValue(key, JsonDataTypes.FLOAT);
     }
 
     public Boolean getBoolean(String key) {
-        final NewJson target = getTargetJsonObjectFromPath(key);
-        if (target == null) {
-            return null;
-        }
-        return target.boolData.get(key.split("\\.")[key.split("\\.").length - 1]);
+        return getValue(key, JsonDataTypes.BOOLEAN);
     }
 
     public List<Object> getList(String key) {
+        return getValue(key, JsonDataTypes.LIST);
+    }
+
+    private <T> T getValue(String key, JsonDataTypes type) {
         final NewJson target = getTargetJsonObjectFromPath(key);
         if (target == null) {
             return null;
         }
-        return target.listData.get(key.split("\\.")[key.split("\\.").length - 1]);
+        final HashMap<String, ?> data;
+
+        switch (type) {
+            case STRING:
+                data = target.stringData;
+                break;
+            case JSON:
+                data = target.jsonData;
+                break;
+            case INTEGER:
+                data = target.intData;
+                break;
+            case FLOAT:
+                data = target.floatData;
+                break;
+            case BOOLEAN:
+                data = target.boolData;
+                break;
+            case LIST:
+                data = target.listData;
+                break;
+            default:
+                return null;
+        }
+
+        return (T) data.get(key.split("\\.")[key.split("\\.").length - 1]);
     }
 
     // has key =======================================================================================
