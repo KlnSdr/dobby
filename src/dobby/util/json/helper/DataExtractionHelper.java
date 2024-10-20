@@ -65,7 +65,26 @@ public class DataExtractionHelper {
             if (c == '"') {
                 return new Tupel<>(sb.toString(), i);
             }
+            if (c == '\\') {
+                final Character next = checkIfEscapingNext(raw, i);
+                if (next != null) {
+                    sb.append(next);
+                    i++;
+                }
+                continue;
+            }
             sb.append(c);
+        }
+        return null;
+    }
+
+    private static Character checkIfEscapingNext(String raw, int position) {
+        if (position + 1 <= raw.length() - 1) {
+            final char next = raw.charAt(position + 1);
+
+            if (next == '"' || next == '\\') {
+                return next;
+            }
         }
         return null;
     }

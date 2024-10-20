@@ -207,12 +207,10 @@ public class NewJson implements Serializable {
             sb.append("\"").append(key).append("\": ");
             if (data.get(key) instanceof String) {
                 sb.append("\"");
-            }
-
-            sb.append(data.get(key));
-
-            if (data.get(key) instanceof String) {
+                sb.append(((String) data.get(key)).replace("\"", "\\\""));
                 sb.append("\"");
+            } else {
+                sb.append(data.get(key));
             }
 
             sb.append(", ");
