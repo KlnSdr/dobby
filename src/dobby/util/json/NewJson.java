@@ -347,12 +347,58 @@ public class NewJson implements Serializable {
         return getValue(key, JsonDataTypes.JSON);
     }
 
-    public Integer getInt(String key) {
+    /**
+     * Retrieves an integer value associated with the specified key without fallback.
+     * This method does not attempt to retrieve a float value if the integer value is not found.
+     *
+     * @param key The key whose associated integer value is to be returned.
+     * @return The integer value associated with the specified key, or null if not found.
+     */
+    public Integer getIntNoFallback(String key) {
         return getValue(key, JsonDataTypes.INTEGER);
     }
 
-    public Double getFloat(String key) {
+    /**
+     * Retrieves an integer value associated with the specified key.
+     * If the key does not map to an integer, it attempts to retrieve a float value and converts it to an integer.
+     *
+     * @param key The key whose associated integer value is to be returned.
+     * @return The integer value associated with the specified key, or null if not found.
+     */
+    public Integer getInt(String key) {
+        final Integer value = getValue(key, JsonDataTypes.INTEGER);
+
+        if (value != null) {
+            return value;
+        }
+
+        final Double fallbackValue = getValue(key, JsonDataTypes.FLOAT);
+
+        if (fallbackValue != null) {
+            return fallbackValue.intValue();
+        }
+
+        return null;
+    }
+
+    public Double getFloatNoFallback(String key) {
         return getValue(key, JsonDataTypes.FLOAT);
+    }
+
+    public Double getFloat(String key) {
+        final Double value = getValue(key, JsonDataTypes.FLOAT);
+
+        if (value != null) {
+            return value;
+        }
+
+        final Integer fallbackValue = getValue(key, JsonDataTypes.INTEGER);
+
+        if (fallbackValue != null) {
+            return fallbackValue.doubleValue();
+        }
+
+        return null;
     }
 
     public Boolean getBoolean(String key) {
