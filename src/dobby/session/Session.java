@@ -2,12 +2,13 @@ package dobby.session;
 
 import dobby.session.service.SessionService;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * The Session class is used to store session data
  */
-public class Session {
+public class Session implements Serializable {
     private final HashMap<String, String> session = new HashMap<>();
     private String id;
     private long lastAccessed;
