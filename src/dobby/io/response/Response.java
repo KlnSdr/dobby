@@ -86,7 +86,8 @@ public class Response {
     }
 
     /**
-     * Set response body as JSON
+     * Set response body as JSON.
+     * Sets the Content-Type header to application/json
      *
      * @param body Response body
      */
@@ -95,6 +96,7 @@ public class Response {
             return;
         }
         this.body = body.toString().getBytes();
+        headers.put("content-type", List.of("application/json"));
     }
 
     /**
