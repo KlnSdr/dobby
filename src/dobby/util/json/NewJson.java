@@ -461,7 +461,7 @@ public class NewJson implements Serializable {
             return false;
         }
         final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
-        return stringData.containsKey(pathKey) || jsonData.containsKey(pathKey) || intData.containsKey(pathKey) || floatData.containsKey(pathKey) || boolData.containsKey(pathKey) || listData.containsKey(pathKey);
+        return target.stringData.containsKey(pathKey) || target.jsonData.containsKey(pathKey) || target.intData.containsKey(pathKey) || target.floatData.containsKey(pathKey) || target.boolData.containsKey(pathKey) || target.listData.containsKey(pathKey);
     }
 
     // get keys =======================================================================================
@@ -507,12 +507,12 @@ public class NewJson implements Serializable {
             return;
         }
         final String pathKey = key.split("\\.")[key.split("\\.").length - 1];
-        stringData.remove(pathKey);
-        jsonData.remove(pathKey);
-        intData.remove(pathKey);
-        floatData.remove(pathKey);
-        boolData.remove(pathKey);
-        listData.remove(pathKey);
+        target.stringData.remove(pathKey);
+        target.jsonData.remove(pathKey);
+        target.intData.remove(pathKey);
+        target.floatData.remove(pathKey);
+        target.boolData.remove(pathKey);
+        target.listData.remove(pathKey);
     }
 
     private NewJson getTargetJsonObjectFromPath(String key) {
