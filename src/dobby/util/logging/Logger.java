@@ -11,9 +11,15 @@ import java.util.Date;
 public class Logger {
     private static LogLevel logLevel = LogLevel.DEBUG;
     private final Class<?> clazz;
+    private final boolean onlyLevel;
 
     public Logger(Class<?> clazz) {
+        this(clazz, false);
+    }
+
+    public Logger(Class<?> clazz, boolean onlyLevel) {
         this.clazz = clazz;
+        this.onlyLevel = onlyLevel;
     }
 
     /**
@@ -72,8 +78,12 @@ public class Logger {
 
     private void log(LogLevel level, String message) {
         if (level.ordinal() <= logLevel.ordinal()) {
-            System.out.printf("%s [%s] %s %s%n", new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS Z").format(new Date()),
-                    clazz.getCanonicalName(), level.getColorized(), message);
+            if (onlyLevel) {
+                System.out.printf("[%s] %s%n", level.getColorized(), message);
+            } else {
+                System.out.printf("%s [%s] %s %s%n", new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS Z").format(new Date()),
+                        clazz.getCanonicalName(), level.getColorized(), message);
+            }
         }
     }
 }
