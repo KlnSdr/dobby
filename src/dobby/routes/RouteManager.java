@@ -15,6 +15,7 @@ import dobby.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static dobby.util.RouteHelper.extractPathParams;
@@ -41,6 +42,15 @@ public class RouteManager implements Observable<Tupel<String, Route>> {
 
     private boolean hasRoute(String path) {
         return routes.containsKey(path);
+    }
+
+    /**
+     * Retrieves all routes managed by the RouteManager.
+     *
+     * @return A map containing all routes, where the key is the path and the value is the Route object.
+     */
+    public Map<String, Route> getAllRoutes() {
+        return routes;
     }
 
     /**
