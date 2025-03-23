@@ -1,0 +1,14 @@
+{
+  "remoteRepoUrl": "https://repo.klnsdr.com",
+  "project": {
+    "entry": "poc.Main",
+    "name": "dobby",
+    "version": "1.7",
+    "group": "dobby",
+    "dependencies": []
+  },
+  "compiler": {
+    "version": "11"
+  },
+  "exclude": []
+}
