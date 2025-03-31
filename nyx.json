@@ -10,6 +10,11 @@
         "group": "common",
         "name": "logger",
         "version": "1.0"
+      },
+      {
+        "group": "common",
+        "name": "json",
+        "version": "1.0"
       }
     ]
   },

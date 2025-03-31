@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="json-1.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.nyx/common/json/1.0/json-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
