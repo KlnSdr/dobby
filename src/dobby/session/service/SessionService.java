@@ -5,13 +5,11 @@ import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.task.SchedulerService;
 import dobby.util.Config;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**

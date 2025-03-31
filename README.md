@@ -55,7 +55,7 @@ server start up and don't need to be registered manually.
 import dobby.filter.Filter;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 public class TestPreFilter implements Filter {
     private final Logger LOGGER = new Logger(TestPreFilter.class);

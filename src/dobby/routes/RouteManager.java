@@ -1,7 +1,6 @@
 package dobby.routes;
 
 import dobby.DefaultHandler.MethodNotSupportedHandler;
-import dobby.DefaultHandler.RouteNotFoundHandler;
 import dobby.DefaultHandler.StaticFileHandler;
 import dobby.io.request.IRequestHandler;
 import dobby.io.request.RequestTypes;
@@ -10,7 +9,7 @@ import dobby.observer.EventType;
 import dobby.observer.Observable;
 import dobby.observer.Observer;
 import dobby.util.Tupel;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

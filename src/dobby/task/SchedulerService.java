@@ -1,7 +1,7 @@
 package dobby.task;
 
 import dobby.util.Config;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;

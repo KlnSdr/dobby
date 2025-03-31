@@ -16,8 +16,8 @@ import dobby.session.Session;
 import dobby.session.service.SessionService;
 import dobby.task.SchedulerService;
 import dobby.util.Config;
-import dobby.util.logging.LogLevel;
-import dobby.util.logging.Logger;
+import common.logger.LogLevel;
+import common.logger.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * The Server class is used to start the server
  */
 public class Dobby {
-    private static final String version = "1.7";
+    private static final String version = "2.0";
     private static Class<?> applicationClass;
     private static final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;

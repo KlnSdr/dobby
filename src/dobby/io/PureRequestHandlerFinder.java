@@ -2,7 +2,7 @@ package dobby.io;
 
 import dobby.Dobby;
 import dobby.util.Classloader;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 /**
  * Discovers PureRequestHandler classes

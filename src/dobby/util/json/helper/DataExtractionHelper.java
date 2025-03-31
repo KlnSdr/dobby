@@ -3,7 +3,7 @@ package dobby.util.json.helper;
 import dobby.exceptions.MalformedJsonException;
 import dobby.util.Tupel;
 import dobby.util.json.NewJson;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;

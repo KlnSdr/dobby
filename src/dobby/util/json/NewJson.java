@@ -1,8 +1,8 @@
 package dobby.util.json;
 
+import common.logger.Logger;
 import dobby.exceptions.MalformedJsonException;
 import dobby.util.Tupel;
-import dobby.util.logging.Logger;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -8,7 +8,7 @@ import dobby.observer.Observable;
 import dobby.observer.Observer;
 import dobby.routes.RouteManager;
 import dobby.util.Tupel;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

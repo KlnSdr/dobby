@@ -9,7 +9,7 @@ import dobby.observer.Observer;
 import dobby.task.SchedulerService;
 import dobby.util.Config;
 import dobby.util.Tupel;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;

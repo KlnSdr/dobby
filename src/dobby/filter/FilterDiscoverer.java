@@ -2,7 +2,7 @@ package dobby.filter;
 
 
 import dobby.util.Classloader;
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 
 /**

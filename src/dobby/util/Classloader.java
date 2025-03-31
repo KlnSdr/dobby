@@ -1,6 +1,6 @@
 package dobby.util;
 
-import dobby.util.logging.Logger;
+import common.logger.Logger;
 
 import java.io.*;
 import java.net.URISyntaxException;
