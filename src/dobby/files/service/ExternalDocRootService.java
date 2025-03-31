@@ -1,10 +1,9 @@
 package dobby.files.service;
 
 import dobby.files.StaticFile;
-import dobby.util.Config;
+import dobby.Config;
 
 import java.io.*;
-import java.nio.file.Path;
 
 import static dobby.files.service.StaticFileService.determineContentType;
 

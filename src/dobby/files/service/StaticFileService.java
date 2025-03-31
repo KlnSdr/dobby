@@ -7,7 +7,7 @@ import dobby.observer.EventType;
 import dobby.observer.Observable;
 import dobby.observer.Observer;
 import dobby.task.SchedulerService;
-import dobby.util.Config;
+import dobby.Config;
 import dobby.util.Tupel;
 import common.logger.Logger;
 

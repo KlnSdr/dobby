@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="logger-1.0">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.nyx/common/logger/1.0/logger-1.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

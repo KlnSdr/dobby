@@ -1,5 +1,7 @@
 package dobby.util;
 
+import dobby.Config;
+
 public class StaticContentDir {
     public static void appendToContentDir(Class<?> baseClass, String location) {
         final Config config = Config.getInstance();

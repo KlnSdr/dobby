@@ -15,7 +15,6 @@ import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.session.service.SessionService;
 import dobby.task.SchedulerService;
-import dobby.util.Config;
 import common.logger.LogLevel;
 import common.logger.Logger;
 

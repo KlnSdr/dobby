@@ -4,7 +4,7 @@ import dobby.session.DefaultSessionStore;
 import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.task.SchedulerService;
-import dobby.util.Config;
+import dobby.Config;
 import common.logger.Logger;
 
 import java.util.Map;

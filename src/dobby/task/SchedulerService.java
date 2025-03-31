@@ -1,6 +1,6 @@
 package dobby.task;
 
-import dobby.util.Config;
+import dobby.Config;
 import common.logger.Logger;
 
 import java.util.ArrayList;

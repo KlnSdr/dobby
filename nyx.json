@@ -7,13 +7,8 @@
     "group": "dobby",
     "dependencies": [
       {
-        "group": "common",
-        "name": "logger",
-        "version": "1.0"
-      },
-      {
-        "group": "common",
-        "name": "json",
+        "group": "dobby",
+        "name": "dobby-config",
         "version": "1.0"
       }
     ]
