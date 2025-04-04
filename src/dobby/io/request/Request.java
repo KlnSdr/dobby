@@ -1,18 +1,24 @@
 package dobby.io.request;
 
+import dobby.Config;
 import dobby.cookie.Cookie;
 import dobby.exceptions.MalformedJsonException;
 import dobby.util.json.NewJson;
 import common.logger.Logger;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Request {
     private static final Logger LOGGER = new Logger(Request.class);
     private final HashMap<String, Cookie> cookies = new HashMap<>();
     private final Map<String, String> pathParams = new HashMap<>();
+    private final Map<String, File> files = new HashMap<>();
     private RequestTypes type;
     private String path;
     private String rawBody;
@@ -27,11 +33,11 @@ public class Request {
      * @return The parsed request
      */
     public static Request parse(BufferedReader in) throws MalformedJsonException {
-        Request req = new Request();
+        final Request req = new Request();
 
-        ArrayList<String> lines = consumeInputStream(in);
+        final List<String> lines = consumeInputStream(in);
 
-        String method = extractMethodString(lines.get(0));
+        final String method = extractMethodString(lines.get(0));
         req.setPath(extractPath(lines.get(0)));
         req.setQuery(extractQuery(req.getPath()));
         req.setPath(req.getPath().split("\\?")[0]);
@@ -40,13 +46,24 @@ public class Request {
 
         req.setType(RequestTypes.fromString(method));
 
+        int contentLength = 0;
+        if (req.getHeader("Content-Length") != null) {
+            try {
+                contentLength = Integer.parseInt(req.getHeader("Content-Length"));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid Content-Length header: " + req.getHeader("Content-Length"));
+                LOGGER.trace(e);
+            }
+        }
+
         if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT) {
-            int contentLength = Integer.parseInt(req.getHeader("Content-Length")); // todo catch exception
             req.setRawBody(extractBody(in, contentLength));
 
             final String contentTypeHeader = req.getHeader("Content-Type");
             if (contentTypeHeader != null && contentTypeHeader.contains("application/json")) {
                 req.setBody(NewJson.parse(req.getRawBody()));
+            } else if (contentTypeHeader != null && contentTypeHeader.contains("multipart/form-data")) {
+                parseMultipartForm(req);
             }
         }
         return req;
@@ -92,6 +109,79 @@ public class Request {
         return body.toString();
     }
 
+    private static void parseMultipartForm(Request req) {
+        // todo handle malformed multipart form data
+        final String boundary = req.getHeader("Content-Type").split("boundary=")[1].split(";")[0];
+        final String[] parts = req.getRawBody().split("--" + boundary);
+
+        for (String part : parts) {
+            part = part.trim();
+            if (part.isEmpty() || part.equals("--")) continue;
+
+            final String[] sections = part.split("\\r?\\n\\r?\\n", 2); // split headers from body
+            if (sections.length < 2) continue;
+
+            final String headersSection = sections[0];
+            final String bodySection = sections[1].trim();
+            final String[] headers = headersSection.split("\\r?\\n");
+            if (headers.length < 1) continue;
+
+            final String contentDisposition = headers[0];
+            if (!contentDisposition.startsWith("Content-Disposition: form-data;")) continue;
+
+            final String name = contentDisposition.split("name=\"")[1].split("\"")[0];
+            String filename = null;
+            if (contentDisposition.contains("filename=\"")) {
+                filename = contentDisposition.split("filename=\"")[1].split("\"")[0];
+            }
+
+            if (!name.equals("file") || filename == null) continue;
+
+            final String contentType = headers[1];
+            if (!contentType.startsWith("Content-Type: ")) continue;
+            final String type = contentType.split("Content-Type: ")[1].trim();
+            if (type.isEmpty()) continue;
+
+            byte[] md5Hash = null;
+
+            try {
+                md5Hash = MessageDigest.getInstance("MD5").digest(bodySection.getBytes());
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.error("MD5 algorithm not found");
+                LOGGER.trace(e);
+            }
+
+            if (md5Hash == null) continue;
+
+            final StringBuilder sb = new StringBuilder();
+            for (byte b : md5Hash) {
+                sb.append(String.format("%02x", b));
+            }
+            final String hash = sb.toString();
+
+            final File file = new File(Config.getInstance().getString("dobby.tmpUploadDir", "/tmp") + "/" + hash);
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    LOGGER.error("Failed to create file: " + file.getAbsolutePath());
+                    LOGGER.trace(e);
+                }
+            }
+
+            try {
+                Files.write(file.toPath(), bodySection.getBytes());
+            } catch (IOException e) {
+                LOGGER.error("Failed to write file: " + file.getAbsolutePath());
+                LOGGER.trace(e);
+            }
+
+            req.addFile(name, file);
+        }
+
+        req.setRawBody(null);
+    }
+
     private static String extractPath(String line) {
         String[] parts = line.split(" ");
         if (parts.length > 1) {
@@ -101,7 +191,7 @@ public class Request {
     }
 
     private static ArrayList<String> consumeInputStream(BufferedReader input) {
-        ArrayList<String> lines = new ArrayList<>();
+        final ArrayList<String> lines = new ArrayList<>();
         String line;
         try {
             while (!(line = input.readLine()).isEmpty()) {
@@ -122,7 +212,7 @@ public class Request {
         return "";
     }
 
-    private Map<String, String> extractHeaders(ArrayList<String> lines) {
+    private Map<String, String> extractHeaders(List<String> lines) {
         HashMap<String, String> headers = new HashMap<>();
         for (int i = 1; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -304,5 +394,17 @@ public class Request {
      */
     public String getParam(String key) {
         return pathParams.get(key);
+    }
+
+    private void addFile(String name, File file) {
+        files.put(name, file);
+    }
+
+    public Map<String, File> getFiles() {
+        return files;
+    }
+
+    public File getFile(String name) {
+        return files.get(name);
     }
 }
