@@ -1,6 +1,7 @@
 package dobby;
 
 import dobby.exceptions.MalformedJsonException;
+import dobby.exceptions.RequestTooBigException;
 import dobby.files.service.StaticFileService;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
@@ -17,11 +18,10 @@ import dobby.session.service.SessionService;
 import dobby.task.SchedulerService;
 import common.logger.LogLevel;
 import common.logger.Logger;
+import dobby.util.json.NewJson;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Dobby {
     private static final String version = "2.1";
+    public static final int DEFAULT_MAX_REQUEST_SIZE = 1024 * 1024 * 10;
     private static Class<?> applicationClass;
     private static final Logger LOGGER = new Logger(Dobby.class);
     private final Date startTime;
@@ -267,8 +268,22 @@ public class Dobby {
 
         final HttpContext ctx = new HttpContext();
 
-        final Request req = Request.parse(in);
         final Response res = new Response(client);
+        final Request req;
+
+        try {
+            req = Request.parse(in);
+        } catch (RequestTooBigException e) {
+            LOGGER.trace(e);
+
+            res.setCode(ResponseCodes.CONTENT_TOO_LARGE);
+
+            final NewJson json = new NewJson();
+            json.setString("msg", "Request body too large. Max size: " + Config.getInstance().getInt("dobby.maxRequestSize", DEFAULT_MAX_REQUEST_SIZE) + " bytes");
+            res.setBody(json);
+            res.send();
+            return;
+        }
 
         ctx.setRequest(req);
         ctx.setResponse(res);

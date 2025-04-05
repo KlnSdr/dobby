@@ -3,17 +3,19 @@ package dobby.io.request;
 import dobby.Config;
 import dobby.cookie.Cookie;
 import dobby.exceptions.MalformedJsonException;
+import dobby.exceptions.RequestTooBigException;
 import dobby.util.json.NewJson;
 import common.logger.Logger;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import static dobby.Dobby.DEFAULT_MAX_REQUEST_SIZE;
 
 public class Request {
     private static final Logger LOGGER = new Logger(Request.class);
+    private static final int MAX_REQUEST_SIZE = Config.getInstance().getInt("dobby.maxRequestSize", DEFAULT_MAX_REQUEST_SIZE);
     private final HashMap<String, Cookie> cookies = new HashMap<>();
     private final Map<String, String> pathParams = new HashMap<>();
     private final Map<String, File> files = new HashMap<>();
@@ -52,6 +54,11 @@ public class Request {
                 LOGGER.error("Invalid Content-Length header: " + req.getHeader("Content-Length"));
                 LOGGER.trace(e);
             }
+        }
+
+        if (contentLength > MAX_REQUEST_SIZE) {
+            LOGGER.error("Request body too large: " + contentLength + " bytes");
+            throw new RequestTooBigException("Request body too large: " + contentLength + " bytes");
         }
 
         if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT) {
@@ -101,6 +108,9 @@ public class Request {
                 if (!input.ready() || bytesRead >= length) break;
                 body.append((char) input.read());
                 bytesRead++;
+                if (bytesRead >= MAX_REQUEST_SIZE) {
+                    throw new RequestTooBigException("Request body too large: " + bytesRead + " bytes");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -117,6 +127,9 @@ public class Request {
                 int read = in.read(body, bytesRead, length - bytesRead);
                 if (read == -1) break;
                 bytesRead += read;
+                if (bytesRead >= MAX_REQUEST_SIZE) {
+                    throw new RequestTooBigException("Request body too large: " + bytesRead + " bytes");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
