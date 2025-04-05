@@ -20,6 +20,7 @@ import common.logger.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
@@ -262,12 +263,12 @@ public class Dobby {
             return;
         }
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        final InputStream in = client.getInputStream();
 
-        HttpContext ctx = new HttpContext();
+        final HttpContext ctx = new HttpContext();
 
-        Request req = Request.parse(in);
-        Response res = new Response(client);
+        final Request req = Request.parse(in);
+        final Response res = new Response(client);
 
         ctx.setRequest(req);
         ctx.setResponse(res);
