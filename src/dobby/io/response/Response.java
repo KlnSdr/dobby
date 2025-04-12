@@ -1,6 +1,7 @@
 package dobby.io.response;
 
 import dobby.cookie.Cookie;
+import dobby.files.StaticFile;
 import dobby.util.json.NewJson;
 
 import java.io.ByteArrayOutputStream;
@@ -97,6 +98,14 @@ public class Response {
         }
         this.body = body.toString().getBytes();
         headers.put("content-type", List.of("application/json"));
+    }
+
+    public void sendFile(StaticFile file) {
+        if (file == null) {
+            return;
+        }
+        this.body = file.getContent();
+        headers.put("content-type", List.of(file.getContentType()));
     }
 
     /**

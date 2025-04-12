@@ -3,7 +3,7 @@
   "project": {
     "entry": "poc.Main",
     "name": "dobby",
-    "version": "2.1",
+    "version": "2.2-SNAPSHOT",
     "group": "dobby",
     "dependencies": [
       {
