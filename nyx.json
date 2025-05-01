@@ -3,13 +3,13 @@
   "project": {
     "entry": "poc.Main",
     "name": "dobby",
-    "version": "2.2-SNAPSHOT",
+    "version": "2.2",
     "group": "dobby",
     "dependencies": [
       {
         "group": "dobby",
         "name": "dobby-config",
-        "version": "1.0"
+        "version": "1.1"
       }
     ]
   },
