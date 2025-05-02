@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * The Server class is used to start the server
  */
 public class Dobby {
-    private static final String version = "2.2";
+    private static final String version = "2.3-snapshot";
     public static final int DEFAULT_MAX_REQUEST_SIZE = 1024 * 1024 * 10;
     private static Class<?> applicationClass;
     private static final Logger LOGGER = new Logger(Dobby.class);

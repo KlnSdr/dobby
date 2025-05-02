@@ -1,0 +1,15 @@
+{
+  "image": "docker.klnsdr.com/nyx-cli:1.3",
+  "pipeline": {
+    "default": [
+      "nyx build",
+      "printf 'https://repo.klnsdr.com\\n${NYX_REPO_KLNSDR_COM_PASSWORD}' | nyx login",
+      "nyx push"
+    ],
+    "release": [
+      "nyx build",
+      "printf 'https://repo.klnsdr.com\\n${NYX_REPO_KLNSDR_COM_PASSWORD}' | nyx login",
+      "nyx push"
+    ]
+  }
+}
