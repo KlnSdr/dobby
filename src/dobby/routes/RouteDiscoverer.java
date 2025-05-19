@@ -6,7 +6,7 @@ import dobby.annotations.Post;
 import dobby.annotations.Put;
 import dobby.io.HttpContext;
 import dobby.io.request.RequestTypes;
-import dobby.util.Classloader;
+import common.util.Classloader;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;

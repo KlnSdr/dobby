@@ -1,7 +1,7 @@
 package dobby.io;
 
+import common.util.Classloader;
 import dobby.Dobby;
-import dobby.util.Classloader;
 import common.logger.Logger;
 
 /**
