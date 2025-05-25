@@ -14,8 +14,8 @@ import dobby.session.service.SessionService;
 /**
  * The SessionPostFilter class is used to save the session to the database and set the session cookie
  */
-@RegisterFor(ISessionPostFilter.class)
-public class SessionPostFilter implements ISessionPostFilter {
+@RegisterFor(SessionPostFilter.class)
+public class SessionPostFilter implements Filter {
     private final ISessionService sessionService;
 
     @Inject

@@ -13,8 +13,8 @@ import dobby.session.service.SessionService;
 /**
  * The SessionPreFilter class is used to find the session in the database and set it in the HttpContext
  */
-@RegisterFor(ISessionPreFilter.class)
-public class SessionPreFilter implements ISessionPreFilter {
+@RegisterFor(SessionPreFilter.class)
+public class SessionPreFilter implements Filter {
     private final ISessionService sessionService;
 
     @Inject

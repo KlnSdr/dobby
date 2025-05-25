@@ -11,7 +11,7 @@ import dobby.io.request.IRequestHandler;
 /**
  * Handler for static files
  */
-@RegisterFor(IStaticFileService.class)
+@RegisterFor(IStaticFileHandler.class)
 public class StaticFileHandler implements IStaticFileHandler {
     private final IStaticFileService staticFileService;
 

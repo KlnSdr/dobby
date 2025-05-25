@@ -42,7 +42,16 @@ public class FilterDiscoverer extends Classloader<Filter> {
 
     private void addFilter(Class<? extends Filter> clazz) {
         try {
-            Filter filter = clazz.getDeclaredConstructor().newInstance();
+            if (clazz.isInterface() || clazz.isEnum() || clazz.isAnnotation()) {
+                LOGGER.debug("Class " + clazz.getName() + " is not a valid filter class, skipping.");
+                return;
+            }
+            Filter filter = InjectorService.getInstance().getInstanceNullable(clazz);
+
+            if (filter == null) {
+                filter = clazz.getDeclaredConstructor().newInstance();
+            }
+
 
             if (filter.getType() == FilterType.PRE) {
                 filterManager.addPreFilter(filter);
@@ -50,7 +59,7 @@ public class FilterDiscoverer extends Classloader<Filter> {
             }
             filterManager.addPostFilter(filter);
         } catch (Exception e) {
-            LOGGER.error("Could not instantiate post-filter: " + clazz.getName());
+            LOGGER.error("Could not instantiate filter: " + clazz.getName());
             LOGGER.trace(e);
         }
     }

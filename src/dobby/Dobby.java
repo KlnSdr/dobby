@@ -124,7 +124,7 @@ public class Dobby {
 
         runPreStart();
 
-        final ISessionService sessionService = injectorService.getInstance(SessionService.class);
+        final ISessionService sessionService = injectorService.getInstance(ISessionService.class);
 
         configureSessionStore(config, sessionService);
 

@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @RegisterFor(ISchedulerService.class)
-public class SchedulerService {
+public class SchedulerService implements ISchedulerService {
     private final ArrayList<ScheduledExecutorService> schedulers = new ArrayList<>();
     private static final Logger LOGGER = new Logger(SchedulerService.class);
 
