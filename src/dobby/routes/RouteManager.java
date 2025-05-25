@@ -1,5 +1,6 @@
 package dobby.routes;
 
+import common.inject.annotations.RegisterFor;
 import dobby.DefaultHandler.MethodNotSupportedHandler;
 import dobby.DefaultHandler.StaticFileHandler;
 import dobby.io.request.IRequestHandler;
@@ -23,20 +24,13 @@ import static dobby.util.RouteHelper.matches;
 /**
  * Manages routes
  */
-public class RouteManager implements Observable<Tupel<String, Route>> {
-    private static RouteManager instance;
+@RegisterFor(IRouteManager.class)
+public class RouteManager implements Observable<Tupel<String, Route>>, IRouteManager {
     private final Logger LOGGER = new Logger(RouteManager.class);
 
     private final HashMap<String, Route> routes = new HashMap<>();
 
-    private RouteManager() {
-    }
-
-    public static RouteManager getInstance() {
-        if (instance == null) {
-            instance = new RouteManager();
-        }
-        return instance;
+    public RouteManager() {
     }
 
     private boolean hasRoute(String path) {

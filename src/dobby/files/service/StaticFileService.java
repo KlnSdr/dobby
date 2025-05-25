@@ -1,11 +1,14 @@
 package dobby.files.service;
 
+import common.inject.annotations.Inject;
+import common.inject.annotations.RegisterFor;
 import dobby.Dobby;
 import dobby.files.StaticFile;
 import dobby.observer.Event;
 import dobby.observer.EventType;
 import dobby.observer.Observable;
 import dobby.observer.Observer;
+import dobby.task.ISchedulerService;
 import dobby.task.SchedulerService;
 import dobby.Config;
 import dobby.util.Tupel;
@@ -20,14 +23,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * Service for serving static files
  */
-public class StaticFileService implements Observable<Tupel<String, StaticFile>> {
+@RegisterFor(IStaticFileService.class)
+public class StaticFileService implements Observable<Tupel<String, StaticFile>>, IStaticFileService {
     private static final Logger LOGGER = new Logger(StaticFileService.class);
-    private static StaticFileService instance;
     private final HashMap<String, StaticFile> files = new HashMap<>();
     private Tupel<Class<?>, String>[] staticContentPath;
     private int maxFileAge;
+    private final IExternalDocRootService externalDocRootService;
 
-    private StaticFileService() {
+    @Inject
+    public StaticFileService(ISchedulerService schedulerService, IExternalDocRootService externalDocRootService) {
+        this.externalDocRootService = externalDocRootService;
         Config config = Config.getInstance();
 
         if (config.getBoolean("dobby.staticContent.disable")) {
@@ -38,7 +44,7 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>> 
         final int cleanupInterval = config.getInt("dobby.staticContent.cleanUpInterval", 30);
 
         LOGGER.info("starting static file cleanup scheduler with interval of " + cleanupInterval + " min...");
-        SchedulerService.getInstance().addRepeating(this::cleanUpStaticFiles, cleanupInterval, TimeUnit.MINUTES);
+        schedulerService.addRepeating(this::cleanUpStaticFiles, cleanupInterval, TimeUnit.MINUTES);
     }
 
     @SuppressWarnings("unchecked")
@@ -69,13 +75,6 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>> 
             }
         }
         return staticContentPaths.toArray(new Tupel[0]);
-    }
-
-    public static StaticFileService getInstance() {
-        if (instance == null) {
-            instance = new StaticFileService();
-        }
-        return instance;
     }
 
     private long getCurrentTime() {
@@ -119,7 +118,7 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>> 
 
         boolean fileNewlyAdded = false;
         if (!files.containsKey(path)) {
-            file = ExternalDocRootService.getInstance().get(path);
+            file = externalDocRootService.get(path);
             if (file == null) {
                 file = lookUpFile(path);
             }

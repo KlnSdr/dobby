@@ -1,12 +1,14 @@
 package dobby.filter;
 
+import common.inject.annotations.Inject;
+import common.inject.annotations.RegisterFor;
 import dobby.io.HttpContext;
 import dobby.io.request.IRequestHandler;
 import dobby.observer.Event;
 import dobby.observer.EventType;
 import dobby.observer.Observable;
 import dobby.observer.Observer;
-import dobby.routes.RouteManager;
+import dobby.routes.IRouteManager;
 import dobby.util.Tupel;
 import common.logger.Logger;
 
@@ -20,22 +22,18 @@ import java.util.HashMap;
 /**
  * Manages filters
  */
-public class FilterManager implements Observable<Filter> {
-    private static FilterManager instance;
+@RegisterFor(IFilterManager.class)
+public class FilterManager implements Observable<Filter>, IFilterManager {
     private final Logger LOGGER = new Logger(FilterManager.class);
     private Filter[] preFilters = new Filter[0];
     private int preFilterCount = 0;
     private Filter[] postFilters = new Filter[0];
     private int postFilterCount = 0;
+    private final IRouteManager routeManager;
 
-    private FilterManager() {
-    }
-
-    public static FilterManager getInstance() {
-        if (FilterManager.instance == null) {
-            FilterManager.instance = new FilterManager();
-        }
-        return FilterManager.instance;
+    @Inject
+    public FilterManager(IRouteManager routeManager) {
+        this.routeManager = routeManager;
     }
 
     /**
@@ -88,7 +86,7 @@ public class FilterManager implements Observable<Filter> {
         }
 
         Tupel<IRequestHandler, HashMap<String, String>> handler =
-                RouteManager.getInstance().getHandler(ctx.getRequest().getType(), ctx.getRequest().getPath());
+                routeManager.getHandler(ctx.getRequest().getType(), ctx.getRequest().getPath());
 
         ctx.getRequest().setPathParams(handler._2());
         handler._1().handle(ctx);

@@ -1,26 +1,21 @@
 package dobby.task;
 
+import common.inject.annotations.RegisterFor;
 import dobby.Config;
 import common.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@RegisterFor(ISchedulerService.class)
 public class SchedulerService {
-    private static SchedulerService instance;
     private final ArrayList<ScheduledExecutorService> schedulers = new ArrayList<>();
     private static final Logger LOGGER = new Logger(SchedulerService.class);
 
-    public static SchedulerService getInstance() {
-        if (instance == null) {
-            instance = new SchedulerService();
-        }
-        return instance;
-    }
-
-    private SchedulerService() {
+    public SchedulerService() {
     }
 
     public void addRepeating(Runnable task, int interval, TimeUnit unit) {
@@ -28,7 +23,7 @@ public class SchedulerService {
             LOGGER.warn("Scheduler is disabled, not scheduling task");
             return;
         }
-        final ScheduledExecutorService scheduler = java.util.concurrent.Executors.newScheduledThreadPool(1);
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(task, 0, interval, unit);
         schedulers.add(scheduler);
     }
