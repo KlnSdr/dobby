@@ -1,5 +1,6 @@
 package dobby.session;
 
+import dobby.session.service.ISessionService;
 import dobby.session.service.SessionService;
 
 import java.io.Serializable;
@@ -12,6 +13,11 @@ public class Session implements Serializable {
     private final HashMap<String, String> session = new HashMap<>();
     private String id;
     private long lastAccessed;
+    private final ISessionService sessionService;
+
+    public Session(ISessionService sessionService) {
+        this.sessionService = sessionService;
+    }
 
     public String getId() {
         return id;
@@ -59,7 +65,9 @@ public class Session implements Serializable {
      * Destroys the session
      */
     public void destroy() {
-        SessionService.getInstance().remove(this);
+        if (sessionService != null) {
+            sessionService.remove(this);
+        }
         session.clear();
         setId(null);
     }

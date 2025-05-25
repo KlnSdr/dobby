@@ -1,10 +1,13 @@
 package dobby;
 
+import common.inject.InjectorService;
 import dobby.exceptions.MalformedJsonException;
 import dobby.exceptions.RequestTooBigException;
+import dobby.files.service.IStaticFileService;
 import dobby.files.service.StaticFileService;
 import dobby.filter.FilterDiscoverer;
 import dobby.filter.FilterManager;
+import dobby.filter.IFilterManager;
 import dobby.io.HttpContext;
 import dobby.io.PureRequestHandler;
 import dobby.io.PureRequestHandlerFinder;
@@ -14,7 +17,9 @@ import dobby.io.response.ResponseCodes;
 import dobby.routes.RouteDiscoverer;
 import dobby.session.ISessionStore;
 import dobby.session.Session;
+import dobby.session.service.ISessionService;
 import dobby.session.service.SessionService;
+import dobby.task.ISchedulerService;
 import dobby.task.SchedulerService;
 import common.logger.LogLevel;
 import common.logger.Logger;
@@ -44,12 +49,19 @@ public class Dobby {
     private ExecutorService threadPool;
     private boolean isRunning = false;
     private PureRequestHandler pureRequestHandler;
+    private final ISchedulerService schedulerService;
+    private final IFilterManager filterManager;
+    private final ISessionService sessionService;
 
     public static String getVersion() {
         return version;
     }
 
-    private Dobby(int port, int threadCount, Date startTime) {
+    private Dobby(int port, int threadCount, Date startTime, ISchedulerService schedulerService, IFilterManager filterManager, ISessionService sessionService) {
+        this.schedulerService = schedulerService;
+        this.filterManager = filterManager;
+        this.sessionService = sessionService;
+
         this.startTime = startTime;
         serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
         if (!serverMode.equals("http") && !serverMode.equals("pure")) {
@@ -98,6 +110,7 @@ public class Dobby {
      * @param applicationClass The main entry point of the application
      */
     public static void startApplication(Class<?> applicationClass) {
+        final InjectorService injectorService = InjectorService.getInstance();
         final Date startTime = new Date();
         Dobby.applicationClass = applicationClass;
         printBanner();
@@ -111,11 +124,13 @@ public class Dobby {
 
         runPreStart();
 
-        configureSessionStore(config);
+        final ISessionService sessionService = injectorService.getInstance(SessionService.class);
 
-        StaticFileService.getInstance(); // initialize StaticFileService to start cleanup scheduler right at start
+        configureSessionStore(config, sessionService);
 
-        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime);
+        injectorService.getInstance(IStaticFileService.class); // initialize StaticFileService to start cleanup scheduler right at start
+
+        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime, injectorService.getInstance(ISchedulerService.class), injectorService.getInstance(IFilterManager.class), sessionService);
     }
 
     private static void setLogLevel(String logLevelString) {
@@ -128,7 +143,7 @@ public class Dobby {
         Logger.setMaxLogLevel(logLevel);
     }
 
-    private static void configureSessionStore(Config config) {
+    private static void configureSessionStore(Config config, ISessionService sessionService) {
         final String sessionStoreClassName = config.getString("dobby.session.store", "dobby.session.DefaultSessionStore");
 
         try {
@@ -137,7 +152,7 @@ public class Dobby {
                 throw new ClassCastException("session store class must implement ISessionStore");
             }
             final ISessionStore sessionStore = (ISessionStore) sessionStoreClass.getDeclaredConstructor().newInstance();
-            SessionService.getInstance().setSessionStore(sessionStore);
+            sessionService.setSessionStore(sessionStore);
             LOGGER.info("registered session store: " + sessionStoreClassName);
         } catch (Exception e) {
             LOGGER.error("invalid session store class: " + sessionStoreClassName);
@@ -287,10 +302,10 @@ public class Dobby {
 
         ctx.setRequest(req);
         ctx.setResponse(res);
-        ctx.setSession(new Session()); // if available, session will be set in SessionPreFilter
+        ctx.setSession(new Session(sessionService)); // if available, session will be set in SessionPreFilter
 
         try {
-            FilterManager.getInstance().runFilterChain(ctx);
+            filterManager.runFilterChain(ctx);
         } catch(Exception e) {
             LOGGER.trace(e);
             res.setCode(ResponseCodes.INTERNAL_SERVER_ERROR);
@@ -305,7 +320,7 @@ public class Dobby {
     private void stop() {
         isRunning = false;
         LOGGER.info("Server stopping...");
-        SchedulerService.getInstance().stopAll();
+        schedulerService.stopAll();
         threadPool.shutdown();
         try {
             if (threadPool.awaitTermination(5, TimeUnit.SECONDS)) {

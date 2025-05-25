@@ -1,6 +1,7 @@
 package dobby.filter;
 
 
+import common.inject.InjectorService;
 import common.util.Classloader;
 import common.logger.Logger;
 
@@ -10,9 +11,11 @@ import common.logger.Logger;
  */
 public class FilterDiscoverer extends Classloader<Filter> {
     private static final Logger LOGGER = new Logger(FilterDiscoverer.class);
+    private final IFilterManager filterManager;
 
     private FilterDiscoverer(String packageName) {
         this.packageName = packageName;
+        this.filterManager = InjectorService.getInstance().getInstance(IFilterManager.class);
     }
 
     /**
@@ -42,10 +45,10 @@ public class FilterDiscoverer extends Classloader<Filter> {
             Filter filter = clazz.getDeclaredConstructor().newInstance();
 
             if (filter.getType() == FilterType.PRE) {
-                FilterManager.getInstance().addPreFilter(filter);
+                filterManager.addPreFilter(filter);
                 return;
             }
-            FilterManager.getInstance().addPostFilter(filter);
+            filterManager.addPostFilter(filter);
         } catch (Exception e) {
             LOGGER.error("Could not instantiate post-filter: " + clazz.getName());
             LOGGER.trace(e);

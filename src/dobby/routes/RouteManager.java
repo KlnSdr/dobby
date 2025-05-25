@@ -1,8 +1,10 @@
 package dobby.routes;
 
+import common.inject.annotations.Inject;
 import common.inject.annotations.RegisterFor;
 import dobby.DefaultHandler.MethodNotSupportedHandler;
 import dobby.DefaultHandler.StaticFileHandler;
+import dobby.files.service.IStaticFileService;
 import dobby.io.request.IRequestHandler;
 import dobby.io.request.RequestTypes;
 import dobby.observer.Event;
@@ -29,8 +31,11 @@ public class RouteManager implements Observable<Tupel<String, Route>>, IRouteMan
     private final Logger LOGGER = new Logger(RouteManager.class);
 
     private final HashMap<String, Route> routes = new HashMap<>();
+    private final IStaticFileService staticFileService;
 
-    public RouteManager() {
+    @Inject
+    public RouteManager(IStaticFileService staticFileService) {
+        this.staticFileService = staticFileService;
     }
 
     private boolean hasRoute(String path) {
@@ -106,7 +111,7 @@ public class RouteManager implements Observable<Tupel<String, Route>>, IRouteMan
                 return new Tupel<>(route.getHandler(type), pathParams);
             }
         }
-        return new Tupel<>(new StaticFileHandler(), new HashMap<>());
+        return new Tupel<>(new StaticFileHandler(staticFileService), new HashMap<>());
     }
 
     private HashMap<String, String> getPathParamValues(String pattern, String path, List<String> paramKeys) {

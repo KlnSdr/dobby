@@ -1,6 +1,9 @@
 package dobby.DefaultHandler;
 
+import common.inject.annotations.Inject;
+import common.inject.annotations.RegisterFor;
 import dobby.files.StaticFile;
+import dobby.files.service.IStaticFileService;
 import dobby.files.service.StaticFileService;
 import dobby.io.HttpContext;
 import dobby.io.request.IRequestHandler;
@@ -8,7 +11,15 @@ import dobby.io.request.IRequestHandler;
 /**
  * Handler for static files
  */
-public class StaticFileHandler implements IRequestHandler {
+@RegisterFor(IStaticFileService.class)
+public class StaticFileHandler implements IStaticFileHandler {
+    private final IStaticFileService staticFileService;
+
+    @Inject
+    public StaticFileHandler(IStaticFileService staticFileService) {
+        this.staticFileService = staticFileService;
+    }
+
     @Override
     public void handle(HttpContext context) {
         String path = context.getRequest().getPath();
@@ -19,7 +30,7 @@ public class StaticFileHandler implements IRequestHandler {
             return;
         }
 
-        StaticFile file = StaticFileService.getInstance().get(path);
+        StaticFile file = staticFileService.get(path);
 
         if (file == null) {
             notFound(context);

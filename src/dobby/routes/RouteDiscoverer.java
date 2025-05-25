@@ -1,5 +1,6 @@
 package dobby.routes;
 
+import common.inject.InjectorService;
 import dobby.annotations.Delete;
 import dobby.annotations.Get;
 import dobby.annotations.Post;
@@ -15,8 +16,11 @@ import java.lang.reflect.Type;
  * Discovers routes in a given package
  */
 public class RouteDiscoverer extends Classloader<Object> {
+    private final IRouteManager routeManager;
+
     private RouteDiscoverer(String packageName) {
         this.packageName = packageName;
+        this.routeManager = InjectorService.getInstance().getInstance(IRouteManager.class);
     }
 
     /**
@@ -43,19 +47,19 @@ public class RouteDiscoverer extends Classloader<Object> {
 
             if (method.isAnnotationPresent(Get.class)) {
                 Get annotation = method.getAnnotation(Get.class);
-                RouteManager.getInstance().add(RequestTypes.GET, annotation.value(),
+                routeManager.add(RequestTypes.GET, annotation.value(),
                         (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             } else if (method.isAnnotationPresent(Post.class)) {
                 Post annotation = method.getAnnotation(Post.class);
-                RouteManager.getInstance().add(RequestTypes.POST, annotation.value(),
+                routeManager.add(RequestTypes.POST, annotation.value(),
                         (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             } else if (method.isAnnotationPresent(Put.class)) {
                 Put annotation = method.getAnnotation(Put.class);
-                RouteManager.getInstance().add(RequestTypes.PUT, annotation.value(),
+                routeManager.add(RequestTypes.PUT, annotation.value(),
                         (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             } else if (method.isAnnotationPresent(Delete.class)) {
                 Delete annotation = method.getAnnotation(Delete.class);
-                RouteManager.getInstance().add(RequestTypes.DELETE, annotation.value(),
+                routeManager.add(RequestTypes.DELETE, annotation.value(),
                         (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
             }
         }

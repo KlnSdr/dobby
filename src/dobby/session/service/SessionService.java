@@ -95,7 +95,7 @@ public class SessionService implements ISessionService {
      * @return The new session
      */
     public Session newSession() {
-        Session session = new Session();
+        Session session = new Session(this);
         session.setId(generateSessionId());
         session.setLastAccessed(getCurrentTime());
         sessionStore.update(session);
