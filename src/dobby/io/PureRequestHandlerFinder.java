@@ -1,5 +1,6 @@
 package dobby.io;
 
+import common.inject.InjectorService;
 import common.util.Classloader;
 import dobby.Dobby;
 import common.logger.Logger;
@@ -26,7 +27,12 @@ public class PureRequestHandlerFinder extends Classloader<PureRequestHandler> {
 
     private void analyzeClass(Class<? extends PureRequestHandler> clazz, Dobby dobby) {
         try {
-            PureRequestHandler handler = clazz.getDeclaredConstructor().newInstance();
+            PureRequestHandler handler = InjectorService.getInstance().getInstanceNullable(clazz);
+
+            if (handler == null) {
+                handler = clazz.getDeclaredConstructor().newInstance();
+            }
+
             dobby.registerPureRequestHandler(handler);
         } catch (Exception e) {
             LOGGER.error("Could not instantiate pure request handler: " + clazz.getName());

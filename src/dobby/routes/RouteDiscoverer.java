@@ -40,6 +40,11 @@ public class RouteDiscoverer extends Classloader<Object> {
 
     private void analyzeClassAndMethods(Class<?> clazz) {
         Method[] methods = clazz.getDeclaredMethods();
+
+        if (clazz.isAnnotation() || clazz.isEnum() || clazz.isInterface()) {
+            return; // Skip annotations, enums, and interfaces
+        }
+
         for (Method method : methods) {
             if (!isValidHttpHandler(method)) {
                 continue;
@@ -48,20 +53,32 @@ public class RouteDiscoverer extends Classloader<Object> {
             if (method.isAnnotationPresent(Get.class)) {
                 Get annotation = method.getAnnotation(Get.class);
                 routeManager.add(RequestTypes.GET, annotation.value(),
-                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
+                        (ctx) -> method.invoke(getInstance(clazz), ctx));
             } else if (method.isAnnotationPresent(Post.class)) {
                 Post annotation = method.getAnnotation(Post.class);
                 routeManager.add(RequestTypes.POST, annotation.value(),
-                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
+                        (ctx) -> method.invoke(getInstance(clazz), ctx));
             } else if (method.isAnnotationPresent(Put.class)) {
                 Put annotation = method.getAnnotation(Put.class);
                 routeManager.add(RequestTypes.PUT, annotation.value(),
-                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
+                        (ctx) -> method.invoke(getInstance(clazz), ctx));
             } else if (method.isAnnotationPresent(Delete.class)) {
                 Delete annotation = method.getAnnotation(Delete.class);
                 routeManager.add(RequestTypes.DELETE, annotation.value(),
-                        (ctx) -> method.invoke(clazz.getDeclaredConstructor().newInstance(), ctx));
+                        (ctx) -> method.invoke(getInstance(clazz), ctx));
             }
+        }
+    }
+
+    private Object getInstance(Class<?> clazz) {
+        Object instance = InjectorService.getInstance().getInstanceNullable(clazz);
+        if (instance != null) {
+            return instance;
+        }
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not instantiate class: " + clazz.getName(), e);
         }
     }
 
