@@ -7,6 +7,7 @@ import dobby.filter.Filter;
 import dobby.filter.FilterOrder;
 import dobby.filter.FilterType;
 import dobby.io.HttpContext;
+import dobby.session.ISession;
 import dobby.session.Session;
 import dobby.session.service.ISessionService;
 import dobby.session.service.SessionService;
@@ -40,7 +41,7 @@ public class SessionPostFilter implements Filter {
 
     @Override
     public boolean run(HttpContext ctx) {
-        Session session = ctx.getSession();
+        ISession session = ctx.getSession();
 
         if (session.getId() == null) {
             return true;

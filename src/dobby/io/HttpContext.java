@@ -3,6 +3,7 @@ package dobby.io;
 import dobby.cookie.Cookie;
 import dobby.io.request.Request;
 import dobby.io.response.Response;
+import dobby.session.ISession;
 import dobby.session.Session;
 
 /**
@@ -11,7 +12,7 @@ import dobby.session.Session;
 public class HttpContext {
     private Request request;
     private Response response;
-    private Session session;
+    private ISession session;
 
     public HttpContext() {
     }
@@ -57,7 +58,7 @@ public class HttpContext {
      *
      * @return Session object
      */
-    public Session getSession() {
+    public ISession getSession() {
         return session;
     }
 
@@ -66,7 +67,7 @@ public class HttpContext {
      *
      * @param session Session object
      */
-    public void setSession(Session session) {
+    public void setSession(ISession session) {
         this.session = session;
     }
 

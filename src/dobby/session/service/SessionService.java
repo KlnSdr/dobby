@@ -3,6 +3,7 @@ package dobby.session.service;
 import common.inject.annotations.Inject;
 import common.inject.annotations.RegisterFor;
 import dobby.session.DefaultSessionStore;
+import dobby.session.ISession;
 import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.task.ISchedulerService;
@@ -56,8 +57,8 @@ public class SessionService implements ISessionService {
      * @param sessionId Session id
      * @return The session if found, otherwise empty
      */
-    public Optional<Session> find(String sessionId) {
-        final Optional<Session> optSession = sessionStore.find(sessionId);
+    public Optional<ISession> find(String sessionId) {
+        final Optional<ISession> optSession = sessionStore.find(sessionId);
 
         if (optSession.isEmpty()) {
             return Optional.empty();
@@ -72,7 +73,7 @@ public class SessionService implements ISessionService {
      *
      * @param session Session to save
      */
-    public void set(Session session) {
+    public void set(ISession session) {
         session.setLastAccessed(getCurrentTime());
         sessionStore.update(session);
     }
@@ -82,7 +83,7 @@ public class SessionService implements ISessionService {
      *
      * @param session Session to remove
      */
-    public void remove(Session session) {
+    public void remove(ISession session) {
         if (session.getId() == null) {
             return;
         }
@@ -94,7 +95,7 @@ public class SessionService implements ISessionService {
      *
      * @return The new session
      */
-    public Session newSession() {
+    public ISession newSession() {
         Session session = new Session(this);
         session.setId(generateSessionId());
         session.setLastAccessed(getCurrentTime());

@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultSessionStore implements ISessionStore {
-    private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ISession> sessions = new ConcurrentHashMap<>();
 
     @Override
-    public Optional<Session> find(String sessionId) {
+    public Optional<ISession> find(String sessionId) {
         if (sessions.containsKey(sessionId)) {
             return Optional.of(sessions.get(sessionId));
         }
@@ -16,7 +16,7 @@ public class DefaultSessionStore implements ISessionStore {
     }
 
     @Override
-    public void update(Session session) {
+    public void update(ISession session) {
         sessions.put(session.getId(), session);
     }
 

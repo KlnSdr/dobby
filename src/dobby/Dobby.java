@@ -15,6 +15,7 @@ import dobby.io.request.Request;
 import dobby.io.response.Response;
 import dobby.io.response.ResponseCodes;
 import dobby.routes.RouteDiscoverer;
+import dobby.session.ISession;
 import dobby.session.ISessionStore;
 import dobby.session.Session;
 import dobby.session.service.ISessionService;
@@ -51,16 +52,15 @@ public class Dobby {
     private PureRequestHandler pureRequestHandler;
     private final ISchedulerService schedulerService;
     private final IFilterManager filterManager;
-    private final ISessionService sessionService;
+    private static final InjectorService injectorService = InjectorService.getInstance();
 
     public static String getVersion() {
         return version;
     }
 
-    private Dobby(int port, int threadCount, Date startTime, ISchedulerService schedulerService, IFilterManager filterManager, ISessionService sessionService) {
+    private Dobby(int port, int threadCount, Date startTime, ISchedulerService schedulerService, IFilterManager filterManager) {
         this.schedulerService = schedulerService;
         this.filterManager = filterManager;
-        this.sessionService = sessionService;
 
         this.startTime = startTime;
         serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
@@ -130,7 +130,7 @@ public class Dobby {
 
         injectorService.getInstance(IStaticFileService.class); // initialize StaticFileService to start cleanup scheduler right at start
 
-        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime, injectorService.getInstance(ISchedulerService.class), injectorService.getInstance(IFilterManager.class), sessionService);
+        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime, injectorService.getInstance(ISchedulerService.class), injectorService.getInstance(IFilterManager.class));
     }
 
     private static void setLogLevel(String logLevelString) {
@@ -302,7 +302,7 @@ public class Dobby {
 
         ctx.setRequest(req);
         ctx.setResponse(res);
-        ctx.setSession(new Session(sessionService)); // if available, session will be set in SessionPreFilter
+        ctx.setSession(injectorService.getNewInstanceNullable(ISession.class)); // if available, session will be set in SessionPreFilter
 
         try {
             filterManager.runFilterChain(ctx);
