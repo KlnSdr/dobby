@@ -10,4 +10,6 @@ public interface ISession {
     long getLastAccessed();
     void setLastAccessed(long lastAccessed);
     boolean contains(String key);
+    Session getSession();
+    void setSession(Session session);
 }

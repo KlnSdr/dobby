@@ -2,10 +2,7 @@ package dobby.session.service;
 
 import common.inject.annotations.Inject;
 import common.inject.annotations.RegisterFor;
-import dobby.session.DefaultSessionStore;
-import dobby.session.ISession;
-import dobby.session.ISessionStore;
-import dobby.session.Session;
+import dobby.session.*;
 import dobby.task.ISchedulerService;
 import dobby.Config;
 import common.logger.Logger;
@@ -96,7 +93,7 @@ public class SessionService implements ISessionService {
      * @return The new session
      */
     public ISession newSession() {
-        Session session = new Session(this);
+        SessionWrapper session = new SessionWrapper(this);
         session.setId(generateSessionId());
         session.setLastAccessed(getCurrentTime());
         sessionStore.update(session);

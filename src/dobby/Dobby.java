@@ -4,9 +4,7 @@ import common.inject.InjectorService;
 import dobby.exceptions.MalformedJsonException;
 import dobby.exceptions.RequestTooBigException;
 import dobby.files.service.IStaticFileService;
-import dobby.files.service.StaticFileService;
 import dobby.filter.FilterDiscoverer;
-import dobby.filter.FilterManager;
 import dobby.filter.IFilterManager;
 import dobby.io.HttpContext;
 import dobby.io.PureRequestHandler;
@@ -17,11 +15,8 @@ import dobby.io.response.ResponseCodes;
 import dobby.routes.RouteDiscoverer;
 import dobby.session.ISession;
 import dobby.session.ISessionStore;
-import dobby.session.Session;
 import dobby.session.service.ISessionService;
-import dobby.session.service.SessionService;
 import dobby.task.ISchedulerService;
-import dobby.task.SchedulerService;
 import common.logger.LogLevel;
 import common.logger.Logger;
 import dobby.util.json.NewJson;
@@ -128,7 +123,7 @@ public class Dobby {
 
         configureSessionStore(config, sessionService);
 
-        injectorService.getInstance(IStaticFileService.class); // initialize StaticFileService to start cleanup scheduler right at start
+        injectorService.getInstance(IStaticFileService.class).init(); // initialize StaticFileService to start cleanup scheduler right at start
 
         new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime, injectorService.getInstance(ISchedulerService.class), injectorService.getInstance(IFilterManager.class));
     }
@@ -151,7 +146,13 @@ public class Dobby {
             if (!ISessionStore.class.isAssignableFrom(sessionStoreClass)) {
                 throw new ClassCastException("session store class must implement ISessionStore");
             }
-            final ISessionStore sessionStore = (ISessionStore) sessionStoreClass.getDeclaredConstructor().newInstance();
+
+            final ISessionStore sessionStore = injectorService.getInstanceNullable(ISessionStore.class);
+            if (sessionStore == null) {
+                sessionService.setSessionStore((ISessionStore) sessionStoreClass.getDeclaredConstructor().newInstance());
+            } else {
+                sessionService.setSessionStore(sessionStore);
+            }
             sessionService.setSessionStore(sessionStore);
             LOGGER.info("registered session store: " + sessionStoreClassName);
         } catch (Exception e) {
@@ -189,6 +190,11 @@ public class Dobby {
         }
 
         try {
+            final DobbyEntryPoint entryPoint = injectorService.getInstanceNullable(DobbyEntryPoint.class);
+            if (entryPoint != null) {
+                entryPoint.preStart();
+                return;
+            }
             ((DobbyEntryPoint) getMainClass().getDeclaredConstructor().newInstance()).preStart();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
@@ -202,6 +208,11 @@ public class Dobby {
         }
 
         try {
+            final DobbyEntryPoint entryPoint = injectorService.getInstanceNullable(DobbyEntryPoint.class);
+            if (entryPoint != null) {
+                entryPoint.postStart();
+                return;
+            }
             ((DobbyEntryPoint) getMainClass().getDeclaredConstructor().newInstance()).postStart();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {

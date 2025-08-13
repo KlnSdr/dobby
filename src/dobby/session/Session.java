@@ -1,27 +1,15 @@
 package dobby.session;
 
-import common.inject.annotations.Inject;
-import common.inject.annotations.RegisterFor;
-import dobby.session.service.ISessionService;
-import dobby.session.service.SessionService;
-
 import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * The Session class is used to store session data
  */
-@RegisterFor(ISession.class)
-public class Session implements Serializable, ISession {
+public class Session implements Serializable {
     private final HashMap<String, String> session = new HashMap<>();
     private String id;
     private long lastAccessed;
-    private final ISessionService sessionService;
-
-    @Inject
-    public Session(ISessionService sessionService) {
-        this.sessionService = sessionService;
-    }
 
     public String getId() {
         return id;
@@ -69,9 +57,6 @@ public class Session implements Serializable, ISession {
      * Destroys the session
      */
     public void destroy() {
-        if (sessionService != null) {
-            sessionService.remove(this);
-        }
         session.clear();
         setId(null);
     }

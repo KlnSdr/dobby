@@ -30,10 +30,15 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>>,
     private Tupel<Class<?>, String>[] staticContentPath;
     private int maxFileAge;
     private final IExternalDocRootService externalDocRootService;
+    private final ISchedulerService schedulerService;
 
     @Inject
     public StaticFileService(ISchedulerService schedulerService, IExternalDocRootService externalDocRootService) {
         this.externalDocRootService = externalDocRootService;
+        this.schedulerService = schedulerService;
+    }
+
+    public void init() {
         Config config = Config.getInstance();
 
         if (config.getBoolean("dobby.staticContent.disable")) {
