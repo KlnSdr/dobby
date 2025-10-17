@@ -153,7 +153,6 @@ public class Dobby {
             } else {
                 sessionService.setSessionStore(sessionStore);
             }
-            sessionService.setSessionStore(sessionStore);
             LOGGER.info("registered session store: " + sessionStoreClassName);
         } catch (Exception e) {
             LOGGER.error("invalid session store class: " + sessionStoreClassName);
