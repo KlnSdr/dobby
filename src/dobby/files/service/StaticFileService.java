@@ -3,6 +3,7 @@ package dobby.files.service;
 import common.inject.annotations.Inject;
 import common.inject.annotations.RegisterFor;
 import dobby.Dobby;
+import dobby.IConfig;
 import dobby.files.StaticFile;
 import dobby.observer.Event;
 import dobby.observer.EventType;
@@ -31,16 +32,16 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>>,
     private int maxFileAge;
     private final IExternalDocRootService externalDocRootService;
     private final ISchedulerService schedulerService;
+    private final IConfig config;
 
     @Inject
-    public StaticFileService(ISchedulerService schedulerService, IExternalDocRootService externalDocRootService) {
+    public StaticFileService(ISchedulerService schedulerService, IExternalDocRootService externalDocRootService, IConfig config) {
         this.externalDocRootService = externalDocRootService;
         this.schedulerService = schedulerService;
+        this.config = config;
     }
 
     public void init() {
-        Config config = Config.getInstance();
-
         if (config.getBoolean("dobby.staticContent.disable")) {
             return;
         }

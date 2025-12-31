@@ -1,6 +1,8 @@
 package dobby;
 
 import common.inject.InjectorService;
+import common.inject.annotations.Inject;
+import common.inject.annotations.RegisterFor;
 import dobby.exceptions.MalformedJsonException;
 import dobby.exceptions.RequestTooBigException;
 import dobby.files.service.IStaticFileService;
@@ -34,13 +36,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * The Server class is used to start the server
  */
+@RegisterFor(Dobby.class)
 public class Dobby {
     private static final String version = "2.3-snapshot";
     public static final int DEFAULT_MAX_REQUEST_SIZE = 1024 * 1024 * 10;
     private static Class<?> applicationClass;
     private static final Logger LOGGER = new Logger(Dobby.class);
-    private final Date startTime;
-    private final String serverMode;
+    private Date startTime;
+    private String serverMode;
     private ServerSocket server;
     private ExecutorService threadPool;
     private boolean isRunning = false;
@@ -48,17 +51,46 @@ public class Dobby {
     private final ISchedulerService schedulerService;
     private final IFilterManager filterManager;
     private static final InjectorService injectorService = InjectorService.getInstance();
+    private Integer port = null;
+    private Integer threadCount = null;
+    private final IConfig config;
 
     public static String getVersion() {
         return version;
     }
 
-    private Dobby(int port, int threadCount, Date startTime, ISchedulerService schedulerService, IFilterManager filterManager) {
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    @Inject
+    public Dobby(ISchedulerService schedulerService, IFilterManager filterManager, IConfig config) {
         this.schedulerService = schedulerService;
         this.filterManager = filterManager;
+        this.config = config;
+    }
 
-        this.startTime = startTime;
-        serverMode = Config.getInstance().getString("dobby.mode", "http").toLowerCase();
+    public void initialize() {
+        printBanner();
+        System.out.println("[" + config.getString("application.name", "<APP_NAME>") + "@" + config.getString(
+                "application.version", "<APP_VERSION>") + "]");
+        System.out.println();
+
+        setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
+
+        runPreStart();
+
+        final ISessionService sessionService = injectorService.getInstance(ISessionService.class);
+
+        configureSessionStore(sessionService);
+
+        injectorService.getInstance(IStaticFileService.class).init(); // initialize StaticFileService to start cleanup scheduler right at start
+        this.port = config.getInt("dobby.port", 3000);
+        this.threadCount = config.getInt("dobby.threads", 10);
+    }
+
+    public void run() {
+        serverMode = config.getString("dobby.mode", "http").toLowerCase();
         if (!serverMode.equals("http") && !serverMode.equals("pure")) {
             LOGGER.error("invalid server mode: " + serverMode);
             System.exit(1);
@@ -80,7 +112,7 @@ public class Dobby {
             discoverRouteDefinitions();
             LOGGER.info("done!");
 
-            if (!Config.getInstance().getBoolean("dobby.disableFilters")) {
+            if (!config.getBoolean("dobby.disableFilters")) {
                 LOGGER.info("Discovering filters...");
                 discoverFilterDefinitions();
             }
@@ -105,27 +137,14 @@ public class Dobby {
      * @param applicationClass The main entry point of the application
      */
     public static void startApplication(Class<?> applicationClass) {
-        final InjectorService injectorService = InjectorService.getInstance();
-        final Date startTime = new Date();
         Dobby.applicationClass = applicationClass;
-        printBanner();
-        Config config = Config.getInstance();
+        final Dobby dobby = injectorService.getInstance(Dobby.class);
 
-        System.out.println("[" + config.getString("application.name", "<APP_NAME>") + "@" + config.getString(
-                "application.version", "<APP_VERSION>") + "]");
-        System.out.println();
+        final Date startTime = new Date();
+        dobby.setStartTime(startTime);
 
-        setLogLevel(config.getString("dobby.logLevel", "DEBUG"));
-
-        runPreStart();
-
-        final ISessionService sessionService = injectorService.getInstance(ISessionService.class);
-
-        configureSessionStore(config, sessionService);
-
-        injectorService.getInstance(IStaticFileService.class).init(); // initialize StaticFileService to start cleanup scheduler right at start
-
-        new Dobby(config.getInt("dobby.port", 3000), config.getInt("dobby.threads", 10), startTime, injectorService.getInstance(ISchedulerService.class), injectorService.getInstance(IFilterManager.class));
+        dobby.initialize();
+        dobby.run();
     }
 
     private static void setLogLevel(String logLevelString) {
@@ -138,7 +157,7 @@ public class Dobby {
         Logger.setMaxLogLevel(logLevel);
     }
 
-    private static void configureSessionStore(Config config, ISessionService sessionService) {
+    private void configureSessionStore(ISessionService sessionService) {
         final String sessionStoreClassName = config.getString("dobby.session.store", "dobby.session.DefaultSessionStore");
 
         try {
@@ -170,7 +189,7 @@ public class Dobby {
         return applicationClass;
     }
 
-    private static void printBanner() {
+    private void printBanner() {
         System.out.println("########   #######  ########  ########  ##    ##");
         System.out.println("##     ## ##     ## ##     ## ##     ##  ##  ##");
         System.out.println("##     ## ##     ## ##     ## ##     ##   ####");
@@ -183,7 +202,7 @@ public class Dobby {
         System.out.println();
     }
 
-    private static void runPreStart() {
+    private void runPreStart() {
         if (!DobbyEntryPoint.class.isAssignableFrom(getMainClass())) {
             return;
         }
@@ -201,7 +220,7 @@ public class Dobby {
         }
     }
 
-    private static void runPostStart() {
+    private void runPostStart() {
         if (!DobbyEntryPoint.class.isAssignableFrom(getMainClass())) {
             return;
         }
@@ -304,7 +323,7 @@ public class Dobby {
             res.setCode(ResponseCodes.CONTENT_TOO_LARGE);
 
             final NewJson json = new NewJson();
-            json.setString("msg", "Request body too large. Max size: " + Config.getInstance().getInt("dobby.maxRequestSize", DEFAULT_MAX_REQUEST_SIZE) + " bytes");
+            json.setString("msg", "Request body too large. Max size: " + config.getInt("dobby.maxRequestSize", DEFAULT_MAX_REQUEST_SIZE) + " bytes");
             res.setBody(json);
             res.send();
             return;

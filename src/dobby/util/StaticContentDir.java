@@ -1,10 +1,19 @@
 package dobby.util;
 
-import dobby.Config;
+import common.inject.annotations.Inject;
+import common.inject.annotations.RegisterFor;
+import dobby.IConfig;
 
+@RegisterFor(StaticContentDir.class)
 public class StaticContentDir {
-    public static void appendToContentDir(Class<?> baseClass, String location) {
-        final Config config = Config.getInstance();
+    private final IConfig config;
+
+    @Inject
+    public StaticContentDir(IConfig config) {
+        this.config = config;
+    }
+
+    public void appendToContentDir(Class<?> baseClass, String location) {
         final String staticContentDirKey = "dobby.staticContent.directory";
         String currentConfig = config.getString(staticContentDirKey, "");
 

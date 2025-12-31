@@ -1,6 +1,10 @@
 package dobby.io.request;
 
+import common.inject.InjectorService;
+import common.inject.annotations.Inject;
+import common.inject.annotations.RegisterFor;
 import dobby.Config;
+import dobby.IConfig;
 import dobby.cookie.Cookie;
 import dobby.exceptions.MalformedJsonException;
 import dobby.exceptions.RequestTooBigException;
@@ -15,7 +19,6 @@ import static dobby.Dobby.DEFAULT_MAX_REQUEST_SIZE;
 
 public class Request {
     private static final Logger LOGGER = new Logger(Request.class);
-    private static final int MAX_REQUEST_SIZE = Config.getInstance().getInt("dobby.maxRequestSize", DEFAULT_MAX_REQUEST_SIZE);
     private final HashMap<String, Cookie> cookies = new HashMap<>();
     private final Map<String, String> pathParams = new HashMap<>();
     private final Map<String, File> files = new HashMap<>();
@@ -25,6 +28,8 @@ public class Request {
     private NewJson body;
     private Map<String, String> headers;
     private Map<String, List<String>> query;
+    private static int MAX_REQUEST_SIZE;
+    private static IConfig config;
 
     /**
      * Parses a request from an input stream
@@ -33,6 +38,10 @@ public class Request {
      * @return The parsed request
      */
     public static Request parse(InputStream in) throws MalformedJsonException {
+        // TODO: make this cleaner
+        config = InjectorService.getInstance().getInstance(IConfig.class);
+        MAX_REQUEST_SIZE = config.getInt("dobby.maxRequestSize", DEFAULT_MAX_REQUEST_SIZE);
+
         final Request req = new Request();
 
         final List<String> lines = consumeInputStream(in);
@@ -222,7 +231,7 @@ public class Request {
     private static File saveFile(byte[] data) {
         final String tmpFileName = UUID.randomUUID().toString();
 
-        final File file = new File(Config.getInstance().getString("dobby.tmpUploadDir", "/tmp") + "/" + tmpFileName);
+        final File file = new File(config.getString("dobby.tmpUploadDir", "/tmp") + "/" + tmpFileName);
         if (!file.exists()) {
             try {
                 file.createNewFile();

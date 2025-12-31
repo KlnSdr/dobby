@@ -1,6 +1,8 @@
 package dobby.files.service;
 
+import common.inject.annotations.Inject;
 import common.inject.annotations.RegisterFor;
+import dobby.IConfig;
 import dobby.files.StaticFile;
 import dobby.Config;
 
@@ -12,8 +14,9 @@ import static dobby.files.service.StaticFileService.determineContentType;
 public class ExternalDocRootService implements IExternalDocRootService {
     private static String docRootPath = null;
 
-    public ExternalDocRootService() {
-        docRootPath = Config.getInstance().getString("dobby.staticContent.externalDocRoot", null);
+    @Inject
+    public ExternalDocRootService(IConfig config) {
+        docRootPath = config.getString("dobby.staticContent.externalDocRoot", null);
     }
 
     public StaticFile get(String path) {

@@ -1,8 +1,9 @@
 package dobby.task;
 
+import common.inject.annotations.Inject;
 import common.inject.annotations.RegisterFor;
-import dobby.Config;
 import common.logger.Logger;
+import dobby.IConfig;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -14,8 +15,11 @@ import java.util.concurrent.TimeUnit;
 public class SchedulerService implements ISchedulerService {
     private final ArrayList<ScheduledExecutorService> schedulers = new ArrayList<>();
     private static final Logger LOGGER = new Logger(SchedulerService.class);
+    private final IConfig config;
 
-    public SchedulerService() {
+    @Inject
+    public SchedulerService(IConfig config) {
+        this.config = config;
     }
 
     public void addRepeating(Runnable task, int interval, TimeUnit unit) {
@@ -33,6 +37,6 @@ public class SchedulerService implements ISchedulerService {
     }
 
     private boolean isDisabled() {
-        return Config.getInstance().getBoolean("dobby.scheduler.disabled", false);
+        return config.getBoolean("dobby.scheduler.disabled", false);
     }
 }
