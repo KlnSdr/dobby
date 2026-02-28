@@ -1,7 +1,7 @@
 package dobby.routes;
 
-import common.inject.annotations.Inject;
-import common.inject.annotations.RegisterFor;
+import common.inject.api.Inject;
+import common.inject.api.RegisterFor;
 import dobby.DefaultHandler.MethodNotSupportedHandler;
 import dobby.DefaultHandler.StaticFileHandler;
 import dobby.files.service.IStaticFileService;
