@@ -20,6 +20,11 @@
         "group": "dobby",
         "name": "dobby-config",
         "version": "1.2-snapshot"
+      },
+      {
+        "group": "common",
+        "name": "logger",
+        "version": "1.2-snapshot"
       }
     ]
   },
