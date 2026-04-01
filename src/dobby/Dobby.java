@@ -208,6 +208,11 @@ public class Dobby {
         }
 
         try {
+            final DobbyEntryPoint main = (DobbyEntryPoint) injectorService.getInstanceNullable(getMainClass());
+            if (main != null) {
+                main.preStart();
+                return;
+            }
             final DobbyEntryPoint entryPoint = injectorService.getInstanceNullable(DobbyEntryPoint.class);
             if (entryPoint != null) {
                 entryPoint.preStart();
@@ -226,6 +231,11 @@ public class Dobby {
         }
 
         try {
+            final DobbyEntryPoint main = (DobbyEntryPoint) injectorService.getInstanceNullable(getMainClass());
+            if (main != null) {
+                main.postStart();
+                return;
+            }
             final DobbyEntryPoint entryPoint = injectorService.getInstanceNullable(DobbyEntryPoint.class);
             if (entryPoint != null) {
                 entryPoint.postStart();
