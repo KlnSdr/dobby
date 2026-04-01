@@ -7,9 +7,12 @@
       "nyx push"
     ],
     "release": [
-      "nyx build",
+      "mkdir ~/.nyx",
       "printf 'https://repo.klnsdr.com\\n${NYX_REPO_KLNSDR_COM_PASSWORD}' | nyx login",
-      "nyx push"
+      "nyx release",
+      "nyx build",
+      "nyx push",
+      "nyx snapshot"
     ]
   }
 }
