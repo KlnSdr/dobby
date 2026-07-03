@@ -2,6 +2,7 @@ package dobby.io.response;
 
 import dobby.cookie.Cookie;
 import dobby.files.StaticFile;
+import dobby.io.dto.Serializer;
 import dobby.util.json.NewJson;
 
 import java.io.ByteArrayOutputStream;
@@ -100,6 +101,10 @@ public class Response {
         headers.put("content-type", List.of("application/json"));
     }
 
+    public void setBody(Object body) {
+        setBody(new Serializer().serialize(body));
+    }
+
     public void sendFile(StaticFile file) {
         if (file == null) {
             return;
@@ -131,7 +136,7 @@ public class Response {
         if (header.isEmpty()) {
             return null;
         }
-        return header.get(0);
+        return header.getFirst();
     }
 
     /**

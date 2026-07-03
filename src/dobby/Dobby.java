@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RegisterFor(Dobby.class)
 public class Dobby {
-    private static final String version = "2.3-snapshot";
+    private static final String version = "${PROJECT_VERSION}";
     public static final int DEFAULT_MAX_REQUEST_SIZE = 1024 * 1024 * 10;
     private static Class<?> applicationClass;
     private static final Logger LOGGER = new Logger(Dobby.class);
