@@ -25,6 +25,9 @@ public class Serializer implements ISerializer {
         final Field[] fields = object.getClass().getDeclaredFields();
         final NewJson json = new NewJson();
         for (Field field : fields) {
+            if (field.isAnnotationPresent(JsonIgnore.class)) {
+                continue;
+            }
             field.setAccessible(true);
             try {
                 final Object value = field.get(object);
@@ -60,6 +63,9 @@ public class Serializer implements ISerializer {
         final Field[] fields = object.getClass().getDeclaredFields();
         final NewJson json = new NewJson();
         for (Field field : fields) {
+            if (field.isAnnotationPresent(JsonIgnore.class)) {
+                continue;
+            }
             try {
                 field.setAccessible(true);
 
