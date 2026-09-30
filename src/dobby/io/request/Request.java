@@ -67,7 +67,7 @@ public class Request {
             throw new RequestTooBigException("Request body too large: " + contentLength + " bytes");
         }
 
-        if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT) {
+        if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT || req.getType() == RequestTypes.PATCH) {
             final String contentTypeHeader = req.getHeader("Content-Type");
             if (contentTypeHeader != null && contentTypeHeader.contains("application/json")) {
                 final byte[] bodyBytes = extractBodyBytes(in, contentLength);

@@ -1,10 +1,7 @@
 package dobby.routes;
 
 import common.inject.InjectorService;
-import dobby.annotations.Delete;
-import dobby.annotations.Get;
-import dobby.annotations.Post;
-import dobby.annotations.Put;
+import dobby.annotations.*;
 import dobby.io.HttpContext;
 import dobby.io.request.RequestTypes;
 import common.util.Classloader;
@@ -61,6 +58,10 @@ public class RouteDiscoverer extends Classloader<Object> {
             } else if (method.isAnnotationPresent(Put.class)) {
                 Put annotation = method.getAnnotation(Put.class);
                 routeManager.add(RequestTypes.PUT, annotation.value(),
+                        (ctx) -> method.invoke(getInstance(clazz), ctx));
+            } else if (method.isAnnotationPresent(Patch.class)) {
+                Patch annotation = method.getAnnotation(Patch.class);
+                routeManager.add(RequestTypes.PATCH, annotation.value(),
                         (ctx) -> method.invoke(getInstance(clazz), ctx));
             } else if (method.isAnnotationPresent(Delete.class)) {
                 Delete annotation = method.getAnnotation(Delete.class);
