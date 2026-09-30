@@ -2,6 +2,7 @@ package dobby.filter;
 
 public enum FilterOrder {
     // pre filters
+    CORS_PRE_FILTER(-1),
     CLEAN_ROUTES_PRE_FILTER(0),
     SESSION_PRE_FILTER(1),
     // post filters

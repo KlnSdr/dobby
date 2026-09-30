@@ -1,9 +1,6 @@
 package dobby.io.request;
 
 import common.inject.InjectorService;
-import common.inject.api.Inject;
-import common.inject.api.RegisterFor;
-import dobby.Config;
 import dobby.IConfig;
 import dobby.cookie.Cookie;
 import dobby.exceptions.MalformedJsonException;
@@ -73,7 +70,9 @@ public class Request {
         if (req.getType() == RequestTypes.POST || req.getType() == RequestTypes.PUT) {
             final String contentTypeHeader = req.getHeader("Content-Type");
             if (contentTypeHeader != null && contentTypeHeader.contains("application/json")) {
-                req.setRawBody(extractBodyLines(in, contentLength));
+                final byte[] bodyBytes = extractBodyBytes(in, contentLength);
+                req.setRawBody(bodyBytes);
+                req.setRawBody(new String(bodyBytes));
                 req.setBody(NewJson.parse(req.getRawBody()));
             } else if (contentTypeHeader != null && contentTypeHeader.contains("multipart/form-data")) {
                 req.setRawBody(extractBodyBytes(in, contentLength));
@@ -106,25 +105,6 @@ public class Request {
             }
         }
         return queryMap;
-    }
-
-    private static String extractBodyLines(InputStream in, int length) {
-        StringBuilder body = new StringBuilder();
-        final BufferedReader input = new BufferedReader(new InputStreamReader(in));
-        int bytesRead = 0;
-        while (true) {
-            try {
-                if (!input.ready() || bytesRead >= length) break;
-                body.append((char) input.read());
-                bytesRead++;
-                if (bytesRead >= MAX_REQUEST_SIZE) {
-                    throw new RequestTooBigException("Request body too large: " + bytesRead + " bytes");
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return body.toString();
     }
 
     private static byte[] extractBodyBytes(InputStream in, int length) {
@@ -271,7 +251,7 @@ public class Request {
                 final char c = (char) read;
                 if (c == '\n') {
                     lines.add(lineBuffer.toString());
-                    if (lineBuffer.length() == 0) {
+                    if (lineBuffer.isEmpty()) {
                         break;
                     }
                     lineBuffer = new StringBuilder();
@@ -279,7 +259,7 @@ public class Request {
                     lineBuffer.append(c);
                 }
             }
-            if (lineBuffer.length() > 0) {
+            if (!lineBuffer.isEmpty()) {
                 lines.add(lineBuffer.toString());
             }
             return lines;
