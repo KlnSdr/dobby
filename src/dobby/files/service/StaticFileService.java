@@ -33,6 +33,7 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>>,
     private final IExternalDocRootService externalDocRootService;
     private final ISchedulerService schedulerService;
     private final IConfig config;
+    private boolean cacheExternalDocRootFiles = false;
 
     @Inject
     public StaticFileService(ISchedulerService schedulerService, IExternalDocRootService externalDocRootService, IConfig config) {
@@ -45,6 +46,7 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>>,
         if (config.getBoolean("dobby.staticContent.disable")) {
             return;
         }
+        cacheExternalDocRootFiles = config.getBoolean("dobby.staticContent.cacheExternalDocRootFiles", false);
         maxFileAge = config.getInt("dobby.staticContent.maxFileAge", 5);
         staticContentPath = getAllStaticContentPaths(config.getString("dobby.staticContent.directory"));
         final int cleanupInterval = config.getInt("dobby.staticContent.cleanUpInterval", 30);
@@ -123,10 +125,13 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>>,
         StaticFile file;
 
         boolean fileNewlyAdded = false;
+        boolean fileFoundInExternalDocRoot = false;
         if (!files.containsKey(path)) {
             file = externalDocRootService.get(path);
             if (file == null) {
                 file = lookUpFile(path);
+            } else {
+                fileFoundInExternalDocRoot = true;
             }
             fileNewlyAdded = true;
         } else {
@@ -135,7 +140,9 @@ public class StaticFileService implements Observable<Tupel<String, StaticFile>>,
 
         if (file != null) {
             file.setLastAccessed(getCurrentTime());
-            storeFileNoEvent(path, file);
+            if (!fileFoundInExternalDocRoot || cacheExternalDocRootFiles) {
+                storeFileNoEvent(path, file);
+            }
 
             if (fileNewlyAdded) {
                 fireEvent(createEvent(path, file));

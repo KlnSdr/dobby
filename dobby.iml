@@ -8,8 +8,41 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="dobby-config-1.0" level="project" />
-    <orderEntry type="library" name="util-1.0-snapshot" level="project" />
-    <orderEntry type="library" name="inject-1.0-snapshot" level="project" />
+    <orderEntry type="module-library">
+      <library name="nyx: util:1.1">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.nyx/common/util/1.1/util-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="nyx: inject:1.1">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.nyx/common/inject/1.1/inject-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="nyx: dobby-config:1.2">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.nyx/dobby/dobby-config/1.2/dobby-config-1.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="nyx: logger:1.2">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.nyx/common/logger/1.2/logger-1.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
