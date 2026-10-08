@@ -23,7 +23,8 @@ public enum ResponseCodes {
     NOT_IMPLEMENTED(501, "Not Implemented"),
     BAD_GATEWAY(502, "Bad Gateway"),
     SERVICE_UNAVAILABLE(503, "Service Unavailable"),
-    GATEWAY_TIMEOUT(504, "Gateway Timeout");
+    GATEWAY_TIMEOUT(504, "Gateway Timeout"),
+    UNKNOWN_STATUS(0, "Unknown Status");
 
 
     private final int code;
@@ -32,6 +33,15 @@ public enum ResponseCodes {
     ResponseCodes(int code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public static ResponseCodes fromCode(int code) {
+        for (ResponseCodes responseCode : values()) {
+            if (responseCode.code == code) {
+                return responseCode;
+            }
+        }
+        return UNKNOWN_STATUS;
     }
 
     public int getCode() {

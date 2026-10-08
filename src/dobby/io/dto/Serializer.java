@@ -38,6 +38,7 @@ public class Serializer implements ISerializer {
                 switch (value) {
                     case String s -> json.setString(field.getName(), s);
                     case Integer i -> json.setInt(field.getName(), i);
+                    case Long l -> json.setInt(field.getName(), l.intValue());
                     case Double d -> json.setFloat(field.getName(), d);
                     case Float f -> json.setFloat(field.getName(), f);
                     case Boolean b -> json.setBoolean(field.getName(), b);
@@ -98,6 +99,7 @@ public class Serializer implements ISerializer {
             case Double ignored -> json.setList(key, list.stream().map(Double.class::cast).map(o -> (Object) o).toList());
             case Float ignored -> json.setList(key, list.stream().map(Float.class::cast).map(o -> (Object) o).toList());
             case Boolean ignored -> json.setList(key, list.stream().map(Boolean.class::cast).map(o -> (Object) o).toList());
+            case Long ignored -> json.setList(key, list.stream().map(Long.class::cast).map(Long::intValue).map(o -> (Object) o).toList());
             case UUID ignored -> json.setList(key, list.stream().map(UUID.class::cast).map(UUID::toString).map(o -> (Object) o).toList());
             default -> {
                 final List<Object> serializedList = list.stream()
